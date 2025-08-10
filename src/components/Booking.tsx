@@ -265,7 +265,8 @@ const Booking = () => {
           {serviceJustSelected && (
             <div className="mt-4 p-3 bg-green-100 border border-green-300 rounded-lg">
               <p className="text-green-700 font-medium">
-                ✅ Služba "{bookingForm.service}" byla automaticky vybrána!
+                ✅ Služba &quot;{bookingForm.service}&quot; byla automaticky
+                vybrána!
               </p>
             </div>
           )}

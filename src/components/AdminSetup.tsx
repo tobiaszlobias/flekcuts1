@@ -27,11 +27,14 @@ export default function AdminSetup() {
       await promoteToAdmin({ email: email.trim() });
       setMessage(`✅ Uživatel ${email} byl úspěšně povýšen na administrátora!`);
       setEmail("");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to promote user:", error);
-      if (error.message.includes("Only admins can promote users")) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+
+      if (errorMessage.includes("Only admins can promote users")) {
         setMessage("❌ Pouze administrátoři mohou povyšovat uživatele");
-      } else if (error.message.includes("User not found")) {
+      } else if (errorMessage.includes("User not found")) {
         setMessage("❌ Uživatel s tímto emailem nebyl nalezen");
       } else {
         setMessage("❌ Nepodařilo se povýšit uživatele");

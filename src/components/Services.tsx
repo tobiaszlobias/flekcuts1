@@ -1,17 +1,8 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Services = () => {
-  const router = useRouter();
-
   const services = [
     { name: "Fade", description: "Jakýkoliv střih od kůže", price: 350 },
     { name: "Klasický střih", description: "Střih do ztracena", price: 250 },
