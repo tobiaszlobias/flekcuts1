@@ -17,15 +17,15 @@ export default function UserAppointments() {
   };
 
   if (appointments === undefined) {
-    return <div className="p-4">Loading appointments...</div>;
+    return <div className="p-4">Načítání objednávek...</div>;
   }
 
   if (appointments.length === 0) {
     return (
       <div className="p-6 bg-white rounded-lg shadow-sm border">
-        <h2 className="text-xl font-semibold mb-4">Your Appointments</h2>
+        <h2 className="text-xl font-semibold mb-4">Vaše objednávky</h2>
         <p className="text-gray-600">
-          No appointments yet. Book your first appointment below!
+          Zatím nemáte žádné objednávky. Objednejte si svou první službu níže!
         </p>
       </div>
     );
@@ -33,7 +33,7 @@ export default function UserAppointments() {
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm border">
-      <h2 className="text-xl font-semibold mb-4">Your Appointments</h2>
+      <h2 className="text-xl font-semibold mb-4">Vaše objednávky</h2>
       <div className="space-y-4">
         {appointments.map((appointment) => (
           <div
@@ -50,15 +50,15 @@ export default function UserAppointments() {
               <div>
                 <h3 className="font-semibold">{appointment.service}</h3>
                 <p className="text-sm text-gray-600">
-                  {new Date(appointment.date).toLocaleDateString()} at{" "}
+                  {new Date(appointment.date).toLocaleDateString("cs-CZ")} v{" "}
                   {appointment.time}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Customer: {appointment.customerName}
+                  Zákazník: {appointment.customerName}
                 </p>
                 {appointment.notes && (
                   <p className="text-sm text-gray-600 mt-1">
-                    Notes: {appointment.notes}
+                    Poznámky: {appointment.notes}
                   </p>
                 )}
               </div>
@@ -72,15 +72,18 @@ export default function UserAppointments() {
                         : "bg-yellow-100 text-yellow-800"
                   }`}
                 >
-                  {appointment.status.charAt(0).toUpperCase() +
-                    appointment.status.slice(1)}
+                  {appointment.status === "cancelled"
+                    ? "Zrušeno"
+                    : appointment.status === "confirmed"
+                      ? "Potvrzeno"
+                      : "Čeká na potvrzení"}
                 </span>
                 {appointment.status === "pending" && (
                   <button
                     onClick={() => handleCancel(appointment._id)}
                     className="mt-2 text-red-600 hover:text-red-800 text-sm"
                   >
-                    Cancel
+                    Zrušit
                   </button>
                 )}
               </div>

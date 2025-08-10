@@ -1,12 +1,13 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import CustomDatePicker from "./CustomDatePicker";
 import {
   Select,
   SelectContent,
@@ -42,6 +43,7 @@ const Booking = () => {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serviceJustSelected, setServiceJustSelected] = useState(false);
 
   // Convex mutation to create appointment
   const createAppointment = useMutation(api.appointments.createAppointment);
@@ -57,26 +59,128 @@ const Booking = () => {
     { name: "Vlasy do ztracena + Vousy", price: 350 },
   ];
 
-  const timeSlots = [
-    "9:00",
-    "9:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "12:00",
-    "12:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-  ];
+  // Dynamic time slots based on selected date
+  const getTimeSlots = (selectedDate: string) => {
+    if (!selectedDate) return [];
+
+    const date = new Date(selectedDate + "T00:00:00");
+    const dayOfWeek = date.getDay();
+
+    const timeSlots = {
+      1: [
+        "9:00",
+        "9:30",
+        "10:00",
+        "10:30",
+        "11:00",
+        "11:30",
+        "13:00",
+        "13:30",
+        "14:00",
+        "14:30",
+        "15:00",
+        "15:30",
+        "16:00",
+        "16:30",
+      ], // Monday
+      2: [
+        "9:00",
+        "9:30",
+        "10:00",
+        "10:30",
+        "11:00",
+        "11:30",
+        "13:00",
+        "13:30",
+        "14:00",
+        "14:30",
+        "15:00",
+        "15:30",
+        "16:00",
+        "16:30",
+      ], // Tuesday
+      3: [
+        "9:00",
+        "9:30",
+        "10:00",
+        "10:30",
+        "11:00",
+        "11:30",
+        "13:00",
+        "13:30",
+        "14:00",
+        "14:30",
+        "15:00",
+        "15:30",
+        "16:00",
+        "16:30",
+      ], // Wednesday
+      4: [
+        "13:00",
+        "13:30",
+        "14:00",
+        "14:30",
+        "15:00",
+        "15:30",
+        "16:00",
+        "16:30",
+        "17:00",
+        "17:30",
+        "18:00",
+        "18:30",
+        "19:00",
+        "19:30",
+        "20:00",
+        "20:30",
+      ], // Thursday
+      5: [
+        "9:00",
+        "9:30",
+        "10:00",
+        "10:30",
+        "11:00",
+        "11:30",
+        "13:00",
+        "13:30",
+        "14:00",
+        "14:30",
+        "15:00",
+        "15:30",
+        "16:00",
+        "16:30",
+      ], // Friday
+    };
+
+    return timeSlots[dayOfWeek as keyof typeof timeSlots] || [];
+  };
+
+  const availableTimeSlots = getTimeSlots(bookingForm.date);
+
+  // Listen for service pre-selection from Services component
+  useEffect(() => {
+    const handleServicePreSelection = (event: CustomEvent) => {
+      const { serviceName } = event.detail;
+      setBookingForm((prev) => ({ ...prev, service: serviceName }));
+      setServiceJustSelected(true);
+
+      // Clear the highlight after 3 seconds
+      setTimeout(() => {
+        setServiceJustSelected(false);
+      }, 3000);
+    };
+
+    window.addEventListener(
+      "preSelectService",
+      handleServicePreSelection as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "preSelectService",
+        handleServicePreSelection as EventListener
+      );
+    };
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -158,6 +262,13 @@ const Booking = () => {
           <p className="text-xl text-gray-600">
             Naplánujte si návštěvu u našich zkušených holičů
           </p>
+          {serviceJustSelected && (
+            <div className="mt-4 p-3 bg-green-100 border border-green-300 rounded-lg">
+              <p className="text-green-700 font-medium">
+                ✅ Služba "{bookingForm.service}" byla automaticky vybrána!
+              </p>
+            </div>
+          )}
         </div>
 
         <Card className="rounded-xl border-0 shadow-lg">
@@ -208,7 +319,13 @@ const Booking = () => {
                   onValueChange={(value) => handleInputChange("service", value)}
                 >
                   <SelectTrigger
-                    className={`mt-2 rounded-lg ${errors.service ? "border-red-500" : "border-gray-300"}`}
+                    className={`mt-2 rounded-lg transition-all duration-300 ${
+                      errors.service
+                        ? "border-red-500"
+                        : serviceJustSelected
+                          ? "border-green-500 bg-green-50"
+                          : "border-gray-300"
+                    }`}
                   >
                     <SelectValue placeholder="Vyberte službu" />
                   </SelectTrigger>
@@ -230,13 +347,16 @@ const Booking = () => {
                   <Label htmlFor="date" className="text-gray-700 font-medium">
                     Preferované datum
                   </Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={bookingForm.date}
-                    onChange={(e) => handleInputChange("date", e.target.value)}
-                    className={`mt-2 rounded-lg ${errors.date ? "border-red-500" : "border-gray-300"}`}
-                    min={new Date().toISOString().split("T")[0]}
+                  <CustomDatePicker
+                    selectedDate={bookingForm.date}
+                    onDateSelect={(date) => {
+                      handleInputChange("date", date);
+                      // Reset time when date changes since available times vary by day
+                      if (bookingForm.time) {
+                        handleInputChange("time", "");
+                      }
+                    }}
+                    error={errors.date}
                   />
                   {errors.date && (
                     <p className="text-red-500 text-sm mt-1">{errors.date}</p>
@@ -250,22 +370,46 @@ const Booking = () => {
                   <Select
                     value={bookingForm.time}
                     onValueChange={(value) => handleInputChange("time", value)}
+                    disabled={!bookingForm.date}
                   >
                     <SelectTrigger
-                      className={`mt-2 rounded-lg ${errors.time ? "border-red-500" : "border-gray-300"}`}
+                      className={`mt-2 rounded-lg ${
+                        errors.time
+                          ? "border-red-500"
+                          : !bookingForm.date
+                            ? "border-gray-200 bg-gray-50"
+                            : "border-gray-300"
+                      }`}
                     >
-                      <SelectValue placeholder="Vyberte čas" />
+                      <SelectValue
+                        placeholder={
+                          !bookingForm.date
+                            ? "Nejprve vyberte datum"
+                            : "Vyberte čas"
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      {timeSlots.map((time, index) => (
-                        <SelectItem key={index} value={time}>
-                          {time}
+                      {availableTimeSlots.length > 0 ? (
+                        availableTimeSlots.map((time, index) => (
+                          <SelectItem key={index} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))
+                      ) : bookingForm.date ? (
+                        <SelectItem value="" disabled>
+                          Žádné dostupné časy
                         </SelectItem>
-                      ))}
+                      ) : null}
                     </SelectContent>
                   </Select>
                   {errors.time && (
                     <p className="text-red-500 text-sm mt-1">{errors.time}</p>
+                  )}
+                  {bookingForm.date && availableTimeSlots.length === 0 && (
+                    <p className="text-amber-600 text-sm mt-1">
+                      V tento den není otevřeno
+                    </p>
                   )}
                 </div>
               </div>
