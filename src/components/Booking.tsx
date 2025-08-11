@@ -2,12 +2,15 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { Doc } from "../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import CustomDatePicker from "./CustomDatePicker";
+import { toast } from "sonner";
+import { SignInButton } from "@clerk/nextjs";
 import {
   Select,
   SelectContent,
@@ -20,6 +23,7 @@ import { Card, CardContent } from "@/components/ui/card";
 interface BookingForm {
   name: string;
   email: string;
+  phone: string; // Added phone for anonymous bookings
   date: string;
   time: string;
   service: string;
@@ -28,15 +32,87 @@ interface BookingForm {
 interface FormErrors {
   name?: string;
   email?: string;
+  phone?: string;
   date?: string;
   time?: string;
   service?: string;
 }
 
-const Booking = () => {
+interface BookingProps {
+  isAuthenticated?: boolean;
+}
+
+const formatPhoneNumber = (value: string): string => {
+  // Remove all non-digits
+  const numbers = value.replace(/\D/g, "");
+
+  // Don't format if too short (let user type)
+  if (numbers.length <= 3) {
+    return numbers;
+  }
+
+  // If starts with 420 or 421, format as international
+  if (numbers.startsWith("420") || numbers.startsWith("421")) {
+    const countryCode = numbers.substring(0, 3);
+    const rest = numbers.substring(3);
+
+    if (rest.length === 0) return `+${countryCode}`;
+    if (rest.length <= 3) return `+${countryCode} ${rest}`;
+    if (rest.length <= 6)
+      return `+${countryCode} ${rest.substring(0, 3)} ${rest.substring(3)}`;
+    if (rest.length <= 9)
+      return `+${countryCode} ${rest.substring(0, 3)} ${rest.substring(3, 6)} ${rest.substring(6)}`;
+
+    // Limit to 9 digits after country code
+    return `+${countryCode} ${rest.substring(0, 3)} ${rest.substring(3, 6)} ${rest.substring(6, 9)}`;
+  }
+
+  // If starts with 0 (local Czech/Slovak number), assume Czech (+420)
+  if (numbers.startsWith("0")) {
+    const localNumber = numbers.substring(1);
+
+    if (localNumber.length === 0) return "0";
+    if (localNumber.length <= 3) return `+420 ${localNumber}`;
+    if (localNumber.length <= 6)
+      return `+420 ${localNumber.substring(0, 3)} ${localNumber.substring(3)}`;
+    if (localNumber.length <= 9)
+      return `+420 ${localNumber.substring(0, 3)} ${localNumber.substring(3, 6)} ${localNumber.substring(6)}`;
+
+    // Limit to 9 digits
+    return `+420 ${localNumber.substring(0, 3)} ${localNumber.substring(3, 6)} ${localNumber.substring(6, 9)}`;
+  }
+
+  // Progressive formatting for numbers being typed (assume Czech)
+  if (numbers.length <= 9) {
+    if (numbers.length <= 3) return `+420 ${numbers}`;
+    if (numbers.length <= 6)
+      return `+420 ${numbers.substring(0, 3)} ${numbers.substring(3)}`;
+    return `+420 ${numbers.substring(0, 3)} ${numbers.substring(3, 6)} ${numbers.substring(6)}`;
+  }
+
+  // For international numbers
+  if (numbers.length >= 10) {
+    return `+${numbers}`;
+  }
+
+  return value;
+};
+
+const validatePhoneNumber = (phone: string): boolean => {
+  const numbers = phone.replace(/\D/g, "");
+  // Accept Czech (+420) and Slovak (+421) numbers (9 digits after country code)
+  return (
+    (numbers.startsWith("420") && numbers.length === 12) ||
+    (numbers.startsWith("421") && numbers.length === 12) ||
+    (numbers.length >= 10 && numbers.length <= 15) // International fallback
+  );
+};
+
+const Booking = ({ isAuthenticated = false }: BookingProps) => {
   const [bookingForm, setBookingForm] = useState<BookingForm>({
     name: "",
     email: "",
+    phone: "",
     date: "",
     time: "",
     service: "",
@@ -45,8 +121,18 @@ const Booking = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serviceJustSelected, setServiceJustSelected] = useState(false);
 
-  // Convex mutation to create appointment
+  // Convex mutations
   const createAppointment = useMutation(api.appointments.createAppointment);
+  const createAnonymousAppointment = useMutation(
+    api.appointments.createAnonymousAppointment
+  );
+
+  const appointmentsForDate = useQuery(
+    api.appointments.getAppointmentsByDate,
+    bookingForm.date ? { date: bookingForm.date } : "skip"
+  );
+
+  const bookedTimes = appointmentsForDate?.map((apt: Doc<"appointments">) => apt.time) || [];
 
   const services = [
     { name: "Fade", price: 350 },
@@ -195,6 +281,24 @@ const Booking = () => {
       newErrors.email = "Neplatný formát emailu";
     }
 
+    // Enhanced phone validation for anonymous bookings
+    if (!isAuthenticated) {
+      if (!bookingForm.phone.trim()) {
+        newErrors.phone = "Telefon je povinný";
+      } else {
+        const numbers = bookingForm.phone.replace(/\D/g, "");
+
+        if (numbers.length < 9) {
+          newErrors.phone = "Telefonní číslo je příliš krátké";
+        } else if (numbers.length > 15) {
+          newErrors.phone = "Telefonní číslo je příliš dlouhé";
+        } else if (!validatePhoneNumber(bookingForm.phone)) {
+          newErrors.phone =
+            "Neplatné telefonní číslo (použijte formát +420 123 456 789)";
+        }
+      }
+    }
+
     if (!bookingForm.service) {
       newErrors.service = "Služba je povinná";
     }
@@ -211,7 +315,6 @@ const Booking = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Updated submit handler using Convex
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -222,24 +325,47 @@ const Booking = () => {
     setIsSubmitting(true);
 
     try {
-      // Create appointment using Convex
-      await createAppointment({
-        customerName: bookingForm.name,
-        customerEmail: bookingForm.email,
-        service: bookingForm.service,
-        date: bookingForm.date,
-        time: bookingForm.time,
-      });
+      if (isAuthenticated) {
+        // Create appointment linked to authenticated user
+        await createAppointment({
+          customerName: bookingForm.name,
+          customerEmail: bookingForm.email,
+          service: bookingForm.service,
+          date: bookingForm.date,
+          time: bookingForm.time,
+        });
+      } else {
+        // Create anonymous appointment
+        await createAnonymousAppointment({
+          customerName: bookingForm.name,
+          customerEmail: bookingForm.email,
+          customerPhone: bookingForm.phone,
+          service: bookingForm.service,
+          date: bookingForm.date,
+          time: bookingForm.time,
+        });
+      }
 
-      alert(
+      toast.success(
         "Objednávka byla úspěšně odeslána! Budeme vás kontaktovat pro potvrzení termínu."
       );
 
       // Clear the form
-      setBookingForm({ name: "", email: "", date: "", time: "", service: "" });
-    } catch (error) {
+      setBookingForm({
+        name: "",
+        email: "",
+        phone: "",
+        date: "",
+        time: "",
+        service: "",
+      });
+    } catch (error: any) {
       console.error("Error creating booking:", error);
-      alert("Nepodařilo se odeslat objednávku. Zkuste to prosím znovu.");
+      if (error.message?.includes("An appointment already exists at this time.")) {
+        toast.error("Tento termín je již obsazen. Zvolte prosím jiný čas.");
+      } else {
+        toast.error("Nepodařilo se odeslat objednávku. Zkuste to prosím znovu.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -260,8 +386,21 @@ const Booking = () => {
             Objednejte si termín
           </h2>
           <p className="text-xl text-gray-600">
-            Naplánujte si návštěvu u našich zkušených holičů
+            Dopřejte si profesionální péči
           </p>
+          {!isAuthenticated && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-blue-700 text-sm">
+                💡 Tip:{" "}
+                <SignInButton mode="modal">
+                  <button className="text-blue-600 hover:text-blue-800 underline font-medium">
+                    Přihlaste se
+                  </button>
+                </SignInButton>{" "}
+                pro sledování vašich objednávek
+              </p>
+            </div>
+          )}
           {serviceJustSelected && (
             <div className="mt-4 p-3 bg-green-100 border border-green-300 rounded-lg">
               <p className="text-green-700 font-medium">
@@ -278,7 +417,7 @@ const Booking = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="name" className="text-gray-700 font-medium">
-                    Celé jméno
+                    Celé jméno <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="name"
@@ -295,7 +434,7 @@ const Booking = () => {
 
                 <div>
                   <Label htmlFor="email" className="text-gray-700 font-medium">
-                    Email
+                    Email <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="email"
@@ -311,9 +450,55 @@ const Booking = () => {
                 </div>
               </div>
 
+              {/* Phone field only for anonymous users - ENHANCED VERSION */}
+              {!isAuthenticated && (
+                <div>
+                  <Label htmlFor="phone" className="text-gray-700 font-medium">
+                    Telefon <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={bookingForm.phone}
+                    onChange={(e) => {
+                      const formatted = formatPhoneNumber(e.target.value);
+                      handleInputChange("phone", formatted);
+                    }}
+                    className={`mt-2 rounded-lg transition-colors ${
+                      errors.phone
+                        ? "border-red-500 focus:border-red-500"
+                        : bookingForm.phone &&
+                            validatePhoneNumber(bookingForm.phone)
+                          ? "border-green-500 focus:border-green-500"
+                          : "border-gray-300"
+                    }`}
+                    placeholder="+420 123 456 789"
+                    maxLength={17}
+                  />
+                  {errors.phone && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center">
+                      <span className="mr-1">⚠️</span>
+                      {errors.phone}
+                    </p>
+                  )}
+                  {bookingForm.phone &&
+                    !errors.phone &&
+                    validatePhoneNumber(bookingForm.phone) && (
+                      <p className="text-green-600 text-sm mt-1 flex items-center">
+                        <span className="mr-1">✅</span>
+                        Platné telefonní číslo
+                      </p>
+                    )}
+                  <p className="text-gray-500 text-xs mt-1">
+                    Formáty: 123 456 789, 0123 456 789, +420 123 456 789, +421
+                    123 456 789
+                  </p>
+                </div>
+              )}
+
               <div>
                 <Label htmlFor="service" className="text-gray-700 font-medium">
-                  Služba
+                  Služba <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={bookingForm.service}
@@ -346,7 +531,7 @@ const Booking = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="date" className="text-gray-700 font-medium">
-                    Preferované datum
+                    Preferované datum <span className="text-red-500">*</span>
                   </Label>
                   <CustomDatePicker
                     selectedDate={bookingForm.date}
@@ -366,7 +551,7 @@ const Booking = () => {
 
                 <div>
                   <Label htmlFor="time" className="text-gray-700 font-medium">
-                    Preferovaný čas
+                    Preferovaný čas <span className="text-red-500">*</span>
                   </Label>
                   <Select
                     value={bookingForm.time}
@@ -392,15 +577,18 @@ const Booking = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {availableTimeSlots.length > 0 ? (
-                        availableTimeSlots.map((time, index) => (
-                          <SelectItem key={index} value={time}>
-                            {time}
-                          </SelectItem>
-                        ))
+                        availableTimeSlots.map((time, index) => {
+                          const isBooked = bookedTimes.includes(time);
+                          return (
+                            <SelectItem key={index} value={time} disabled={isBooked}>
+                              {time} {isBooked && "(Obsazeno)"}
+                            </SelectItem>
+                          );
+                        })
                       ) : bookingForm.date ? (
-                        <SelectItem value="" disabled>
+                        <div className="text-center text-gray-500 py-2">
                           Žádné dostupné časy
-                        </SelectItem>
+                        </div>
                       ) : null}
                     </SelectContent>
                   </Select>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { MapPin, Phone, Clock, ExternalLink } from "lucide-react";
+import { SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 const Footer = () => {
   const openingHours = [
@@ -129,6 +130,31 @@ const Footer = () => {
                 <MapPin className="w-4 h-4" />
                 Navigace
               </button>
+
+              <SignedIn>
+                <button
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent("viewChange", { detail: "dashboard" }));
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition-colors font-medium"
+                >
+                  Moje objednávky
+                </button>
+              </SignedIn>
+
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg transition-colors font-medium">
+                    Přihlásit se
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg transition-colors font-medium">
+                    Registrovat se
+                  </button>
+                </SignUpButton>
+              </SignedOut>
             </div>
           </div>
         </div>

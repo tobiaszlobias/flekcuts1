@@ -16,7 +16,7 @@ import CookieNotice from "../components/CookieNotice";
 
 export default function Home() {
   const [activeView, setActiveView] = useState<"home" | "dashboard" | "admin">(
-    "dashboard"
+    "home" // Changed default to "home" since unauthenticated users should see home
   );
 
   // State for all modals
@@ -94,7 +94,7 @@ export default function Home() {
 
       <Authenticated>
         {activeView === "dashboard" ? (
-          /* Dashboard View */
+          /* Dashboard View - Only for authenticated users */
           <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
             <div className="p-4 space-y-6">
               <div className="pt-8">
@@ -107,36 +107,28 @@ export default function Home() {
               </div>
               <UserAppointments />
             </div>
-            <Booking />
+            <Booking isAuthenticated={true} />
             <Footer />
           </div>
         ) : activeView === "admin" ? (
           /* Admin View */
           <AdminPanel />
         ) : (
-          /* Home View */
+          /* Home View - Same as unauthenticated but with auth context */
           <>
             <Hero />
             <Services />
-            <Booking />
+            <Booking isAuthenticated={true} />
             <Footer />
           </>
         )}
       </Authenticated>
 
       <Unauthenticated>
+        {/* Show full site including booking form for unauthenticated users */}
         <Hero />
         <Services />
-        <div id="objednat" className="text-center p-8 bg-blue-50">
-          <h2 className="text-xl font-semibold mb-4">
-            Připraveni na objednání?
-          </h2>
-          <SignInButton mode="modal">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
-              Přihlásit se pro objednání
-            </button>
-          </SignInButton>
-        </div>
+        <Booking isAuthenticated={false} />
         <Footer />
       </Unauthenticated>
 

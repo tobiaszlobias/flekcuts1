@@ -11,7 +11,9 @@
     "postcss-test": "postcss ./src/app/globals.css -o ./public/postcss-test.css -u @tailwindcss/postcss autoprefixer"
   },
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^4.13.23",
     "@clerk/nextjs": "^6.30.0",
+    "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-slot": "^1.2.3",
@@ -24,6 +26,8 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "resend": "^6.0.1",
+    "sonner": "^2.0.7",
+    "svix": "^1.71.0",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {

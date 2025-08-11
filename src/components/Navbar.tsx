@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Scissors, Menu, X } from "lucide-react";
-import { useAuth, UserButton } from "@clerk/nextjs";
+import { useAuth, UserButton, SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
@@ -109,8 +109,8 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            {isSignedIn ? (
-              // Authenticated navigation
+            <SignedIn>
+              {/* Authenticated navigation */}
               <>
                 <button
                   onClick={() => handleViewChange("dashboard")}
@@ -146,8 +146,9 @@ const Navbar = () => {
                 </button>
                 <UserButton />
               </>
-            ) : (
-              // Unauthenticated navigation
+            </SignedIn>
+            <SignedOut>
+              {/* Unauthenticated navigation */}
               <>
                 <button
                   onClick={() => scrollToSection("objednat")}
@@ -161,8 +162,18 @@ const Navbar = () => {
                 >
                   Služby
                 </button>
+                <SignInButton mode="modal">
+                  <button className="text-gray-700 hover:text-blue-600 transition-colors">
+                    Přihlásit se
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                    Registrovat se
+                  </button>
+                </SignUpButton>
               </>
-            )}
+            </SignedOut>
           </div>
 
           {/* Mobile menu button */}
@@ -185,8 +196,8 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden bg-white border-t">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {isSignedIn ? (
-                // Authenticated mobile navigation
+              <SignedIn>
+                {/* Authenticated mobile navigation */}
                 <>
                   <button
                     onClick={() => handleViewChange("dashboard")}
@@ -221,8 +232,9 @@ const Navbar = () => {
                     Služby
                   </button>
                 </>
-              ) : (
-                // Unauthenticated mobile navigation
+              </SignedIn>
+              <SignedOut>
+                {/* Unauthenticated mobile navigation */}
                 <>
                   <button
                     onClick={() => scrollToSection("objednat")}
@@ -236,8 +248,19 @@ const Navbar = () => {
                   >
                     Služby
                   </button>
+                  <div className="border-t my-2"></div>
+                  <SignInButton mode="modal">
+                    <button className="block w-full text-left px-3 py-2 text-gray-700 hover:text-blue-600">
+                      Přihlásit se
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button className="block w-full text-left px-3 py-2 text-gray-700 hover:text-blue-600">
+                      Registrovat se
+                    </button>
+                  </SignUpButton>
                 </>
-              )}
+              </SignedOut>
             </div>
           </div>
         )}

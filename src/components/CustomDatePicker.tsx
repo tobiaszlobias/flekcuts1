@@ -115,7 +115,10 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
     // Add all days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month, day);
-      const dateString = currentDate.toISOString().split("T")[0];
+      const yearStr = currentDate.getFullYear();
+      const monthStr = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+      const dayStr = currentDate.getDate().toString().padStart(2, '0');
+      const dateString = `${yearStr}-${monthStr}-${dayStr}`;
       const dayOfWeek = currentDate.getDay();
       const isToday = new Date().toDateString() === currentDate.toDateString();
       const isPast = currentDate < new Date(new Date().setHours(0, 0, 0, 0));

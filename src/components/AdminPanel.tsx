@@ -2,6 +2,8 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { useState } from "react";
+import { toast } from "sonner";
+import ConfirmationDialog from "./ConfirmationDialog";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
@@ -17,6 +19,7 @@ import {
   Trash2,
   Users,
   TrendingUp,
+  Phone,
 } from "lucide-react";
 
 export default function AdminPanel() {
@@ -28,6 +31,8 @@ export default function AdminPanel() {
   const [filter, setFilter] = useState<
     "all" | "pending" | "confirmed" | "cancelled"
   >("all");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [appointmentToDeleteId, setAppointmentToDeleteId] = useState<Id<"appointments"> | null>(null);
 
   const handleStatusUpdate = async (
     appointmentId: Id<"appointments">,
@@ -37,19 +42,33 @@ export default function AdminPanel() {
       await updateStatus({ appointmentId, status });
     } catch (error) {
       console.error("Failed to update status:", error);
-      alert("Nepodařilo se aktualizovat stav objednávky");
+      toast.error("Nepodařilo se aktualizovat stav objednávky");
     }
   };
 
   const handleDelete = async (appointmentId: Id<"appointments">) => {
-    if (confirm("Opravdu chcete smazat tuto objednávku?")) {
+    setAppointmentToDeleteId(appointmentId);
+    setShowConfirmDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (appointmentToDeleteId) {
       try {
-        await deleteAppointment({ appointmentId });
+        await deleteAppointment({ appointmentId: appointmentToDeleteId });
+        toast.success("Objednávka byla úspěšně smazána.");
       } catch (error) {
         console.error("Failed to delete appointment:", error);
-        alert("Nepodařilo se smazat objednávku");
+        toast.error("Nepodařilo se smazat objednávku");
+      } finally {
+        setAppointmentToDeleteId(null);
+        setShowConfirmDialog(false);
       }
     }
+  };
+
+  const cancelDelete = () => {
+    setAppointmentToDeleteId(null);
+    setShowConfirmDialog(false);
   };
 
   if (appointments === undefined || stats === undefined) {
@@ -242,6 +261,14 @@ export default function AdminPanel() {
                           {appointment.customerEmail}
                         </span>
                       </div>
+                      {appointment.customerPhone && (
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-gray-500" />
+                          <span className="text-gray-600">
+                            {appointment.customerPhone}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="bg-gray-50 rounded-lg p-3">
@@ -325,6 +352,13 @@ export default function AdminPanel() {
           )}
         </div>
       </div>
+      <ConfirmationDialog
+        isOpen={showConfirmDialog}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        title="Potvrdit smazání objednávky"
+        description="Opravdu chcete smazat tuto objednávku? Tato akce je nevratná."
+      />
     </div>
   );
 }

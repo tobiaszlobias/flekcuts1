@@ -16,8 +16,10 @@ import type {
 import type * as admin from "../admin.js";
 import type * as appointments from "../appointments.js";
 import type * as emails from "../emails.js";
+import type * as http from "../http.js";
 import type * as notifications from "../notifications.js";
 import type * as roles from "../roles.js";
+import type * as users from "../users.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -31,8 +33,10 @@ declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   appointments: typeof appointments;
   emails: typeof emails;
+  http: typeof http;
   notifications: typeof notifications;
   roles: typeof roles;
+  users: typeof users;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

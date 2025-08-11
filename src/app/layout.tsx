@@ -1,9 +1,11 @@
+// layout.tsx - Add this metadataBase to fix the warning
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,6 +18,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NODE_ENV === "production"
+      ? "https://flekcuts.cz" // Replace with your actual domain when you have one
+      : "http://localhost:3000"
+  ),
   title: "FlekCuts - Moderní holičství v Bruntále | Fade, Střihy, Vousy",
   description:
     "Profesionální holičství FlekCuts v Bruntále. Fade střihy, klasické střihy, úprava vousů, dětské střihy. Online objednávky na Zámeckém náměstí 19. ☎️ +420 778 779 938",
@@ -47,14 +54,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "cs_CZ",
-    url: "https://your-domain.com", // Replace with your actual domain
     siteName: "FlekCuts",
     title: "FlekCuts - Moderní holičství v Bruntále",
     description:
       "Profesionální fade střihy, úprava vousů a péče o vlasy v Bruntále. Online objednávky 24/7.",
     images: [
       {
-        url: "/og-image.jpg", // You'll need to add this image
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "FlekCuts - Moderní holičství v Bruntále",
@@ -68,16 +74,11 @@ export const metadata: Metadata = {
       "Profesionální fade střihy, úprava vousů a péče o vlasy v Bruntále. Online objednávky 24/7.",
     images: ["/og-image.jpg"],
   },
-  alternates: {
-    canonical: "https://your-domain.com", // Replace with your actual domain
-  },
   other: {
-    // Local business structured data
     "business:contact_data:locality": "Bruntál",
     "business:contact_data:region": "Moravskoslezský kraj",
     "business:contact_data:country_name": "Česká republika",
     "business:contact_data:phone_number": "+420778779938",
-    "business:contact_data:website": "https://your-domain.com",
   },
 };
 
@@ -102,7 +103,10 @@ export default function RootLayout({
               name: "FlekCuts",
               description:
                 "Profesionální holičství specializující se na fade střihy, klasické střihy a úpravu vousů",
-              url: "https://your-domain.com",
+              url:
+                process.env.NODE_ENV === "production"
+                  ? "https://flekcuts.cz"
+                  : "http://localhost:3000",
               telephone: "+420778779938",
               address: {
                 "@type": "PostalAddress",
@@ -151,6 +155,7 @@ export default function RootLayout({
           <ConvexClientProvider>
             <Navbar />
             {children}
+            <Toaster />
           </ConvexClientProvider>
         </ClerkProvider>
       </body>

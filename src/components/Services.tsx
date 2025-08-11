@@ -31,7 +31,7 @@ const Services = () => {
       description: "Střih dle výběru, úprava vousů a obočí , mytí vlasů",
       price: 500,
     },
-    { name: "Vlasy do ztracena + Vousy", description: "", price: 350 },
+        { name: "Vlasy do ztracena + Vousy", description: "Moderní střih do ztracena s precizní úpravou vousů.", price: 350 },
   ];
 
   const handleServiceClick = (serviceName: string) => {

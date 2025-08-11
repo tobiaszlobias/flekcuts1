@@ -1,14 +1,14 @@
-// convex/schema.ts - Updated with required indexes
+// convex/schema.ts - Updated to support anonymous bookings
 
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
   appointments: defineTable({
-    userId: v.string(),
+    userId: v.string(), // Keep as string but use "anonymous" for anonymous bookings
     customerName: v.string(),
     customerEmail: v.string(),
-    customerPhone: v.optional(v.string()),
+    customerPhone: v.optional(v.string()), // Required for anonymous, optional for authenticated
     service: v.string(),
     date: v.string(),
     time: v.string(),
@@ -24,7 +24,11 @@ export default defineSchema({
     // Add index for querying by status
     .index("by_status", ["status"])
     // Add index for querying by date
-    .index("by_date", ["date"]),
+    .index("by_date", ["date"])
+    // Add index for querying by email (useful for anonymous bookings)
+    .index("by_email", ["customerEmail"])
+    // Add index for querying by date and time
+    .index("by_date_time", ["date", "time"]),
 
   userRoles: defineTable({
     userId: v.string(),
@@ -50,4 +54,11 @@ export default defineSchema({
     .index("by_type", ["emailType"])
     // Add index for querying by status
     .index("by_status", ["status"]),
+
+  users: defineTable({
+    userId: v.string(),
+    email: v.string(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_email", ["email"]),
 });
