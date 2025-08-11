@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
-import { SignInButton } from "@clerk/nextjs";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
 import Booking from "@/components/Booking";

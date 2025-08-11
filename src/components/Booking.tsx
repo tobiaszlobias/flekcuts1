@@ -132,7 +132,8 @@ const Booking = ({ isAuthenticated = false }: BookingProps) => {
     bookingForm.date ? { date: bookingForm.date } : "skip"
   );
 
-  const bookedTimes = appointmentsForDate?.map((apt: Doc<"appointments">) => apt.time) || [];
+  const bookedTimes =
+    appointmentsForDate?.map((apt: Doc<"appointments">) => apt.time) || [];
 
   const services = [
     { name: "Fade", price: 350 },
@@ -359,12 +360,17 @@ const Booking = ({ isAuthenticated = false }: BookingProps) => {
         time: "",
         service: "",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating booking:", error);
-      if (error.message?.includes("An appointment already exists at this time.")) {
+      if (
+        error instanceof Error &&
+        error.message?.includes("An appointment already exists at this time.")
+      ) {
         toast.error("Tento termín je již obsazen. Zvolte prosím jiný čas.");
       } else {
-        toast.error("Nepodařilo se odeslat objednávku. Zkuste to prosím znovu.");
+        toast.error(
+          "Nepodařilo se odeslat objednávku. Zkuste to prosím znovu."
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -580,7 +586,11 @@ const Booking = ({ isAuthenticated = false }: BookingProps) => {
                         availableTimeSlots.map((time, index) => {
                           const isBooked = bookedTimes.includes(time);
                           return (
-                            <SelectItem key={index} value={time} disabled={isBooked}>
+                            <SelectItem
+                              key={index}
+                              value={time}
+                              disabled={isBooked}
+                            >
                               {time} {isBooked && "(Obsazeno)"}
                             </SelectItem>
                           );
