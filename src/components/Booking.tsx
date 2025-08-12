@@ -46,28 +46,42 @@ const formatPhoneNumber = (value: string): string => {
   // Remove all non-digits
   const numbers = value.replace(/\D/g, "");
 
-  // Don't format if too short (let user type)
-  if (numbers.length <= 3) {
-    return numbers;
+  // Handle empty input
+  if (numbers.length === 0) {
+    return "";
   }
 
-  // If starts with 420 or 421, format as international
-  if (numbers.startsWith("420") || numbers.startsWith("421")) {
-    const countryCode = numbers.substring(0, 3);
+  // If starts with 420 (Czech Republic)
+  if (numbers.startsWith("420")) {
     const rest = numbers.substring(3);
 
-    if (rest.length === 0) return `+${countryCode}`;
-    if (rest.length <= 3) return `+${countryCode} ${rest}`;
+    if (rest.length === 0) return "+420";
+    if (rest.length <= 3) return `+420 ${rest}`;
     if (rest.length <= 6)
-      return `+${countryCode} ${rest.substring(0, 3)} ${rest.substring(3)}`;
-    if (rest.length <= 9)
-      return `+${countryCode} ${rest.substring(0, 3)} ${rest.substring(3, 6)} ${rest.substring(6)}`;
+      return `+420 ${rest.substring(0, 3)} ${rest.substring(3)}`;
+    if (rest.length === 9)
+      return `+420 ${rest.substring(0, 3)} ${rest.substring(3, 6)} ${rest.substring(6)}`;
 
-    // Limit to 9 digits after country code
-    return `+${countryCode} ${rest.substring(0, 3)} ${rest.substring(3, 6)} ${rest.substring(6, 9)}`;
+    // Limit to exactly 9 digits after +420
+    return `+420 ${rest.substring(0, 3)} ${rest.substring(3, 6)} ${rest.substring(6, 9)}`;
   }
 
-  // If starts with 0 (local Czech/Slovak number), assume Czech (+420)
+  // If starts with 421 (Slovakia)
+  if (numbers.startsWith("421")) {
+    const rest = numbers.substring(3);
+
+    if (rest.length === 0) return "+421";
+    if (rest.length <= 3) return `+421 ${rest}`;
+    if (rest.length <= 6)
+      return `+421 ${rest.substring(0, 3)} ${rest.substring(3)}`;
+    if (rest.length === 9)
+      return `+421 ${rest.substring(0, 3)} ${rest.substring(3, 6)} ${rest.substring(6)}`;
+
+    // Limit to exactly 9 digits after +421
+    return `+421 ${rest.substring(0, 3)} ${rest.substring(3, 6)} ${rest.substring(6, 9)}`;
+  }
+
+  // If starts with 0 (local Czech number)
   if (numbers.startsWith("0")) {
     const localNumber = numbers.substring(1);
 
@@ -75,37 +89,62 @@ const formatPhoneNumber = (value: string): string => {
     if (localNumber.length <= 3) return `+420 ${localNumber}`;
     if (localNumber.length <= 6)
       return `+420 ${localNumber.substring(0, 3)} ${localNumber.substring(3)}`;
-    if (localNumber.length <= 9)
+    if (localNumber.length === 9)
       return `+420 ${localNumber.substring(0, 3)} ${localNumber.substring(3, 6)} ${localNumber.substring(6)}`;
 
-    // Limit to 9 digits
+    // Limit to exactly 9 digits
     return `+420 ${localNumber.substring(0, 3)} ${localNumber.substring(3, 6)} ${localNumber.substring(6, 9)}`;
   }
 
-  // Progressive formatting for numbers being typed (assume Czech)
-  if (numbers.length <= 9) {
-    if (numbers.length <= 3) return `+420 ${numbers}`;
-    if (numbers.length <= 6)
-      return `+420 ${numbers.substring(0, 3)} ${numbers.substring(3)}`;
+  // For numbers starting with neither 420, 421, nor 0, assume Czech
+  if (numbers.length <= 3) return `+420 ${numbers}`;
+  if (numbers.length <= 6)
+    return `+420 ${numbers.substring(0, 3)} ${numbers.substring(3)}`;
+  if (numbers.length === 9)
     return `+420 ${numbers.substring(0, 3)} ${numbers.substring(3, 6)} ${numbers.substring(6)}`;
-  }
 
-  // For international numbers
-  if (numbers.length >= 10) {
-    return `+${numbers}`;
-  }
-
-  return value;
+  // Limit to exactly 9 digits for Czech numbers
+  return `+420 ${numbers.substring(0, 3)} ${numbers.substring(3, 6)} ${numbers.substring(6, 9)}`;
 };
 
 const validatePhoneNumber = (phone: string): boolean => {
   const numbers = phone.replace(/\D/g, "");
-  // Accept Czech (+420) and Slovak (+421) numbers (9 digits after country code)
-  return (
-    (numbers.startsWith("420") && numbers.length === 12) ||
-    (numbers.startsWith("421") && numbers.length === 12) ||
-    (numbers.length >= 10 && numbers.length <= 15) // International fallback
-  );
+
+  // Czech numbers: +420 followed by exactly 9 digits
+  if (numbers.startsWith("420")) {
+    return numbers.length === 12; // 420 + 9 digits
+  }
+
+  // Slovak numbers: +421 followed by exactly 9 digits
+  if (numbers.startsWith("421")) {
+    return numbers.length === 12; // 421 + 9 digits
+  }
+
+  // Any other format must be at least 10 digits total (basic international validation)
+  return numbers.length >= 10 && numbers.length <= 15;
+};
+
+const getPhoneValidationMessage = (phone: string): string => {
+  if (!phone) return "";
+
+  const numbers = phone.replace(/\D/g, "");
+
+  if (numbers.startsWith("420")) {
+    if (numbers.length < 12) return "České číslo musí mít 9 číslic po +420";
+    if (numbers.length > 12) return "Příliš mnoho číslic pro české číslo";
+    return "";
+  }
+
+  if (numbers.startsWith("421")) {
+    if (numbers.length < 12) return "Slovenské číslo musí mít 9 číslic po +421";
+    if (numbers.length > 12) return "Příliš mnoho číslic pro slovenské číslo";
+    return "";
+  }
+
+  if (numbers.length < 10) return "Telefonní číslo je příliš krátké";
+  if (numbers.length > 15) return "Telefonní číslo je příliš dlouhé";
+
+  return "";
 };
 
 const Booking = ({ isAuthenticated = false }: BookingProps) => {
@@ -286,17 +325,10 @@ const Booking = ({ isAuthenticated = false }: BookingProps) => {
     if (!isAuthenticated) {
       if (!bookingForm.phone.trim()) {
         newErrors.phone = "Telefon je povinný";
-      } else {
-        const numbers = bookingForm.phone.replace(/\D/g, "");
-
-        if (numbers.length < 9) {
-          newErrors.phone = "Telefonní číslo je příliš krátké";
-        } else if (numbers.length > 15) {
-          newErrors.phone = "Telefonní číslo je příliš dlouhé";
-        } else if (!validatePhoneNumber(bookingForm.phone)) {
-          newErrors.phone =
-            "Neplatné telefonní číslo (použijte formát +420 123 456 789)";
-        }
+      } else if (!validatePhoneNumber(bookingForm.phone)) {
+        newErrors.phone =
+          getPhoneValidationMessage(bookingForm.phone) ||
+          "Neplatné telefonní číslo";
       }
     }
 
@@ -456,49 +488,90 @@ const Booking = ({ isAuthenticated = false }: BookingProps) => {
                 </div>
               </div>
 
-              {/* Phone field only for anonymous users - ENHANCED VERSION */}
+              {/* Enhanced Phone field for anonymous users */}
               {!isAuthenticated && (
                 <div>
                   <Label htmlFor="phone" className="text-gray-700 font-medium">
                     Telefon <span className="text-red-500">*</span>
                   </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={bookingForm.phone}
-                    onChange={(e) => {
-                      const formatted = formatPhoneNumber(e.target.value);
-                      handleInputChange("phone", formatted);
-                    }}
-                    className={`mt-2 rounded-lg transition-colors ${
-                      errors.phone
-                        ? "border-red-500 focus:border-red-500"
-                        : bookingForm.phone &&
-                            validatePhoneNumber(bookingForm.phone)
-                          ? "border-green-500 focus:border-green-500"
-                          : "border-gray-300"
-                    }`}
-                    placeholder="+420 123 456 789"
-                    maxLength={17}
-                  />
-                  {errors.phone && (
+                  <div className="relative mt-2">
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={bookingForm.phone}
+                      onChange={(e) => {
+                        const formatted = formatPhoneNumber(e.target.value);
+                        handleInputChange("phone", formatted);
+                      }}
+                      onKeyDown={(e) => {
+                        // Allow backspace, delete, tab, escape, enter
+                        if (
+                          [8, 9, 27, 13, 46].includes(e.keyCode) ||
+                          // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                          (e.keyCode === 65 && e.ctrlKey) ||
+                          (e.keyCode === 67 && e.ctrlKey) ||
+                          (e.keyCode === 86 && e.ctrlKey) ||
+                          (e.keyCode === 88 && e.ctrlKey) ||
+                          // Allow home, end, left, right
+                          (e.keyCode >= 35 && e.keyCode <= 39)
+                        ) {
+                          return;
+                        }
+                        // Ensure that it's a number and stop the keypress
+                        if (
+                          (e.shiftKey || e.keyCode < 48 || e.keyCode > 57) &&
+                          (e.keyCode < 96 || e.keyCode > 105)
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
+                      className={`rounded-lg transition-all duration-200 ${
+                        errors.phone
+                          ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                          : bookingForm.phone &&
+                              validatePhoneNumber(bookingForm.phone)
+                            ? "border-green-500 focus:border-green-500 focus:ring-green-500/20"
+                            : bookingForm.phone
+                              ? "border-yellow-400 focus:border-yellow-400 focus:ring-yellow-400/20"
+                              : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
+                      } focus:ring-2`}
+                      placeholder="+420 123 456 789"
+                    />
+                    {/* Status indicator */}
+                    {bookingForm.phone && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {validatePhoneNumber(bookingForm.phone) ? (
+                          <span className="text-green-500 text-lg">✓</span>
+                        ) : (
+                          <span className="text-yellow-500 text-lg">⚠</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Error or validation messages */}
+                  {errors.phone ? (
                     <p className="text-red-500 text-sm mt-1 flex items-center">
-                      <span className="mr-1">⚠️</span>
+                      <span className="mr-1">❌</span>
                       {errors.phone}
                     </p>
+                  ) : bookingForm.phone &&
+                    !validatePhoneNumber(bookingForm.phone) ? (
+                    <p className="text-yellow-600 text-sm mt-1 flex items-center">
+                      <span className="mr-1">⚠️</span>
+                      {getPhoneValidationMessage(bookingForm.phone)}
+                    </p>
+                  ) : bookingForm.phone &&
+                    validatePhoneNumber(bookingForm.phone) ? (
+                    <p className="text-green-600 text-sm mt-1 flex items-center">
+                      <span className="mr-1">✅</span>
+                      Platné telefonní číslo
+                    </p>
+                  ) : (
+                    <p className="text-gray-500 text-xs mt-1">
+                      Formáty: 123 456 789, 0123 456 789, +420 123 456 789
+                    </p>
                   )}
-                  {bookingForm.phone &&
-                    !errors.phone &&
-                    validatePhoneNumber(bookingForm.phone) && (
-                      <p className="text-green-600 text-sm mt-1 flex items-center">
-                        <span className="mr-1">✅</span>
-                        Platné telefonní číslo
-                      </p>
-                    )}
-                  <p className="text-gray-500 text-xs mt-1">
-                    Formáty: 123 456 789, 0123 456 789, +420 123 456 789, +421
-                    123 456 789
-                  </p>
                 </div>
               )}
 

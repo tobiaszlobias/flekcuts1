@@ -2,6 +2,34 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
+// 🆕 NEW: Link anonymous appointments to authenticated user
+export const linkAnonymousAppointments = mutation({
+  args: {
+    userId: v.string(),
+    email: v.string(),
+  },
+  handler: async (ctx, { userId, email }) => {
+    // Find all anonymous appointments with this email
+    const anonymousAppointments = await ctx.db
+      .query("appointments")
+      .withIndex("by_email", (q) => q.eq("customerEmail", email))
+      .filter((q) => q.eq(q.field("userId"), "anonymous"))
+      .collect();
+
+    // Link them to the authenticated user
+    for (const appointment of anonymousAppointments) {
+      await ctx.db.patch(appointment._id, {
+        userId: userId,
+      });
+    }
+
+    console.log(
+      `✅ Linked ${anonymousAppointments.length} anonymous appointments to user ${userId}`
+    );
+    return anonymousAppointments.length;
+  },
+});
+
 // Get all appointments for the current user
 export const getMyAppointments = query({
   args: {},
@@ -202,5 +230,116 @@ export const getAppointmentsByDate = query({
       .query("appointments")
       .withIndex("by_date", (q) => q.eq("date", args.date))
       .collect();
+  },
+});
+
+// ===============================
+// 🐛 DEBUG FUNCTIONS
+// ===============================
+
+// Debug: Check all appointments in database
+export const debugAllAppointments = query({
+  args: {},
+  handler: async (ctx) => {
+    const allAppointments = await ctx.db.query("appointments").collect();
+    console.log(
+      "🔍 ALL APPOINTMENTS IN DATABASE:",
+      allAppointments.map((a) => ({
+        id: a._id,
+        userId: a.userId,
+        customerName: a.customerName,
+        customerEmail: a.customerEmail,
+        service: a.service,
+        date: a.date,
+        time: a.time,
+        status: a.status,
+      }))
+    );
+    return allAppointments;
+  },
+});
+
+// Debug: Check all users in database
+export const debugAllUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    const allUsers = await ctx.db.query("users").collect();
+    console.log("🔍 ALL USERS IN DATABASE:", allUsers);
+    return allUsers;
+  },
+});
+
+// Debug: Check appointments for specific email
+export const debugAppointmentsByEmail = query({
+  args: { email: v.string() },
+  handler: async (ctx, args) => {
+    const appointments = await ctx.db
+      .query("appointments")
+      .withIndex("by_email", (q) => q.eq("customerEmail", args.email))
+      .collect();
+
+    console.log(
+      `🔍 APPOINTMENTS FOR EMAIL ${args.email}:`,
+      appointments.map((a) => ({
+        id: a._id,
+        userId: a.userId,
+        customerName: a.customerName,
+        service: a.service,
+        date: a.date,
+        time: a.time,
+        status: a.status,
+      }))
+    );
+
+    return appointments;
+  },
+});
+
+// Debug: Get current user ID
+export const debugCurrentUser = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    console.log("🔍 CURRENT USER IDENTITY:", identity);
+    return identity;
+  },
+});
+
+// Manual function to link appointments (for testing)
+export const manualLinkAppointments = mutation({
+  args: {
+    email: v.string(),
+    userId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    const targetUserId = args.userId || identity?.subject;
+
+    if (!targetUserId) {
+      throw new Error("No user ID provided and not authenticated");
+    }
+
+    console.log(
+      `🔗 MANUAL LINKING: Looking for appointments with email ${args.email} to link to user ${targetUserId}`
+    );
+
+    // Find anonymous appointments
+    const anonymousAppointments = await ctx.db
+      .query("appointments")
+      .withIndex("by_email", (q) => q.eq("customerEmail", args.email))
+      .filter((q) => q.eq(q.field("userId"), "anonymous"))
+      .collect();
+
+    console.log(
+      `📊 Found ${anonymousAppointments.length} anonymous appointments`
+    );
+
+    // Link them
+    for (const appointment of anonymousAppointments) {
+      await ctx.db.patch(appointment._id, { userId: targetUserId });
+      console.log(`✅ Linked appointment ${appointment._id}`);
+    }
+
+    return `Linked ${anonymousAppointments.length} appointments`;
   },
 });

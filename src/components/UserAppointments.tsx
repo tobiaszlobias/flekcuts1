@@ -3,10 +3,55 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import { useUser } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
 
 export default function UserAppointments() {
+  const { user } = useUser();
   const appointments = useQuery(api.appointments.getMyAppointments);
   const cancelAppointment = useMutation(api.appointments.cancelAppointment);
+
+  // Add manual linking function as backup
+  const manualLinkAppointments = useMutation(
+    api.appointments.manualLinkAppointments
+  );
+  const [isLinking, setIsLinking] = useState(false);
+  const [hasTriedLinking, setHasTriedLinking] = useState(false);
+
+  // Manual linking function as a backup
+  const handleManualLink = async () => {
+    if (!user?.primaryEmailAddress?.emailAddress || isLinking) return;
+
+    setIsLinking(true);
+    try {
+      const result = await manualLinkAppointments({
+        email: user.primaryEmailAddress.emailAddress,
+      });
+      console.log("Manual linking result:", result);
+      // Force refetch by not doing anything - the query will automatically refetch
+    } catch (error) {
+      console.error("Manual linking failed:", error);
+    } finally {
+      setIsLinking(false);
+      setHasTriedLinking(true);
+    }
+  };
+
+  // Auto-attempt manual linking if user has no appointments but hasn't tried yet
+  useEffect(() => {
+    if (
+      user?.primaryEmailAddress?.emailAddress &&
+      appointments?.length === 0 &&
+      !hasTriedLinking &&
+      !isLinking
+    ) {
+      console.log(
+        "Auto-attempting to link appointments for:",
+        user.primaryEmailAddress.emailAddress
+      );
+      handleManualLink();
+    }
+  }, [user, appointments, hasTriedLinking, isLinking]);
 
   const handleCancel = async (appointmentId: Id<"appointments">) => {
     try {
@@ -24,8 +69,28 @@ export default function UserAppointments() {
     return (
       <div className="p-6 bg-white rounded-lg shadow-sm border">
         <h2 className="text-xl font-semibold mb-4">Vaše objednávky</h2>
+
+        {/* Show manual link option if user just signed in */}
+        {!hasTriedLinking && user?.primaryEmailAddress?.emailAddress && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800 mb-2">
+              Máte již nějaké objednávky na email{" "}
+              {user.primaryEmailAddress.emailAddress}?
+            </p>
+            <button
+              onClick={handleManualLink}
+              disabled={isLinking}
+              className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isLinking ? "Propojuji..." : "Propojit existující objednávky"}
+            </button>
+          </div>
+        )}
+
         <p className="text-gray-600">
-          Zatím nemáte žádné objednávky. Objednejte si svou první službu níže!
+          {hasTriedLinking
+            ? "Nemáte žádné objednávky. Objednejte si svou první službu níže!"
+            : "Zatím nemáte žádné objednávky. Objednejte si svou první službu níže!"}
         </p>
       </div>
     );
