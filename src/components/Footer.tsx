@@ -28,7 +28,8 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Top Section with Info and Opening Hours */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* About & Contact Section */}
           <div className="space-y-6">
             <div>
@@ -62,6 +63,43 @@ const Footer = () => {
                 </div>
                 <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
+            </div>
+
+            {/* Quick Booking Actions */}
+            <div className="pt-4 border-t border-gray-700">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => {
+                    const bookingSection = document.getElementById("objednat");
+                    bookingSection?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors font-medium flex-1"
+                >
+                  Objednat termín
+                </button>
+
+                <SignedIn>
+                  <button
+                    onClick={() => {
+                      window.dispatchEvent(
+                        new CustomEvent("viewChange", { detail: "dashboard" })
+                      );
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors font-medium flex-1"
+                  >
+                    Moje objednávky
+                  </button>
+                </SignedIn>
+
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <button className="bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors font-medium flex-1">
+                      Přihlásit se
+                    </button>
+                  </SignInButton>
+                </SignedOut>
+              </div>
             </div>
           </div>
 
@@ -97,70 +135,63 @@ const Footer = () => {
               <CurrentStatus />
             </div>
           </div>
+        </div>
 
-          {/* Quick Actions */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold mb-4">Rychlé akce</h4>
+        {/* Map Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-lg font-semibold flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-blue-400" />
+              Kde nás najdete
+            </h4>
+            <button
+              onClick={handleDirectionsClick}
+              className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1 text-sm"
+            >
+              Otevřít v mapách
+              <ExternalLink className="w-4 h-4" />
+            </button>
+          </div>
 
-            <div className="space-y-3">
-              <button
-                onClick={() => {
-                  const bookingSection = document.getElementById("objednat");
-                  bookingSection?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition-colors font-medium"
-              >
-                Objednat termín
-              </button>
+          <div className="relative rounded-xl overflow-hidden shadow-lg border border-gray-700">
+            {/* Map Container */}
+            <div className="relative w-full h-64 md:h-80 lg:h-96">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2578.5123456789!2d17.464722!3d49.988611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4713d9f5a5b4c8f1%3A0x1234567890abcdef!2sZ%C3%A1meck%C3%A9%20n%C3%A1m%C4%9Bst%C3%AD%2019%2C%20792%2001%20Brunt%C3%A1l!5e0!3m2!1scs!2scz!4v1234567890123"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="absolute inset-0"
+                title="FlekCuts Location"
+              ></iframe>
 
-              <button
-                onClick={() => {
-                  const servicesSection = document.getElementById("services");
-                  servicesSection?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg transition-colors font-medium"
-              >
-                Zobrazit služby
-              </button>
+              {/* Overlay with address info */}
+              <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-sm text-white p-3 rounded-lg max-w-xs">
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <div className="font-semibold">FlekCuts</div>
+                    <div className="text-gray-300">Zámecké náměstí 19</div>
+                    <div className="text-gray-300">792 01 Bruntál</div>
+                  </div>
+                </div>
+              </div>
 
-              <button
+              {/* Click overlay to prevent accidental map interactions */}
+              <div
+                className="absolute inset-0 cursor-pointer opacity-0 hover:opacity-0 transition-opacity"
                 onClick={handleDirectionsClick}
-                className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
-              >
-                <MapPin className="w-4 h-4" />
-                Navigace
-              </button>
-
-              <SignedIn>
-                <button
-                  onClick={() => {
-                    window.dispatchEvent(new CustomEvent("viewChange", { detail: "dashboard" }));
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition-colors font-medium"
-                >
-                  Moje objednávky
-                </button>
-              </SignedIn>
-
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg transition-colors font-medium">
-                    Přihlásit se
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg transition-colors font-medium">
-                    Registrovat se
-                  </button>
-                </SignUpButton>
-              </SignedOut>
+                title="Klikněte pro otevření v mapách"
+              />
             </div>
           </div>
         </div>
 
         {/* Bottom Section with Legal Links */}
-        <div className="border-t border-gray-700 mt-8 pt-6">
+        <div className="border-t border-gray-700 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-sm">
               © 2025 FlekCuts. Všechna práva vyhrazena.
