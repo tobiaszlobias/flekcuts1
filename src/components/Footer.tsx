@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { MapPin, Phone, Clock, ExternalLink } from "lucide-react";
-import { SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 const Footer = () => {
   const openingHours = [

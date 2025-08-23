@@ -18,16 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Calendar,
-  Clock,
-  X,
-  CheckCircle,
-  Phone,
-  Mail,
-  Scissors,
-  CalendarDays,
-} from "lucide-react";
+import { Clock, CheckCircle, Phone, Mail, CalendarDays } from "lucide-react";
 
 interface BookingForm {
   name: string;
@@ -366,7 +357,9 @@ const CompactDateTimePicker = ({
     return days;
   };
 
-  const isDateSelectable = (day: any): boolean => {
+  const isDateSelectable = (
+    day: { isWorking: boolean; isPast: boolean } | null
+  ): boolean => {
     if (!day) return false;
     return day.isWorking && !day.isPast;
   };
@@ -843,7 +836,8 @@ const Booking = ({ isAuthenticated = false }: BookingProps) => {
           {serviceJustSelected && (
             <div className="mt-4 p-3 bg-green-100 border border-green-300 rounded-lg">
               <p className="text-green-700 font-medium">
-                ✅ Služba "{bookingForm.service}" byla automaticky vybrána!
+                ✅ Služba &quot;{bookingForm.service}&quot; byla automaticky
+                vybrána!{" "}
               </p>
             </div>
           )}
