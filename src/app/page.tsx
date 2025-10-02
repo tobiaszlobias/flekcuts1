@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
+import Gallery from "@/components/Gallery";
 import Booking from "@/components/Booking";
 import Footer from "@/components/Footer";
 import UserAppointments from "@/components/UserAppointments";
@@ -15,7 +16,7 @@ import CookieNotice from "../components/CookieNotice";
 
 export default function Home() {
   const [activeView, setActiveView] = useState<"home" | "dashboard" | "admin">(
-    "home" // Changed default to "home" since unauthenticated users should see home
+    "home"
   );
 
   // State for all modals
@@ -117,6 +118,7 @@ export default function Home() {
           <>
             <Hero />
             <Services />
+            <Gallery />
             <Booking isAuthenticated={true} />
             <Footer />
           </>
@@ -127,6 +129,7 @@ export default function Home() {
         {/* Show full site including booking form for unauthenticated users */}
         <Hero />
         <Services />
+        <Gallery />
         <Booking isAuthenticated={false} />
         <Footer />
       </Unauthenticated>
