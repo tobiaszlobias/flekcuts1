@@ -120,7 +120,7 @@ const Hero = () => {
         <div
           className="absolute top-14 right-20 w-24 h-32 sm:w-36 sm:h-45 pointer-events-none opacity-20 will-change-transform"
           style={{
-            transform: `translate3d(0, ${scrollY * 0.3}px, 0) rotate(${-25 + scrollY * 0.05}deg)`,
+            transform: `translate3d(0, ${scrollY * 0.2}px, 0) rotate(${-25 + scrollY * 0.03}deg)`,
           }}
         >
           <img
@@ -132,9 +132,9 @@ const Hero = () => {
 
         {/* Spray Bottle - Bottom Left */}
         <div
-          className="absolute bottom-50 left-8 w-16 h-16 sm:left-15 sm:w-24 sm:h-24 pointer-events-none opacity-18 will-change-transform"
+          className="absolute bottom-80 left-16 sm:bottom-50 sm:left-15 w-16 h-16 sm:w-24 sm:h-24 pointer-events-none opacity-18 will-change-transform"
           style={{
-            transform: `translate3d(0, ${scrollY * -0.4}px, 0) rotate(${10 + scrollY * 0.08}deg)`,
+            transform: `translate3d(0, ${scrollY * -0.25}px, 0) rotate(${10 + scrollY * 0.05}deg)`,
           }}
         >
           <img
@@ -146,9 +146,9 @@ const Hero = () => {
 
         {/* Clippers - Top Left */}
         <div
-          className="absolute top-20 left-8 w-24 h-24 sm:left-20 sm:w-36 sm:h-36 pointer-events-none opacity-22 will-change-transform"
+          className="absolute top-16 left-8 w-24 h-24 sm:top-20 sm:left-20 sm:w-36 sm:h-36 pointer-events-none opacity-22 will-change-transform"
           style={{
-            transform: `translate3d(${scrollY * 0.1}px, ${scrollY * 0.5}px, 0) rotate(${15 + scrollY * 0.06}deg)`,
+            transform: `translate3d(${scrollY * 0.07}px, ${scrollY * 0.3}px, 0) rotate(${15 + scrollY * 0.04}deg)`,
           }}
         >
           <img
@@ -160,9 +160,9 @@ const Hero = () => {
 
         {/* Scissors - Middle Right */}
         <div
-          className="absolute top-65 right-16 w-20 h-18 sm:right-24 sm:w-32 sm:h-28 pointer-events-none opacity-20 will-change-transform"
+          className="absolute top-60 right-16 w-24 h-22 sm:top-65 sm:right-24 sm:w-32 sm:h-28 pointer-events-none opacity-20 will-change-transform"
           style={{
-            transform: `translate3d(0, ${-50 + scrollY * 0.35}px, 0) rotate(${-30 + scrollY * 0.07}deg)`,
+            transform: `translate3d(0, ${-50 + scrollY * 0.22}px, 0) rotate(${-30 + scrollY * 0.04}deg)`,
           }}
         >
           <img
@@ -174,9 +174,9 @@ const Hero = () => {
 
         {/* Razor - Bottom Right */}
         <div
-          className="absolute bottom-20 right-10 w-22 h-22 sm:right-16 sm:w-34 sm:h-34 pointer-events-none opacity-18 will-change-transform"
+          className="absolute bottom-20 right-16 w-26 h-26 sm:right-16 sm:w-34 sm:h-34 pointer-events-none opacity-18 will-change-transform"
           style={{
-            transform: `translate3d(${scrollY * -0.08}px, ${scrollY * -0.45}px, 0) rotate(${60 + scrollY * 0.04}deg)`,
+            transform: `translate3d(${scrollY * -0.05}px, ${scrollY * -0.28}px, 0) rotate(${60 + scrollY * 0.03}deg)`,
           }}
         >
           <img
@@ -188,9 +188,9 @@ const Hero = () => {
 
         {/* Small Comb 2 - Middle Left */}
         <div
-          className="absolute top-2/3 left-12 w-28 h-28 sm:left-24 sm:w-40 sm:h-40 pointer-events-none opacity-15 will-change-transform"
+          className="absolute top-3/4 left-12 w-32 h-32 sm:top-2/3 sm:left-24 sm:w-40 sm:h-40 pointer-events-none opacity-15 will-change-transform"
           style={{
-            transform: `translate3d(0, ${scrollY * 0.25}px, 0) rotate(${-45 + scrollY * 0.09}deg)`,
+            transform: `translate3d(0, ${scrollY * 0.18}px, 0) rotate(${-45 + scrollY * 0.05}deg)`,
           }}
         >
           <img
