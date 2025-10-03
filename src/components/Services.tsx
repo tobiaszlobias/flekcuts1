@@ -28,7 +28,7 @@ const Services = () => {
     },
     {
       name: "Mytí vlasů",
-      description: "Mytí vlasů - Šampon a kondicionér",
+      description: "Mytí vlasů - šampon a kondicionér",
       price: 100,
     },
     {
@@ -151,69 +151,44 @@ const Services = () => {
                     : "translateY(30px) scale(0.95)",
                 }}
               >
-                {isLastRow && isIncompleteRow ? (
-                  <div className="flex flex-wrap justify-center gap-8">
-                    {rowServices.map((service, index) => (
-                      <div
-                        key={index}
-                        className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)] max-w-sm"
-                      >
-                        <Card
-                          className="h-full hover:shadow-lg transition-all duration-300 rounded-xl border-0 shadow-md cursor-pointer transform hover:scale-105"
-                          onClick={() => handleServiceClick(service.name)}
-                        >
-                          <CardHeader className="text-center pb-4">
-                            <CardTitle className="text-xl text-gray-900">
-                              {service.name}
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="text-center">
-                            <p className="text-gray-600 mb-4">
-                              {service.description}
-                            </p>
-                            <div className="text-2xl font-bold text-blue-600">
-                              {service.price} Kč
-                            </div>
-                            <div className="mt-4">
-                              <span className="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                                Klikněte pro objednání
-                              </span>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {rowServices.map((service, index) => (
-                      <Card
-                        key={index}
-                        className="h-full hover:shadow-lg transition-all duration-300 rounded-xl border-0 shadow-md cursor-pointer transform hover:scale-105"
-                        onClick={() => handleServiceClick(service.name)}
-                      >
-                        <CardHeader className="text-center pb-4">
-                          <CardTitle className="text-xl text-gray-900">
-                            {service.name}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="text-center">
-                          <p className="text-gray-600 mb-4">
-                            {service.description}
-                          </p>
-                          <div className="text-2xl font-bold text-blue-600">
-                            {service.price} Kč
-                          </div>
-                          <div className="mt-4">
-                            <span className="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                              Klikněte pro objednání
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
+                <div
+                  className={`${
+                    isLastRow && isIncompleteRow
+                      ? "flex flex-wrap justify-center gap-8"
+                      : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                  }`}
+                >
+                  {rowServices.map((service, index) => (
+                    <Card
+                      key={index}
+                      className={`h-full hover:shadow-lg transition-all duration-300 rounded-xl border-0 shadow-md cursor-pointer transform hover:scale-105 ${
+                        isLastRow && isIncompleteRow
+                          ? "w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)] max-w-sm"
+                          : "w-full lg:max-w-sm"
+                      }`}
+                      onClick={() => handleServiceClick(service.name)}
+                    >
+                      <CardHeader className="text-center pb-2 pt-4 sm:pb-4 sm:pt-6">
+                        <CardTitle className="text-lg sm:text-xl text-gray-900">
+                          {service.name}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-center pt-0 pb-4 sm:pb-6">
+                        <p className="text-sm sm:text-base text-gray-600 mb-2 sm:mb-4">
+                          {service.description}
+                        </p>
+                        <div className="text-xl sm:text-2xl font-bold text-blue-600">
+                          {service.price} Kč
+                        </div>
+                        <div className="mt-2 sm:mt-4">
+                          <span className="inline-block bg-blue-100 text-blue-800 text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full">
+                            Klikněte pro objednání
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             );
           })}

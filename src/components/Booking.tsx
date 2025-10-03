@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { SignInButton } from "@clerk/nextjs";
+import { SignInButton, useAuth } from "@clerk/nextjs";
 import {
   Select,
   SelectContent,
@@ -36,10 +36,6 @@ interface FormErrors {
   date?: string;
   time?: string;
   service?: string;
-}
-
-interface BookingProps {
-  isAuthenticated?: boolean;
 }
 
 // Confirmation Modal Component
@@ -544,7 +540,8 @@ const CompactDateTimePicker = ({
   );
 };
 
-const Booking = ({ isAuthenticated = false }: BookingProps) => {
+const Booking = () => {
+  const { isSignedIn } = useAuth();
   const [bookingForm, setBookingForm] = useState<BookingForm>({
     name: "",
     email: "",
@@ -710,7 +707,7 @@ const Booking = ({ isAuthenticated = false }: BookingProps) => {
       newErrors.email = "Neplatný formát emailu";
     }
 
-    if (!isAuthenticated) {
+    if (!isSignedIn) {
       if (!bookingForm.phone.trim()) {
         newErrors.phone = "Telefon je povinný";
       } else if (!validatePhoneNumber(bookingForm.phone)) {
@@ -737,7 +734,7 @@ const Booking = ({ isAuthenticated = false }: BookingProps) => {
     setIsSubmitting(true);
 
     try {
-      if (isAuthenticated) {
+      if (isSignedIn) {
         await createAppointment({
           customerName: bookingForm.name,
           customerEmail: bookingForm.email,
@@ -819,7 +816,7 @@ const Booking = ({ isAuthenticated = false }: BookingProps) => {
             Dopřejte si profesionální péči
           </p>
 
-          {!isAuthenticated && (
+          {!isSignedIn && (
             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-blue-700 text-sm">
                 💡 Tip:{" "}
@@ -890,7 +887,7 @@ const Booking = ({ isAuthenticated = false }: BookingProps) => {
                 </div>
               </div>
 
-              {!isAuthenticated && (
+              {!isSignedIn && (
                 <div>
                   <Label htmlFor="phone" className="text-gray-700 font-medium">
                     Telefon{" "}

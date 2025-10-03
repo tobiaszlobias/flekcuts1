@@ -18,7 +18,6 @@ const Gallery = () => {
   const allImages = [...images, ...images, ...images];
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [isSlowed, setIsSlowed] = useState(false);
   const animationRef = useRef<number | null>(null);
@@ -36,7 +35,7 @@ const Gallery = () => {
       return 192 + 12; // mobile: w-48 + gap-3
     };
 
-    const totalWidth = getCardWidth() * 7; // 7 images in one set
+    const totalWidth = getCardWidth() * images.length; // Width of one complete set
 
     const animate = (currentTime: number) => {
       if (!lastTimeRef.current) lastTimeRef.current = currentTime;
@@ -48,9 +47,9 @@ const Gallery = () => {
         const speed = isSlowed ? totalWidth / 90000 : totalWidth / 30000;
         positionRef.current += speed * deltaTime;
 
-        // Reset position for infinite loop
+        // Reset position for infinite loop - reset when we've scrolled through one set
         if (positionRef.current >= totalWidth) {
-          positionRef.current -= totalWidth;
+          positionRef.current = positionRef.current % totalWidth;
         }
 
         element.style.transform = `translateX(-${positionRef.current}px)`;
@@ -66,7 +65,7 @@ const Gallery = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isPaused, isSlowed]);
+  }, [isPaused, isSlowed, images.length]);
 
   const handleMouseEnter = () => {
     if (window.matchMedia("(hover: hover)").matches) {
@@ -99,10 +98,10 @@ const Gallery = () => {
     <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
       <div className="max-w-7xl mx-auto mb-8 sm:mb-12 text-center">
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-          Moje Práce
+          Moje práce
         </h2>
         <p className="text-lg sm:text-xl text-gray-600">
-          Podívejte se na moje nejnovější střihy
+          Podívejte se na moje nejnovější stříhy
         </p>
       </div>
 

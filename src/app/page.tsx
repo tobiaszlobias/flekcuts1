@@ -107,8 +107,7 @@ export default function Home() {
               </div>
               <UserAppointments />
             </div>
-            <Booking isAuthenticated={true} />
-            <Footer />
+            <Booking /> <Footer />
           </div>
         ) : activeView === "admin" ? (
           /* Admin View */
@@ -119,8 +118,7 @@ export default function Home() {
             <Hero />
             <Services />
             <Gallery />
-            <Booking isAuthenticated={true} />
-            <Footer />
+            <Booking /> <Footer />
           </>
         )}
       </Authenticated>
@@ -130,8 +128,7 @@ export default function Home() {
         <Hero />
         <Services />
         <Gallery />
-        <Booking isAuthenticated={false} />
-        <Footer />
+        <Booking /> <Footer />
       </Unauthenticated>
 
       {/* All Legal Modals */}
