@@ -128,6 +128,15 @@ const Navbar = () => {
           }
         }
 
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+
         .animate-slideDown {
           animation: slideDown 0.3s ease-out;
           overflow: hidden;
@@ -135,6 +144,10 @@ const Navbar = () => {
 
         .animate-press {
           animation: buttonPress 0.3s ease-out;
+        }
+
+        .animate-shimmer {
+          animation: shimmer 2s ease-in-out infinite;
         }
       `}</style>
 
@@ -156,42 +169,39 @@ const Navbar = () => {
                 <>
                   <button
                     onClick={() => handleViewChange("dashboard")}
-                    className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-3 py-2 rounded-md group"
+                    className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-blue-600"
                   >
                     <span className="relative z-10">Moje objednávky</span>
-                    <span className="absolute inset-0 bg-blue-500/10 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-md"></span>
                   </button>
                   {isAdmin && (
                     <button
                       onClick={() => handleViewChange("admin")}
-                      className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-3 py-2 rounded-md group"
+                      className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-blue-600"
                     >
                       <span className="relative z-10">Admin</span>
-                      <span className="absolute inset-0 bg-blue-500/10 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-md"></span>
                     </button>
                   )}
                   <button
                     onClick={() => handleViewChange("home")}
-                    className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-3 py-2 rounded-md group"
+                    className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-blue-600"
                   >
                     <span className="relative z-10">Domů</span>
-                    <span className="absolute inset-0 bg-blue-500/10 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-md"></span>
                   </button>
                   <button
                     onClick={() => scrollToSection("objednat")}
-                    className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-3 py-2 rounded-md group"
+                    className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-blue-600"
                   >
                     <span className="relative z-10">Objednat</span>
-                    <span className="absolute inset-0 bg-blue-500/10 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-md"></span>
                   </button>
                   <button
                     onClick={handleServicesClick}
-                    className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-3 py-2 rounded-md group"
+                    className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-blue-600"
                   >
                     <span className="relative z-10">Služby</span>
-                    <span className="absolute inset-0 bg-blue-500/10 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-md"></span>
                   </button>
-                  <UserButton />
+                  <div className="cursor-pointer">
+                    <UserButton />
+                  </div>
                 </>
               </SignedIn>
               <SignedOut>
@@ -199,27 +209,27 @@ const Navbar = () => {
                 <>
                   <button
                     onClick={() => scrollToSection("objednat")}
-                    className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-3 py-2 rounded-md group"
+                    className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-blue-600"
                   >
                     <span className="relative z-10">Objednat</span>
-                    <span className="absolute inset-0 bg-blue-500/10 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-md"></span>
                   </button>
                   <button
                     onClick={handleServicesClick}
-                    className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-3 py-2 rounded-md group"
+                    className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-blue-600"
                   >
                     <span className="relative z-10">Služby</span>
-                    <span className="absolute inset-0 bg-blue-500/10 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-md"></span>
                   </button>
                   <SignInButton mode="modal">
-                    <button className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-3 py-2 rounded-md group">
+                    <button className="text-gray-700 hover:text-blue-600 transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-blue-600">
                       <span className="relative z-10">Přihlásit se</span>
-                      <span className="absolute inset-0 bg-blue-500/10 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-md"></span>
                     </button>
                   </SignInButton>
                   <SignUpButton mode="modal">
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95">
-                      Registrovat se
+                    <button className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 cursor-pointer relative overflow-hidden group">
+                      <span className="relative z-10 font-semibold">
+                        Registrovat se
+                      </span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-40 animate-shimmer"></span>
                     </button>
                   </SignUpButton>
                 </>
@@ -228,10 +238,14 @@ const Navbar = () => {
 
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center space-x-2">
-              {isSignedIn && <UserButton />}
+              {isSignedIn && (
+                <div className="cursor-pointer">
+                  <UserButton />
+                </div>
+              )}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-700 p-2 hover:bg-blue-500/10 rounded-md transition-all duration-300 active:scale-95"
+                className="text-gray-700 p-2 hover:bg-blue-500/10 rounded-md transition-all duration-300 active:scale-95 cursor-pointer"
               >
                 {isMenuOpen ? (
                   <X className="h-6 w-6 transition-transform duration-300" />
@@ -251,33 +265,33 @@ const Navbar = () => {
                   <>
                     <button
                       onClick={() => handleViewChange("dashboard")}
-                      className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-lg hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95"
+                      className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-full hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95 cursor-pointer"
                     >
                       Moje objednávky
                     </button>
                     {isAdmin && (
                       <button
                         onClick={() => handleViewChange("admin")}
-                        className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-lg hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95"
+                        className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-full hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95 cursor-pointer"
                       >
                         Admin
                       </button>
                     )}
                     <button
                       onClick={() => handleViewChange("home")}
-                      className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-lg hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95"
+                      className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-full hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95 cursor-pointer"
                     >
                       Domů
                     </button>
                     <button
                       onClick={() => scrollToSection("objednat")}
-                      className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-lg hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95"
+                      className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-full hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95 cursor-pointer"
                     >
                       Objednat
                     </button>
                     <button
                       onClick={handleServicesClick}
-                      className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-lg hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95"
+                      className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-full hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95 cursor-pointer"
                     >
                       Služby
                     </button>
@@ -288,25 +302,26 @@ const Navbar = () => {
                   <>
                     <button
                       onClick={() => scrollToSection("objednat")}
-                      className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-lg hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95"
+                      className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-full hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95 cursor-pointer"
                     >
                       Objednat
                     </button>
                     <button
                       onClick={handleServicesClick}
-                      className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-lg hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95"
+                      className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-full hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95 cursor-pointer"
                     >
                       Služby
                     </button>
                     <div className="border-t border-white/50 my-2"></div>
                     <SignInButton mode="modal">
-                      <button className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-lg hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95">
+                      <button className="block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-blue-200 rounded-full hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-300 active:scale-95 cursor-pointer">
                         Přihlásit se
                       </button>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <button className="block w-full px-4 py-3 bg-blue-600 text-white border-2 border-blue-600 rounded-lg hover:bg-blue-700 hover:border-blue-700 transition-all duration-300 active:scale-95 font-medium">
-                        Registrovat se
+                      <button className="block w-full px-4 py-3 bg-blue-600 text-white border border-blue-600 rounded-full hover:bg-blue-500 hover:border-blue-500 transition-all duration-300 active:scale-95 font-semibold cursor-pointer relative overflow-hidden group">
+                        <span className="relative z-10">Registrovat se</span>
+                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-40 animate-shimmer"></span>
                       </button>
                     </SignUpButton>
                   </>

@@ -118,7 +118,7 @@ const Hero = () => {
 
         {/* Comb 1 - Top Right */}
         <div
-          className="absolute top-14 right-20 w-24 h-32 sm:w-36 sm:h-45 pointer-events-none opacity-20 will-change-transform"
+          className="absolute top-14 right-20 w-24 h-32 sm:w-36 sm:h-45 pointer-events-none opacity-10 sm:opacity-50 will-change-transform"
           style={{
             transform: `translate3d(0, ${scrollY * 0.2}px, 0) rotate(${-25 + scrollY * 0.03}deg)`,
           }}
@@ -132,7 +132,7 @@ const Hero = () => {
 
         {/* Spray Bottle - Bottom Left */}
         <div
-          className="absolute bottom-80 left-16 sm:bottom-50 sm:left-15 w-16 h-16 sm:w-24 sm:h-24 pointer-events-none opacity-18 will-change-transform"
+          className="absolute bottom-80 left-16 sm:bottom-50 sm:left-15 w-16 h-16 sm:w-24 sm:h-24 pointer-events-none opacity-10 sm:opacity-45 will-change-transform"
           style={{
             transform: `translate3d(0, ${scrollY * -0.25}px, 0) rotate(${10 + scrollY * 0.05}deg)`,
           }}
@@ -146,7 +146,7 @@ const Hero = () => {
 
         {/* Clippers - Top Left */}
         <div
-          className="absolute top-16 left-8 w-24 h-24 sm:top-20 sm:left-20 sm:w-36 sm:h-36 pointer-events-none opacity-22 will-change-transform"
+          className="absolute top-16 left-8 w-24 h-24 sm:top-20 sm:left-20 sm:w-36 sm:h-36 pointer-events-none opacity-12 sm:opacity-55 will-change-transform"
           style={{
             transform: `translate3d(${scrollY * 0.07}px, ${scrollY * 0.3}px, 0) rotate(${15 + scrollY * 0.04}deg)`,
           }}
@@ -160,7 +160,7 @@ const Hero = () => {
 
         {/* Scissors - Middle Right */}
         <div
-          className="absolute top-60 right-16 w-24 h-22 sm:top-65 sm:right-24 sm:w-32 sm:h-28 pointer-events-none opacity-20 will-change-transform"
+          className="absolute top-60 right-16 w-24 h-22 sm:top-65 sm:right-24 sm:w-32 sm:h-28 pointer-events-none opacity-10 sm:opacity-50 will-change-transform"
           style={{
             transform: `translate3d(0, ${-50 + scrollY * 0.22}px, 0) rotate(${-30 + scrollY * 0.04}deg)`,
           }}
@@ -174,7 +174,7 @@ const Hero = () => {
 
         {/* Razor - Bottom Right */}
         <div
-          className="absolute bottom-20 right-16 w-26 h-26 sm:right-16 sm:w-34 sm:h-34 pointer-events-none opacity-18 will-change-transform"
+          className="absolute bottom-20 right-16 w-26 h-26 sm:right-16 sm:w-34 sm:h-34 pointer-events-none opacity-10 sm:opacity-45 will-change-transform"
           style={{
             transform: `translate3d(${scrollY * -0.05}px, ${scrollY * -0.28}px, 0) rotate(${60 + scrollY * 0.03}deg)`,
           }}
@@ -188,7 +188,7 @@ const Hero = () => {
 
         {/* Small Comb 2 - Middle Left */}
         <div
-          className="absolute top-3/4 left-12 w-32 h-32 sm:top-2/3 sm:left-24 sm:w-40 sm:h-40 pointer-events-none opacity-15 will-change-transform"
+          className="absolute top-3/4 left-12 w-32 h-32 sm:top-2/3 sm:left-24 sm:w-40 sm:h-40 pointer-events-none opacity-8 sm:opacity-40 will-change-transform"
           style={{
             transform: `translate3d(0, ${scrollY * 0.18}px, 0) rotate(${-45 + scrollY * 0.05}deg)`,
           }}
@@ -201,28 +201,85 @@ const Hero = () => {
         </div>
 
         <div className="max-w-7xl mx-auto text-center relative z-10">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 animate-fade-in-up">
             Zase to přerostlo?
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto animate-fade-in-up animation-delay-200">
             Ostříhej se u FlekCuts! Moderní střihy pro každého.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
             <Button
               onClick={() => scrollToSection("objednat")}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full text-lg"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-full text-lg shadow-lg hover:shadow-xl hover:scale-105 active:scale-98 transition-all duration-200 relative overflow-hidden group animate-pulse-button cursor-pointer"
             >
-              Objednat se
+              <span className="relative z-10 font-bold">Objednat se</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-50 animate-shimmer"></span>
             </Button>
             <Button
               onClick={() => scrollToSection("services")}
               variant="outline"
-              className="bg-white border-blue-600 text-blue-600 hover:bg-blue-100 px-8 py-3 rounded-full text-lg"
+              className="bg-white border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-700 px-10 py-4 rounded-full text-lg hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
             >
-              Zobrazit služby
+              <span className="relative z-10">Zobrazit služby</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200 to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
             </Button>
           </div>
         </div>
+
+        {/* CSS Animations */}
+        <style jsx>{`
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          @keyframes shimmer {
+            0% {
+              transform: translateX(-100%);
+            }
+            100% {
+              transform: translateX(100%);
+            }
+          }
+
+          @keyframes pulseButton {
+            0%,
+            100% {
+              box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+            }
+            50% {
+              box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+            }
+          }
+
+          .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+          }
+
+          .animate-shimmer {
+            animation: shimmer 1.5s ease-in-out infinite;
+          }
+
+          .animate-pulse-button {
+            animation: pulseButton 2s ease-in-out infinite;
+          }
+
+          .animation-delay-200 {
+            animation-delay: 0.2s;
+            opacity: 0;
+          }
+
+          .animation-delay-400 {
+            animation-delay: 0.4s;
+            opacity: 0;
+          }
+        `}</style>
       </section>
     </>
   );

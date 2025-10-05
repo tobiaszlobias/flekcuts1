@@ -38,6 +38,12 @@ interface FormErrors {
   service?: string;
 }
 
+// Simple phone validation - just check for minimum 9 digits
+const validatePhoneNumber = (phone: string): boolean => {
+  const numbers = phone.replace(/\D/g, "");
+  return numbers.length >= 9;
+};
+
 // Confirmation Modal Component
 const BookingConfirmationModal = ({
   isOpen,
@@ -77,11 +83,8 @@ const BookingConfirmationModal = ({
 
   return (
     <>
-      {/* Backdrop */}
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        {/* Modal - Made more compact */}
         <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden transform transition-all max-h-[90vh] overflow-y-auto">
-          {/* Header with success animation */}
           <div className="bg-blue-600 p-4 text-center">
             <div className="animate-bounce mb-2">
               <CheckCircle className="w-12 h-12 text-white mx-auto" />
@@ -94,9 +97,7 @@ const BookingConfirmationModal = ({
             </p>
           </div>
 
-          {/* Content - More compact */}
           <div className="p-4 space-y-3">
-            {/* Booking Details */}
             <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
               <h3 className="font-semibold text-gray-800 mb-2 flex items-center text-sm">
                 <CalendarDays className="w-4 h-4 mr-2 text-blue-600" />
@@ -141,7 +142,6 @@ const BookingConfirmationModal = ({
               </div>
             </div>
 
-            {/* Contact Information */}
             <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
               <h3 className="font-semibold text-gray-800 mb-2 text-sm">
                 Kontaktní údaje
@@ -162,7 +162,6 @@ const BookingConfirmationModal = ({
               </div>
             </div>
 
-            {/* Next Steps */}
             <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
               <h3 className="font-semibold text-gray-800 mb-2 text-sm">
                 Co bude následovat?
@@ -187,93 +186,13 @@ const BookingConfirmationModal = ({
   );
 };
 
-const formatPhoneNumber = (value: string): string => {
-  const numbers = value.replace(/\D/g, "");
-
-  if (numbers.length === 0) return "";
-
-  if (numbers.startsWith("420")) {
-    const rest = numbers.substring(3);
-    if (rest.length === 0) return "+420";
-    if (rest.length <= 3) return `+420 ${rest}`;
-    if (rest.length <= 6)
-      return `+420 ${rest.substring(0, 3)} ${rest.substring(3)}`;
-    if (rest.length === 9)
-      return `+420 ${rest.substring(0, 3)} ${rest.substring(3, 6)} ${rest.substring(6)}`;
-    return `+420 ${rest.substring(0, 3)} ${rest.substring(3, 6)} ${rest.substring(6, 9)}`;
-  }
-
-  if (numbers.startsWith("421")) {
-    const rest = numbers.substring(3);
-    if (rest.length === 0) return "+421";
-    if (rest.length <= 3) return `+421 ${rest}`;
-    if (rest.length <= 6)
-      return `+421 ${rest.substring(0, 3)} ${rest.substring(3)}`;
-    if (rest.length === 9)
-      return `+421 ${rest.substring(0, 3)} ${rest.substring(3, 6)} ${rest.substring(6)}`;
-    return `+421 ${rest.substring(0, 3)} ${rest.substring(3, 6)} ${rest.substring(6, 9)}`;
-  }
-
-  if (numbers.startsWith("0")) {
-    const localNumber = numbers.substring(1);
-    if (localNumber.length === 0) return "0";
-    if (localNumber.length <= 3) return `+420 ${localNumber}`;
-    if (localNumber.length <= 6)
-      return `+420 ${localNumber.substring(0, 3)} ${localNumber.substring(3)}`;
-    if (localNumber.length === 9)
-      return `+420 ${localNumber.substring(0, 3)} ${localNumber.substring(3, 6)} ${localNumber.substring(6)}`;
-    return `+420 ${localNumber.substring(0, 3)} ${localNumber.substring(3, 6)} ${localNumber.substring(6, 9)}`;
-  }
-
-  if (numbers.length <= 3) return `+420 ${numbers}`;
-  if (numbers.length <= 6)
-    return `+420 ${numbers.substring(0, 3)} ${numbers.substring(3)}`;
-  if (numbers.length === 9)
-    return `+420 ${numbers.substring(0, 3)} ${numbers.substring(3, 6)} ${numbers.substring(6)}`;
-  return `+420 ${numbers.substring(0, 3)} ${numbers.substring(3, 6)} ${numbers.substring(6, 9)}`;
-};
-
-const validatePhoneNumber = (phone: string): boolean => {
-  const numbers = phone.replace(/\D/g, "");
-  if (numbers.startsWith("420")) return numbers.length === 12;
-  if (numbers.startsWith("421")) return numbers.length === 12;
-  return numbers.length >= 10 && numbers.length <= 15;
-};
-
-const getPhoneValidationMessage = (phone: string): string => {
-  if (!phone) return "";
-  const numbers = phone.replace(/\D/g, "");
-
-  if (numbers.startsWith("420")) {
-    if (numbers.length < 12) return "České číslo musí mít 9 číslic po +420";
-    if (numbers.length > 12) return "Příliš mnoho číslic pro české číslo";
-    return "";
-  }
-
-  if (numbers.startsWith("421")) {
-    if (numbers.length < 12) return "Slovenské číslo musí mít 9 číslic po +421";
-    if (numbers.length > 12) return "Příliš mnoho číslic pro slovenské číslo";
-    return "";
-  }
-
-  if (numbers.length < 10) return "Telefonní číslo je příliš krátké";
-  if (numbers.length > 15) return "Telefonní číslo je příliš dlouhé";
-  return "";
-};
-
-// Enhanced date/time utility functions
 const isDateTimeAvailable = (date: string, time: string): boolean => {
   const now = new Date();
   const [hours, minutes] = time.split(":").map(Number);
-
-  // Create appointment date in local timezone
   const appointmentDate = new Date(date);
   appointmentDate.setHours(hours, minutes, 0, 0);
-
   const timeDifference = appointmentDate.getTime() - now.getTime();
   const hoursUntilAppointment = timeDifference / (1000 * 60 * 60);
-
-  // Require at least 2 hours advance notice
   return hoursUntilAppointment >= 2;
 };
 
@@ -288,7 +207,6 @@ const formatDate = (dateString: string): string => {
   });
 };
 
-// Compact Calendar component with inline date/time selection
 const CompactDateTimePicker = ({
   selectedDate,
   selectedTime,
@@ -317,7 +235,6 @@ const CompactDateTimePicker = ({
 
     const days = [];
 
-    // Add empty cells for days before the first day of the month
     for (
       let i = 0;
       i < (startingDayOfWeek === 0 ? 6 : startingDayOfWeek - 1);
@@ -326,7 +243,6 @@ const CompactDateTimePicker = ({
       days.push(null);
     }
 
-    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month, day);
       const yearStr = currentDate.getFullYear();
@@ -336,7 +252,7 @@ const CompactDateTimePicker = ({
       const dayOfWeek = currentDate.getDay();
       const isToday = new Date().toDateString() === currentDate.toDateString();
       const isPast = currentDate < new Date(new Date().setHours(0, 0, 0, 0));
-      const isWorking = dayOfWeek >= 1 && dayOfWeek <= 5; // Monday to Friday
+      const isWorking = dayOfWeek >= 1 && dayOfWeek <= 5;
       const isSelected = selectedDate === dateString;
 
       days.push({
@@ -383,9 +299,7 @@ const CompactDateTimePicker = ({
 
   return (
     <div className="space-y-4">
-      {/* Mini Calendar */}
       <div className="bg-white border border-gray-200 rounded-lg p-3">
-        {/* Calendar Header */}
         <div className="flex items-center justify-between mb-3">
           <button
             type="button"
@@ -415,7 +329,6 @@ const CompactDateTimePicker = ({
         </div>
 
         <div className="grid grid-cols-7 gap-1">
-          {/* Day headers */}
           {["Po", "Út", "St", "Čt", "Pá", "So", "Ne"].map((day) => (
             <div
               key={day}
@@ -425,7 +338,6 @@ const CompactDateTimePicker = ({
             </div>
           ))}
 
-          {/* Calendar days */}
           {days.map((day, index) => {
             if (!day) {
               return <div key={index} className="p-1" />;
@@ -450,7 +362,6 @@ const CompactDateTimePicker = ({
                   `}
                 >
                   <span className="relative z-10">{day.day}</span>
-                  {/* Working day indicator */}
                   {day.isWorking && !day.isPast && (
                     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-500 rounded-full"></div>
                   )}
@@ -460,7 +371,6 @@ const CompactDateTimePicker = ({
           })}
         </div>
 
-        {/* Legend */}
         <div className="mt-2 pt-2 border-t border-gray-100">
           <div className="flex items-center gap-3 text-xs text-gray-600">
             <div className="flex items-center gap-1">
@@ -475,7 +385,6 @@ const CompactDateTimePicker = ({
         </div>
       </div>
 
-      {/* Time Slots - Only show when date is selected */}
       {showTimeSlots && selectedDate && (
         <div className="bg-white border border-gray-200 rounded-lg p-3">
           <h4 className="font-medium mb-2 flex items-center text-sm">
@@ -522,7 +431,6 @@ const CompactDateTimePicker = ({
         </div>
       )}
 
-      {/* Selected appointment summary */}
       {selectedDate && selectedTime && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
           <p className="text-blue-700 text-sm font-medium flex items-center">
@@ -707,14 +615,10 @@ const Booking = () => {
       newErrors.email = "Neplatný formát emailu";
     }
 
-    if (!isSignedIn) {
-      if (!bookingForm.phone.trim()) {
-        newErrors.phone = "Telefon je povinný";
-      } else if (!validatePhoneNumber(bookingForm.phone)) {
-        newErrors.phone =
-          getPhoneValidationMessage(bookingForm.phone) ||
-          "Neplatné telefonní číslo";
-      }
+    if (!bookingForm.phone.trim()) {
+      newErrors.phone = "Telefon je povinný";
+    } else if (!validatePhoneNumber(bookingForm.phone)) {
+      newErrors.phone = "Zadejte alespoň 9 číslic";
     }
 
     if (!bookingForm.service) newErrors.service = "Služba je povinná";
@@ -753,11 +657,9 @@ const Booking = () => {
         });
       }
 
-      // Store booking details and show confirmation modal
       setConfirmedBooking({ ...bookingForm });
       setShowConfirmationModal(true);
 
-      // Reset form
       setBookingForm({
         name: "",
         email: "",
@@ -793,7 +695,7 @@ const Booking = () => {
 
   const handleDateSelect = (date: string) => {
     handleInputChange("date", date);
-    handleInputChange("time", ""); // Reset time when date changes
+    handleInputChange("time", "");
   };
 
   const handleTimeSelect = (time: string) => {
@@ -887,90 +789,27 @@ const Booking = () => {
                 </div>
               </div>
 
-              {!isSignedIn && (
-                <div>
-                  <Label htmlFor="phone" className="text-gray-700 font-medium">
-                    Telefon{" "}
-                    {attemptedSubmit &&
-                      (!bookingForm.phone.trim() ||
-                        !validatePhoneNumber(bookingForm.phone)) && (
-                        <span className="text-red-500">*</span>
-                      )}
-                  </Label>
-                  <div className="relative mt-2">
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={bookingForm.phone}
-                      onChange={(e) => {
-                        const formatted = formatPhoneNumber(e.target.value);
-                        handleInputChange("phone", formatted);
-                      }}
-                      onKeyDown={(e) => {
-                        if (
-                          [8, 9, 27, 13, 46].includes(e.keyCode) ||
-                          (e.keyCode === 65 && e.ctrlKey) ||
-                          (e.keyCode === 67 && e.ctrlKey) ||
-                          (e.keyCode === 86 && e.ctrlKey) ||
-                          (e.keyCode === 88 && e.ctrlKey) ||
-                          (e.keyCode >= 35 && e.keyCode <= 39)
-                        ) {
-                          return;
-                        }
-                        if (
-                          (e.shiftKey || e.keyCode < 48 || e.keyCode > 57) &&
-                          (e.keyCode < 96 || e.keyCode > 105)
-                        ) {
-                          e.preventDefault();
-                        }
-                      }}
-                      className={`rounded-lg transition-all duration-200 ${
-                        errors.phone
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                          : bookingForm.phone &&
-                              validatePhoneNumber(bookingForm.phone)
-                            ? "border-green-500 focus:border-green-500 focus:ring-green-500/20"
-                            : bookingForm.phone
-                              ? "border-yellow-400 focus:border-yellow-400 focus:ring-yellow-400/20"
-                              : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
-                      } focus:ring-2`}
-                      placeholder="+420 123 456 789"
-                    />
-                    {bookingForm.phone && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        {validatePhoneNumber(bookingForm.phone) ? (
-                          <span className="text-green-500 text-lg">✓</span>
-                        ) : (
-                          <span className="text-yellow-500 text-lg">⚠</span>
-                        )}
-                      </div>
+              <div>
+                <Label htmlFor="phone" className="text-gray-700 font-medium">
+                  Telefon{" "}
+                  {attemptedSubmit &&
+                    (!bookingForm.phone.trim() ||
+                      !validatePhoneNumber(bookingForm.phone)) && (
+                      <span className="text-red-500">*</span>
                     )}
-                  </div>
-
-                  {errors.phone ? (
-                    <p className="text-red-500 text-sm mt-1 flex items-center">
-                      <span className="mr-1">❌</span>
-                      {errors.phone}
-                    </p>
-                  ) : bookingForm.phone &&
-                    !validatePhoneNumber(bookingForm.phone) ? (
-                    <p className="text-yellow-600 text-sm mt-1 flex items-center">
-                      <span className="mr-1">⚠️</span>
-                      {getPhoneValidationMessage(bookingForm.phone)}
-                    </p>
-                  ) : bookingForm.phone &&
-                    validatePhoneNumber(bookingForm.phone) ? (
-                    <p className="text-green-600 text-sm mt-1 flex items-center">
-                      <span className="mr-1">✅</span>
-                      Platné telefonní číslo
-                    </p>
-                  ) : (
-                    <p className="text-gray-500 text-xs mt-1">
-                      Formáty: 123 456 789, 0123 456 789, +420 123 456 789
-                    </p>
-                  )}
-                </div>
-              )}
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={bookingForm.phone}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  className={`mt-2 rounded-lg ${errors.phone ? "border-red-500" : "border-gray-300"}`}
+                  placeholder="+420 123 456 789"
+                />
+                {errors.phone && (
+                  <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+                )}
+              </div>
 
               <div>
                 <Label htmlFor="service" className="text-gray-700 font-medium">
@@ -1007,7 +846,6 @@ const Booking = () => {
                 )}
               </div>
 
-              {/* Compact Date & Time Picker */}
               <div>
                 <Label className="text-gray-700 font-medium">
                   Preferovaný termín{" "}
@@ -1028,7 +866,6 @@ const Booking = () => {
                   />
                 </div>
 
-                {/* Show validation errors */}
                 {errors.date && (
                   <p className="text-red-500 text-sm mt-1">{errors.date}</p>
                 )}
@@ -1056,7 +893,6 @@ const Booking = () => {
         </Card>
       </div>
 
-      {/* Booking Confirmation Modal */}
       {showConfirmationModal && confirmedBooking && (
         <BookingConfirmationModal
           isOpen={showConfirmationModal}

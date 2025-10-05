@@ -1,29 +1,34 @@
-"use client";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useRef, useState } from "react";
 
 const Services = () => {
-  const [visibleRows, setVisibleRows] = useState<Set<number>>(new Set());
-  const [columnsPerRow, setColumnsPerRow] = useState(3);
-  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [visibleItems, setVisibleItems] = useState<Set<number>>(new Set());
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const services = [
-    { name: "Fade", description: "Jakýkoliv střih od kůže", price: 350 },
-    { name: "Klasický střih", description: "Střih do ztracena", price: 250 },
+  const featuredServices = [
     {
-      name: "Dětský střih - fade",
-      description: "Děti do 10ti let, střih od kůže",
+      name: "Fade",
+      description: "Jakýkoliv střih od kůže",
+      price: 350,
+      imageUrl: "/fade.jpg",
+    },
+    {
+      name: "Klasický střih",
+      description: "Střih do ztracena",
+      price: 250,
+      imageUrl: "/klasicky.jpg",
+    },
+  ];
+
+  const otherServices = [
+    {
+      name: "Dětský střih",
+      description: "Děti do 10ti let",
       price: 250,
     },
     {
-      name: "Dětský střih - do ztracena",
-      description: "Děti do 10ti let do ztracena",
-      price: 200,
-    },
-    {
       name: "Vousy",
-      description: "Úprava vousů pomocí strojku a břitvy.",
+      description: "Úprava vousů pomocí strojku a břitvy",
       price: 150,
     },
     {
@@ -33,77 +38,52 @@ const Services = () => {
     },
     {
       name: "Kompletka",
-      description: "Střih dle výběru, úprava vousů a obočí , mytí vlasů",
+      description: "Střih dle výběru, úprava vousů a obočí, mytí vlasů",
       price: 500,
-    },
-    {
-      name: "Vlasy do ztracena + Vousy",
-      description: "Moderní střih do ztracena s precizní úpravou vousů.",
-      price: 350,
     },
   ];
 
-  // Detect screen size and set columns
-  useEffect(() => {
-    const updateColumns = () => {
-      if (window.innerWidth >= 1024) {
-        setColumnsPerRow(3); // lg: 3 columns
-      } else if (window.innerWidth >= 768) {
-        setColumnsPerRow(2); // md: 2 columns
-      } else {
-        setColumnsPerRow(1); // sm: 1 column
-      }
-    };
-
-    updateColumns();
-    window.addEventListener("resize", updateColumns);
-    return () => window.removeEventListener("resize", updateColumns);
-  }, []);
-
-  // Observe each row individually
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const rowIndex = rowRefs.current.indexOf(
+            const itemIndex = itemRefs.current.indexOf(
               entry.target as HTMLDivElement
             );
-            if (rowIndex !== -1 && !visibleRows.has(rowIndex)) {
-              setVisibleRows((prev) => new Set([...prev, rowIndex]));
+            if (itemIndex !== -1 && !visibleItems.has(itemIndex)) {
+              setVisibleItems((prev) => new Set([...prev, itemIndex]));
               observer.unobserve(entry.target);
             }
           }
         });
       },
       {
-        threshold: 0.3,
-        rootMargin: "0px",
+        threshold: 0.2,
+        rootMargin: "0px 0px -50px 0px",
       }
     );
 
-    rowRefs.current.forEach((row) => {
-      if (row) {
-        observer.observe(row);
+    itemRefs.current.forEach((item) => {
+      if (item) {
+        observer.observe(item);
       }
     });
 
     return () => {
-      rowRefs.current.forEach((row) => {
-        if (row) {
-          observer.unobserve(row);
+      itemRefs.current.forEach((item) => {
+        if (item) {
+          observer.unobserve(item);
         }
       });
     };
-  }, [columnsPerRow, visibleRows]);
+  }, [visibleItems]);
 
   const handleServiceClick = (serviceName: string) => {
-    // Navigate to booking section with pre-selected service
     const bookingSection = document.getElementById("objednat");
     if (bookingSection) {
       bookingSection.scrollIntoView({ behavior: "smooth" });
 
-      // Dispatch custom event to pre-select service
       window.dispatchEvent(
         new CustomEvent("preSelectService", {
           detail: { serviceName },
@@ -112,82 +92,124 @@ const Services = () => {
     }
   };
 
-  // Group services by row
-  const totalRows = Math.ceil(services.length / columnsPerRow);
-  const rows = Array.from({ length: totalRows }, (_, rowIndex) => {
-    const start = rowIndex * columnsPerRow;
-    const end = start + columnsPerRow;
-    return services.slice(start, end);
-  });
-
   return (
-    <section id="services" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+    <section
+      id="services"
+      className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white"
+    >
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-12 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
             Služby
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-lg sm:text-xl text-gray-600">
             Profesionální péče o vaše vlasy a vousy
           </p>
         </div>
 
-        <div className="space-y-8">
-          {rows.map((rowServices, rowIndex) => {
-            const isLastRow = rowIndex === rows.length - 1;
-            const isIncompleteRow = rowServices.length < columnsPerRow;
+        {/* Featured Services with Images */}
+        <div className="space-y-6 mb-12 sm:mb-16">
+          {featuredServices.map((service, index) => (
+            <div
+              key={index}
+              ref={(el) => {
+                if (el) itemRefs.current[index] = el;
+              }}
+              className="transition-all duration-700 ease-out"
+              style={{
+                opacity: visibleItems.has(index) ? 1 : 0,
+                transform: visibleItems.has(index)
+                  ? "translateY(0)"
+                  : "translateY(30px)",
+                transitionDelay: `${index * 150}ms`,
+              }}
+            >
+              <div
+                className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer relative active:scale-95"
+                onClick={() => handleServiceClick(service.name)}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/10 to-blue-500/0 shimmer-effect z-10 pointer-events-none"></div>
+                <style>{`
+                  @keyframes shimmer {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(100%); }
+                  }
+                  .shimmer-effect {
+                    transform: translateX(-100%);
+                  }
+                  div:hover > .shimmer-effect {
+                    animation: shimmer 0.7s ease-out;
+                  }
+                `}</style>
+                <div className="flex flex-col md:flex-row relative">
+                  {/* Text Content */}
+                  <div className="flex-1 p-6 sm:p-8 flex flex-col justify-center">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                      {service.name}
+                    </h3>
+                    <p className="text-base sm:text-lg text-gray-600 mb-4">
+                      {service.description}
+                    </p>
+                    <div className="flex items-center gap-4">
+                      <span className="text-3xl sm:text-4xl font-bold text-blue-600">
+                        {service.price} Kč
+                      </span>
+                      <span className="bg-blue-100 text-blue-800 text-sm px-4 py-2 rounded-full font-medium">
+                        Objednat
+                      </span>
+                    </div>
+                  </div>
 
+                  {/* Image */}
+                  <div className="w-full md:w-2/5 h-48 md:h-auto overflow-hidden">
+                    <img
+                      src={service.imageUrl}
+                      alt={service.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Other Services - Compact Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {otherServices.map((service, index) => {
+            const actualIndex = featuredServices.length + index;
             return (
               <div
-                key={rowIndex}
+                key={index}
                 ref={(el) => {
-                  if (el) rowRefs.current[rowIndex] = el;
+                  if (el) itemRefs.current[actualIndex] = el;
                 }}
-                className="transition-all duration-500 ease-out"
+                className="transition-all duration-700 ease-out"
                 style={{
-                  opacity: visibleRows.has(rowIndex) ? 1 : 0,
-                  transform: visibleRows.has(rowIndex)
-                    ? "translateY(0) scale(1)"
-                    : "translateY(30px) scale(0.95)",
+                  opacity: visibleItems.has(actualIndex) ? 1 : 0,
+                  transform: visibleItems.has(actualIndex)
+                    ? "translateY(0)"
+                    : "translateY(30px)",
+                  transitionDelay: `${actualIndex * 100}ms`,
                 }}
               >
                 <div
-                  className={`${
-                    isLastRow && isIncompleteRow
-                      ? "flex flex-wrap justify-center gap-8"
-                      : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                  }`}
+                  className="bg-white rounded-xl shadow-md transition-all duration-300 cursor-pointer p-5 h-full group relative overflow-hidden active:scale-95"
+                  onClick={() => handleServiceClick(service.name)}
                 >
-                  {rowServices.map((service, index) => (
-                    <Card
-                      key={index}
-                      className={`h-full hover:shadow-lg transition-all duration-300 rounded-xl border-0 shadow-md cursor-pointer transform hover:scale-105 ${
-                        isLastRow && isIncompleteRow
-                          ? "w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)] max-w-sm"
-                          : "w-full lg:max-w-sm"
-                      }`}
-                      onClick={() => handleServiceClick(service.name)}
-                    >
-                      <CardHeader className="text-center pb-2 pt-4 sm:pb-4 sm:pt-6">
-                        <CardTitle className="text-lg sm:text-xl text-gray-900">
-                          {service.name}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="text-center pt-0 pb-4 sm:pb-6">
-                        <p className="text-sm sm:text-base text-gray-600 mb-2 sm:mb-4">
-                          {service.description}
-                        </p>
-                        <div className="text-xl sm:text-2xl font-bold text-blue-600">
-                          {service.price} Kč
-                        </div>
-                        <div className="mt-2 sm:mt-4">
-                          <span className="inline-block bg-blue-100 text-blue-800 text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full">
-                            Klikněte pro objednání
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl group-hover:w-32 group-hover:h-32 transition-all duration-500 -translate-y-10 translate-x-10"></div>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
+                    {service.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    {service.description}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold text-blue-600">
+                      {service.price} Kč
+                    </span>
+                    <span className="text-blue-600 text-xl font-medium">→</span>
+                  </div>
                 </div>
               </div>
             );
