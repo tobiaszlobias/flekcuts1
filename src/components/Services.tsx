@@ -8,13 +8,13 @@ const Services = () => {
   const featuredServices = [
     {
       name: "Fade",
-      description: "Jakýkoliv střih od kůže",
+      description: "Precizní přechody od nuly s dokonalým vyblednutím",
       price: 350,
       imageUrl: "/fade.jpg",
     },
     {
       name: "Klasický střih",
-      description: "Střih do ztracena",
+      description: "Elegantní střih s plynulými přechody do ztracena",
       price: 250,
       imageUrl: "/klasicky.jpg",
     },
@@ -23,22 +23,22 @@ const Services = () => {
   const otherServices = [
     {
       name: "Dětský střih",
-      description: "Děti do 10ti let",
+      description: "Speciální péče pro děti do 10 let v příjemném prostředí",
       price: 250,
     },
     {
       name: "Vousy",
-      description: "Úprava vousů pomocí strojku a břitvy",
+      description: "Profesionální úprava a konturování vousů břitvou",
       price: 150,
     },
     {
       name: "Mytí vlasů",
-      description: "Mytí vlasů - šampon a kondicionér",
+      description: "Relaxační mytí s kvalitním šamponem a kondicionérem",
       price: 100,
     },
     {
       name: "Kompletka",
-      description: "Střih dle výběru, úprava vousů a obočí, mytí vlasů",
+      description: "Kompletní péče - střih, vousy, obočí a mytí vlasů",
       price: 500,
     },
   ];
@@ -99,10 +99,10 @@ const Services = () => {
     >
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+          <h2 className="font-anek text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
             Služby
           </h2>
-          <p className="text-lg sm:text-xl text-gray-600">
+          <p className="font-aileron text-base sm:text-lg lg:text-xl text-gray-600">
             Profesionální péče o vaše vlasy a vousy
           </p>
         </div>
@@ -144,17 +144,17 @@ const Services = () => {
                 <div className="flex flex-col md:flex-row relative">
                   {/* Text Content */}
                   <div className="flex-1 p-6 sm:p-8 flex flex-col justify-center">
-                    <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                    <h3 className="font-anek text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                       {service.name}
                     </h3>
-                    <p className="text-base sm:text-lg text-gray-600 mb-4">
+                    <p className="font-aileron text-base sm:text-lg text-gray-600 mb-4">
                       {service.description}
                     </p>
                     <div className="flex items-center gap-4">
-                      <span className="text-3xl sm:text-4xl font-bold text-blue-600">
+                      <span className="font-anek text-3xl sm:text-4xl font-bold text-blue-600">
                         {service.price} Kč
                       </span>
-                      <span className="bg-blue-100 text-blue-800 text-sm px-4 py-2 rounded-full font-medium">
+                      <span className="font-aileron bg-blue-100 text-blue-800 text-sm px-4 py-2 rounded-full font-medium">
                         Objednat
                       </span>
                     </div>
@@ -198,17 +198,19 @@ const Services = () => {
                   onClick={() => handleServiceClick(service.name)}
                 >
                   <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl group-hover:w-32 group-hover:h-32 transition-all duration-500 -translate-y-10 translate-x-10"></div>
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="font-anek text-lg sm:text-xl font-bold text-gray-900 mb-2">
                     {service.name}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="font-aileron text-sm text-gray-600 mb-3">
                     {service.description}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-blue-600">
+                    <span className="font-anek text-2xl font-bold text-blue-600">
                       {service.price} Kč
                     </span>
-                    <span className="text-blue-600 text-xl font-medium">→</span>
+                    <span className="font-anek text-blue-600 text-xl font-medium">
+                      →
+                    </span>
                   </div>
                 </div>
               </div>

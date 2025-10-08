@@ -32,23 +32,25 @@ const Footer = () => {
           {/* About & Contact Section */}
           <div className="space-y-6">
             <div>
-              <h3 className="text-xl font-bold mb-3">FlekCuts</h3>
-              <p className="text-gray-400 leading-relaxed text-sm">
+              <h3 className="font-anek text-xl font-bold mb-3">FlekCuts</h3>
+              <p className="font-aileron text-gray-400 leading-relaxed text-sm">
                 Profesionální holictví v srdci Bruntálu. Specializuji se na
-                moderní stříhy, klasické úpravy vousů a kompletní péči o vaše
+                moderní střihy, klasické úpravy vousů a kompletní péči o vaše
                 vlasy.
               </p>
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-base font-semibold mb-3">Kontakt</h4>
+              <h4 className="font-anek text-base font-semibold mb-3">
+                Kontakt
+              </h4>
 
               <button
                 onClick={handlePhoneClick}
                 className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors group"
               >
                 <Phone className="w-4 h-4 text-blue-400 group-hover:text-blue-300" />
-                <span className="text-sm">+420 778 779 938</span>
+                <span className="font-aileron text-sm">+420 778 779 938</span>
               </button>
 
               <button
@@ -56,7 +58,7 @@ const Footer = () => {
                 className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors group"
               >
                 <MapPin className="w-4 h-4 text-blue-400 group-hover:text-blue-300" />
-                <div className="text-left text-sm">
+                <div className="font-aileron text-left text-sm">
                   <div>Zámecké náměstí 19</div>
                   <div>792 01 Bruntál</div>
                 </div>
@@ -69,7 +71,9 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-3">
               <Clock className="w-4 h-4 text-blue-400" />
-              <h4 className="text-base font-semibold">Otevírací doba</h4>
+              <h4 className="font-anek text-base font-semibold">
+                Otevírací doba
+              </h4>
             </div>
 
             <div className="space-y-1.5">
@@ -78,9 +82,11 @@ const Footer = () => {
                   key={index}
                   className="flex justify-between items-center py-1"
                 >
-                  <span className="text-gray-400 text-sm">{item.day}</span>
+                  <span className="font-aileron text-gray-400 text-sm">
+                    {item.day}
+                  </span>
                   <span
-                    className={`text-sm ${
+                    className={`font-aileron text-sm ${
                       item.isClosed ? "text-red-400" : "text-gray-400"
                     }`}
                   >
@@ -100,13 +106,13 @@ const Footer = () => {
         {/* Map Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-base font-semibold flex items-center gap-2">
+            <h4 className="font-anek text-base font-semibold flex items-center gap-2">
               <MapPin className="w-4 h-4 text-blue-400" />
               Kde nás najdete
             </h4>
             <button
               onClick={handleDirectionsClick}
-              className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1 text-xs"
+              className="font-aileron text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1 text-xs"
             >
               Otevřít v mapách
               <ExternalLink className="w-3 h-3" />
@@ -132,7 +138,7 @@ const Footer = () => {
               <div className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-sm text-white p-2.5 rounded-lg">
                 <div className="flex items-start gap-2">
                   <MapPin className="w-3.5 h-3.5 text-blue-400 mt-0.5 flex-shrink-0" />
-                  <div className="text-xs">
+                  <div className="font-aileron text-xs">
                     <div className="font-semibold">FlekCuts</div>
                     <div className="text-gray-300">Zámecké náměstí 19</div>
                     <div className="text-gray-300">792 01 Bruntál</div>
@@ -153,7 +159,7 @@ const Footer = () => {
         {/* Bottom Section with Legal Links */}
         <div className="border-t border-gray-800 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-gray-500 text-xs">
+            <p className="font-aileron text-gray-500 text-xs">
               © 2025 FlekCuts. Všechna práva vyhrazena.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
@@ -161,7 +167,7 @@ const Footer = () => {
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("showPrivacyPolicy"));
                 }}
-                className="text-gray-500 hover:text-gray-300 transition-colors"
+                className="font-aileron text-gray-500 hover:text-gray-300 transition-colors"
               >
                 Ochrana osobních údajů
               </button>
@@ -170,7 +176,7 @@ const Footer = () => {
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("showTermsOfService"));
                 }}
-                className="text-gray-500 hover:text-gray-300 transition-colors"
+                className="font-aileron text-gray-500 hover:text-gray-300 transition-colors"
               >
                 Obchodní podmínky
               </button>
@@ -179,7 +185,7 @@ const Footer = () => {
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("showBusinessInfo"));
                 }}
-                className="text-gray-500 hover:text-gray-300 transition-colors"
+                className="font-aileron text-gray-500 hover:text-gray-300 transition-colors"
               >
                 Právní informace
               </button>
@@ -264,7 +270,7 @@ const CurrentStatus = () => {
         }`}
       ></div>
       <span
-        className={`text-xs ${
+        className={`font-aileron text-xs ${
           currentStatus.isOpen ? "text-green-400" : "text-red-400"
         }`}
       >

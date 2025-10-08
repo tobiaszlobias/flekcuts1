@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --font-anek: var(--font-anek), system-ui, sans-serif;
+  --font-aileron: var(--font-aileron), system-ui, sans-serif;
+}
+
 :root {
   --background: 0 0% 100%;
   --foreground: 0 0% 3.9%;

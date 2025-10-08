@@ -1,12 +1,13 @@
 // layout.tsx - Add this metadataBase to fix the warning
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Notable, Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { anek, aileron } from "@/fonts/fonts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
       ? "https://flekcuts.cz" // Replace with your actual domain when you have one
       : "http://localhost:3000"
   ),
-  title: "FlekCuts - Moderní holictví v Bruntále | Fade, Stříhy, Vousy",
+  title: "FlekCuts - Moderní holictví v Bruntále | Fade, Střihy, Vousy",
   description:
     "Profesionální holictví FlekCuts v Bruntále. Fade střihy, klasické střihy, úprava vousů, dětské střihy. Online objednávky na Zámeckém náměstí 19. ☎️ +420 778 779 938",
   keywords: [
@@ -89,7 +90,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="cs">
+    <html lang="cs" className={`${anek.variable} ${aileron.variable}`}>
       <head>
         <meta name="geo.region" content="CZ-80" />
         <meta name="geo.placename" content="Bruntál" />
@@ -149,9 +150,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-slate-50 to-blue-50`}
-      >
+      <body>
         <ClerkProvider>
           <ConvexClientProvider>
             <Navbar />

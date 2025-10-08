@@ -99,10 +99,12 @@ const Hero = () => {
             <div className="mb-4">
               <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
-            <p className="text-xl text-gray-700 font-semibold">
+            <p className="font-anek text-xl text-gray-700 font-semibold">
               Načítání FlekCuts...
             </p>
-            <p className="text-sm text-gray-500 mt-2">{loadingPercentage}%</p>
+            <p className="font-aileron text-sm text-gray-500 mt-2">
+              {loadingPercentage}%
+            </p>
           </div>
         </div>
       )}
@@ -201,16 +203,21 @@ const Hero = () => {
         </div>
 
         <div className="max-w-7xl mx-auto text-center relative z-10">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 animate-fade-in-up">
+          {/* Main Heading - Largest (Golden Ratio Base) */}
+          <h1 className="font-anek font-extrabold text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-gray-900 mb-6 leading-tight animate-fade-in-up">
             Zase to přerostlo?
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto animate-fade-in-up animation-delay-200">
+
+          {/* Subheading - Medium (Base / 2.618) */}
+          <p className="font-aileron text-lg sm:text-xl lg:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200">
             Ostříhej se u FlekCuts! Moderní střihy pro každého.
           </p>
+
+          {/* Buttons - Small (Subheading / 1.618) */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
             <Button
               onClick={() => scrollToSection("objednat")}
-              className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-full text-lg shadow-lg hover:shadow-xl hover:scale-105 active:scale-98 transition-all duration-200 relative overflow-hidden group animate-pulse-button cursor-pointer"
+              className="font-anek bg-blue-600 hover:bg-blue-500 text-white px-10 py-5 rounded-full text-lg sm:text-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-98 transition-all duration-200 relative overflow-hidden group animate-pulse-button cursor-pointer"
             >
               <span className="relative z-10 font-bold">Objednat se</span>
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-50 animate-shimmer"></span>
@@ -218,7 +225,7 @@ const Hero = () => {
             <Button
               onClick={() => scrollToSection("services")}
               variant="outline"
-              className="bg-white border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-700 px-10 py-4 rounded-full text-lg hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
+              className="font-aileron bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-700 px-10 py-5 rounded-full text-lg sm:text-xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
             >
               <span className="relative z-10">Zobrazit služby</span>
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200 to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>

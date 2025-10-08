@@ -8,6 +8,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        anek: ["var(--font-anek)"],
+        aileron: ["var(--font-aileron)"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
