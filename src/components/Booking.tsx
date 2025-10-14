@@ -711,10 +711,10 @@ const Booking = () => {
     <section id="objednat" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="font-anek text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="font-crimson text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
             Objednejte si termín
           </h2>
-          <p className="font-aileron text-base sm:text-lg lg:text-xl text-gray-600">
+          <p className="font-montserrat text-base sm:text-lg lg:text-xl text-gray-600">
             Dopřejte si profesionální péči
           </p>
 

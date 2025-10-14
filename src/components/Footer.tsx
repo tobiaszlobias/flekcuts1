@@ -32,8 +32,8 @@ const Footer = () => {
           {/* About & Contact Section */}
           <div className="space-y-6">
             <div>
-              <h3 className="font-anek text-xl font-bold mb-3">FlekCuts</h3>
-              <p className="font-aileron text-gray-400 leading-relaxed text-sm">
+              <h3 className="font-crimson text-xl font-bold mb-3">FlekCuts</h3>
+              <p className="font-montserrat text-gray-400 leading-relaxed text-sm">
                 Profesionální holictví v srdci Bruntálu. Specializuji se na
                 moderní střihy, klasické úpravy vousů a kompletní péči o vaše
                 vlasy.
@@ -41,7 +41,7 @@ const Footer = () => {
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-anek text-base font-semibold mb-3">
+              <h4 className="font-crimson text-base font-semibold mb-3">
                 Kontakt
               </h4>
 
@@ -50,7 +50,7 @@ const Footer = () => {
                 className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors group"
               >
                 <Phone className="w-4 h-4 text-[#7E8D85] group-hover:text-[#3C493F]" />
-                <span className="font-aileron text-sm">+420 778 779 938</span>
+                <span className="font-montserrat text-sm">+420 778 779 938</span>
               </button>
 
               <button
@@ -58,7 +58,7 @@ const Footer = () => {
                 className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors group"
               >
                 <MapPin className="w-4 h-4 text-[#7E8D85] group-hover:text-[#3C493F]" />
-                <div className="font-aileron text-left text-sm">
+                <div className="font-montserrat text-left text-sm">
                   <div>Zámecké náměstí 19</div>
                   <div>792 01 Bruntál</div>
                 </div>
@@ -71,7 +71,7 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-3">
               <Clock className="w-4 h-4 text-[#7E8D85]" />
-              <h4 className="font-anek text-base font-semibold">
+              <h4 className="font-crimson text-base font-semibold">
                 Otevírací doba
               </h4>
             </div>
@@ -82,11 +82,11 @@ const Footer = () => {
                   key={index}
                   className="flex justify-between items-center py-1"
                 >
-                  <span className="font-aileron text-gray-400 text-sm">
+                  <span className="font-montserrat text-gray-400 text-sm">
                     {item.day}
                   </span>
                   <span
-                    className={`font-aileron text-sm ${
+                    className={`font-montserrat text-sm ${
                       item.isClosed ? "text-[#7E8D85]" : "text-gray-400"
                     }`}
                   >
@@ -106,13 +106,13 @@ const Footer = () => {
         {/* Map Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="font-anek text-base font-semibold flex items-center gap-2">
+            <h4 className="font-crimson text-base font-semibold flex items-center gap-2">
               <MapPin className="w-4 h-4 text-[#7E8D85]" />
               Kde nás najdete
             </h4>
             <button
               onClick={handleDirectionsClick}
-              className="font-aileron text-[#7E8D85] hover:text-[#3C493F] transition-colors flex items-center gap-1 text-xs"
+              className="font-montserrat text-[#7E8D85] hover:text-[#3C493F] transition-colors flex items-center gap-1 text-xs"
             >
               Otevřít v mapách
               <ExternalLink className="w-3 h-3" />
@@ -138,7 +138,7 @@ const Footer = () => {
               <div className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-sm text-white p-2.5 rounded-lg">
                 <div className="flex items-start gap-2">
                   <MapPin className="w-3.5 h-3.5 text-[#7E8D85] mt-0.5 flex-shrink-0" />
-                  <div className="font-aileron text-xs">
+                  <div className="font-montserrat text-xs">
                     <div className="font-semibold">FlekCuts</div>
                     <div className="text-gray-300">Zámecké náměstí 19</div>
                     <div className="text-gray-300">792 01 Bruntál</div>
@@ -159,7 +159,7 @@ const Footer = () => {
         {/* Bottom Section with Legal Links */}
         <div className="border-t border-gray-800 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="font-aileron text-gray-500 text-xs">
+            <p className="font-montserrat text-gray-500 text-xs">
               © 2025 FlekCuts. Všechna práva vyhrazena.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
@@ -167,7 +167,7 @@ const Footer = () => {
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("showPrivacyPolicy"));
                 }}
-                className="font-aileron text-gray-500 hover:text-gray-300 transition-colors"
+                className="font-montserrat text-gray-500 hover:text-gray-300 transition-colors"
               >
                 Ochrana osobních údajů
               </button>
@@ -176,7 +176,7 @@ const Footer = () => {
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("showTermsOfService"));
                 }}
-                className="font-aileron text-gray-500 hover:text-gray-300 transition-colors"
+                className="font-montserrat text-gray-500 hover:text-gray-300 transition-colors"
               >
                 Obchodní podmínky
               </button>
@@ -185,7 +185,7 @@ const Footer = () => {
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("showBusinessInfo"));
                 }}
-                className="font-aileron text-gray-500 hover:text-gray-300 transition-colors"
+                className="font-montserrat text-gray-500 hover:text-gray-300 transition-colors"
               >
                 Právní informace
               </button>
@@ -270,7 +270,7 @@ const CurrentStatus = () => {
         }`}
       ></div>
       <span
-        className={`font-aileron text-xs ${
+        className={`font-montserrat text-xs ${
           currentStatus.isOpen ? "text-green-400" : "text-[#7E8D85]"
         }`}
       >

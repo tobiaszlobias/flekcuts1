@@ -1,22 +1,25 @@
 // layout.tsx - Add this metadataBase to fix the warning
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Notable, Poppins } from "next/font/google";
+import { Crimson_Text, Montserrat } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { anek, aileron } from "@/fonts/fonts";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const crimson = Crimson_Text({
+  weight: ["400", "600", "700"],
   subsets: ["latin"],
+  variable: "--font-crimson",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const montserrat = Montserrat({
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
+  variable: "--font-montserrat",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -90,7 +93,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="cs" className={`${anek.variable} ${aileron.variable}`}>
+    <html lang="cs" className={`${crimson.variable} ${montserrat.variable}`}>
       <head>
         <meta name="geo.region" content="CZ-80" />
         <meta name="geo.placename" content="Bruntál" />

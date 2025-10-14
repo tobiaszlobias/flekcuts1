@@ -99,10 +99,10 @@ const Services = () => {
     >
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="font-anek text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="font-crimson text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
             Služby
           </h2>
-          <p className="font-aileron text-base sm:text-lg lg:text-xl text-gray-600">
+          <p className="font-montserrat text-base sm:text-lg lg:text-xl text-gray-600">
             Profesionální péče o vaše vlasy a vousy
           </p>
         </div>
@@ -144,17 +144,17 @@ const Services = () => {
                 <div className="flex flex-col md:flex-row relative">
                   {/* Text Content */}
                   <div className="flex-1 p-6 sm:p-8 flex flex-col justify-center">
-                    <h3 className="font-anek text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                    <h3 className="font-crimson text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                       {service.name}
                     </h3>
-                    <p className="font-aileron text-base sm:text-lg text-gray-600 mb-4">
+                    <p className="font-montserrat text-base sm:text-lg text-gray-600 mb-4">
                       {service.description}
                     </p>
                     <div className="flex items-center gap-4">
-                      <span className="font-anek text-3xl sm:text-4xl font-bold text-[#3C493F]">
+                      <span className="font-crimson text-3xl sm:text-4xl font-bold text-[#3C493F]">
                         {service.price} Kč
                       </span>
-                      <span className="font-aileron bg-[#f0f3f2] text-[#3C493F] text-sm px-4 py-2 rounded-full font-medium">
+                      <span className="font-montserrat bg-[#f0f3f2] text-[#3C493F] text-sm px-4 py-2 rounded-full font-medium">
                         Objednat
                       </span>
                     </div>
@@ -198,17 +198,17 @@ const Services = () => {
                   onClick={() => handleServiceClick(service.name)}
                 >
                   <div className="absolute top-0 right-0 w-20 h-20 bg-[#3C493F]/10 rounded-full blur-2xl group-hover:w-32 group-hover:h-32 transition-all duration-500 -translate-y-10 translate-x-10"></div>
-                  <h3 className="font-anek text-lg sm:text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="font-crimson text-lg sm:text-xl font-bold text-gray-900 mb-2">
                     {service.name}
                   </h3>
-                  <p className="font-aileron text-sm text-gray-600 mb-3">
+                  <p className="font-montserrat text-sm text-gray-600 mb-3">
                     {service.description}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="font-anek text-2xl font-bold text-[#3C493F]">
+                    <span className="font-crimson text-2xl font-bold text-[#3C493F]">
                       {service.price} Kč
                     </span>
-                    <span className="font-anek text-[#3C493F] text-xl font-medium">
+                    <span className="font-crimson text-[#3C493F] text-xl font-medium">
                       →
                     </span>
                   </div>
