@@ -225,7 +225,7 @@ const Navbar = () => {
                     </button>
                   </SignInButton>
                   <SignUpButton mode="modal">
-                    <button className="font-montserrat bg-[#FF6B35] text-white px-6 py-2 rounded-full hover:bg-[#E5572C] transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 cursor-pointer relative overflow-hidden group">
+                    <button className="font-montserrat bg-[#FF6B35] text-white px-6 py-2 rounded-full hover:bg-[#FF6B35] transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 cursor-pointer relative overflow-hidden group">
                       <span className="relative z-10 font-semibold">
                         Registrovat se
                       </span>
@@ -319,7 +319,7 @@ const Navbar = () => {
                       </button>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <button className="font-montserrat block w-full px-4 py-3 bg-[#FF6B35] text-white border border-[#FF6B35] rounded-full hover:bg-[#E5572C] hover:border-[#E5572C] transition-all duration-300 active:scale-95 font-semibold cursor-pointer relative overflow-hidden group">
+                      <button className="font-montserrat block w-full px-4 py-3 bg-[#FF6B35] text-white border border-[#FF6B35] rounded-full hover:bg-[#FF6B35] hover:border-[#FF6B35] hover:scale-105 transition-all duration-300 active:scale-95 font-semibold cursor-pointer relative overflow-hidden group">
                         <span className="relative z-10">Registrovat se</span>
                         <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-40 animate-shimmer"></span>
                       </button>

@@ -356,9 +356,9 @@ const CompactDateTimePicker = ({
                   disabled={!isSelectable}
                   className={`
                     w-full aspect-square text-xs rounded transition-all duration-200 relative
-                    ${day.isSelected ? "bg-[#FF6B35] text-white font-semibold" : ""}
+                    ${day.isSelected ? "bg-[#FF6B35] text-white font-semibold shadow-md scale-105" : ""}
                     ${day.isToday && !day.isSelected ? "bg-[#FFE5DC] text-[#FF6B35] font-semibold" : ""}
-                    ${isSelectable && !day.isSelected && !day.isToday ? "hover:bg-white text-gray-900" : ""}
+                    ${isSelectable && !day.isSelected && !day.isToday ? "hover:bg-[#FFE5DC] hover:text-[#FF6B35] hover:scale-110 text-gray-900" : ""}
                     ${!isSelectable ? "text-gray-300 cursor-not-allowed" : ""}
                   `}
                 >
@@ -759,7 +759,7 @@ const Booking = () => {
                     type="text"
                     value={bookingForm.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    className={`mt-2 rounded-lg ${errors.name ? "border-[#FF6B35]" : "border-gray-300"}`}
+                    className={`mt-2 rounded-lg transition-all duration-200 ${errors.name ? "border-[#FF6B35]" : "border-gray-300 hover:border-[#FF6B35] focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20"}`}
                     placeholder="Zadejte vaše celé jméno"
                   />
                   {errors.name && (
@@ -781,7 +781,7 @@ const Booking = () => {
                     type="email"
                     value={bookingForm.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className={`mt-2 rounded-lg ${errors.email ? "border-[#FF6B35]" : "border-gray-300"}`}
+                    className={`mt-2 rounded-lg transition-all duration-200 ${errors.email ? "border-[#FF6B35]" : "border-gray-300 hover:border-[#FF6B35] focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20"}`}
                     placeholder="vas@email.com"
                   />
                   {errors.email && (
@@ -804,7 +804,7 @@ const Booking = () => {
                   type="tel"
                   value={bookingForm.phone}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
-                  className={`mt-2 rounded-lg ${errors.phone ? "border-[#FF6B35]" : "border-gray-300"}`}
+                  className={`mt-2 rounded-lg transition-all duration-200 ${errors.phone ? "border-[#FF6B35]" : "border-gray-300 hover:border-[#FF6B35] focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20"}`}
                   placeholder="+420 123 456 789"
                 />
                 {errors.phone && (
@@ -829,7 +829,7 @@ const Booking = () => {
                         ? "border-[#FF6B35]"
                         : serviceJustSelected
                           ? "border-[#FF6B35] bg-[#FF6B35]/5"
-                          : "border-gray-300"
+                          : "border-gray-300 hover:border-[#FF6B35] focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20"
                     }`}
                   >
                     <SelectValue placeholder="Vyberte službu" />
@@ -878,7 +878,7 @@ const Booking = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full font-montserrat bg-[#FF6B35] hover:!bg-[#E5572C] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
+                className="w-full font-montserrat bg-[#FF6B35] hover:!bg-[#FF6B35] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-105 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
               >
                 {isSubmitting ? (
                   <div className="flex items-center justify-center">

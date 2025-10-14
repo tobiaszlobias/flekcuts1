@@ -145,7 +145,7 @@ const Hero = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
             <Button
               onClick={() => scrollToSection("objednat")}
-              className="font-montserrat bg-[#FF6B35] hover:!bg-[#E5572C] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer min-w-[240px] sm:min-w-[280px] h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
+              className="font-montserrat bg-[#FF6B35] hover:!bg-[#FF6B35] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-105 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer min-w-[240px] sm:min-w-[280px] h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
             >
               <span className="relative z-10">Objednat se</span>
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
