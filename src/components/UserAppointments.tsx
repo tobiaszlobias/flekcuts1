@@ -72,15 +72,15 @@ export default function UserAppointments() {
 
         {/* Show manual link option if user just signed in */}
         {!hasTriedLinking && user?.primaryEmailAddress?.emailAddress && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800 mb-2">
+          <div className="mb-4 p-3 bg-white border border-[#e5ebe9] rounded-lg">
+            <p className="text-sm text-[#3C493F] mb-2">
               Máte již nějaké objednávky na email{" "}
               {user.primaryEmailAddress.emailAddress}?
             </p>
             <button
               onClick={handleManualLink}
               disabled={isLinking}
-              className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
+              className="text-sm bg-[#3C493F] text-white px-3 py-1 rounded hover:bg-[#2d3730] disabled:opacity-50"
             >
               {isLinking ? "Propojuji..." : "Propojit existující objednávky"}
             </button>
@@ -105,7 +105,7 @@ export default function UserAppointments() {
             key={appointment._id}
             className={`p-4 border rounded-lg ${
               appointment.status === "cancelled"
-                ? "bg-red-50 border-red-200"
+                ? "bg-[#fafbfa] border-[#e5ebe9]"
                 : appointment.status === "confirmed"
                   ? "bg-green-50 border-green-200"
                   : "bg-yellow-50 border-yellow-200"
@@ -131,7 +131,7 @@ export default function UserAppointments() {
                 <span
                   className={`px-2 py-1 text-xs rounded-full ${
                     appointment.status === "cancelled"
-                      ? "bg-red-100 text-red-800"
+                      ? "bg-[#f0f3f2] text-[#3C493F]"
                       : appointment.status === "confirmed"
                         ? "bg-green-100 text-green-800"
                         : "bg-yellow-100 text-yellow-800"
@@ -146,7 +146,7 @@ export default function UserAppointments() {
                 {appointment.status === "pending" && (
                   <button
                     onClick={() => handleCancel(appointment._id)}
-                    className="mt-2 text-red-600 hover:text-red-800 text-sm"
+                    className="mt-2 text-[#3C493F] hover:text-[#3C493F] text-sm"
                   >
                     Zrušit
                   </button>

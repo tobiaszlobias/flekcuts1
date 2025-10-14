@@ -113,7 +113,7 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
               5. Doba uchování údajů
             </h3>
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-white p-4 rounded-lg">
               <ul className="list-disc list-inside text-gray-700 space-y-2">
                 <li>
                   <strong>Aktivní objednávky:</strong> Do splnění služby
@@ -177,7 +177,7 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
               8. Sdílení údajů s třetími stranami
             </h3>
-            <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
+            <div className="bg-[#fafbfa] border border-[#e5ebe9] p-4 rounded-lg">
               <p className="text-gray-700">
                 <strong>Vaše osobní údaje NESDÍLÍME s třetími stranami</strong>,
                 kromě případů vyžadovaných zákonem nebo s vaším výslovným

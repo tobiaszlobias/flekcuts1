@@ -33,7 +33,7 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({
           {/* Základní údaje o podnikateli */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Building className="w-5 h-5 text-blue-600" />
+              <Building className="w-5 h-5 text-[#3C493F]" />
               Základní údaje o podnikateli
             </h3>
             <div className="bg-gray-50 p-4 rounded-lg space-y-3">
@@ -67,8 +67,8 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({
               Kontaktní údaje
             </h3>
             <div className="space-y-4">
-              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                <MapPin className="w-5 h-5 text-blue-600" />
+              <div className="flex items-center gap-3 p-3 bg-white rounded-lg">
+                <MapPin className="w-5 h-5 text-[#3C493F]" />
                 <div>
                   <p className="text-sm text-gray-600">Adresa provozovny:</p>
                   <p className="text-gray-900 font-medium">
@@ -163,11 +163,11 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Sobota:</span>
-                    <span className="text-red-600">Zavřeno</span>
+                    <span className="text-[#3C493F]">Zavřeno</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Neděle:</span>
-                    <span className="text-red-600">Zavřeno</span>
+                    <span className="text-[#3C493F]">Zavřeno</span>
                   </div>
                 </div>
               </div>
@@ -180,11 +180,11 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({
               Regulační informace
             </h3>
             <div className="space-y-3">
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm font-medium text-blue-800 mb-1">
+              <div className="p-3 bg-white border border-[#e5ebe9] rounded-lg">
+                <p className="text-sm font-medium text-[#3C493F] mb-1">
                   Dohled nad živností:
                 </p>
-                <p className="text-sm text-blue-700">
+                <p className="text-sm text-[#3C493F]">
                   Krajská hygienická stanice Moravskoslezského kraje
                 </p>
               </div>
@@ -214,7 +214,7 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({
                   href="https://ec.europa.eu/consumers/odr/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
+                  className="text-[#3C493F] hover:underline"
                 >
                   https://ec.europa.eu/consumers/odr/
                 </a>

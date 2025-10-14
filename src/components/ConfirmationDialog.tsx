@@ -45,7 +45,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white border-0 rounded-lg transition-colors"
+            className="px-4 py-2 bg-[#3C493F] hover:bg-[#2d3730] text-white border-0 rounded-lg transition-colors"
           >
             Potvrdit
           </AlertDialogAction>

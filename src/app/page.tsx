@@ -95,7 +95,7 @@ export default function Home() {
       <Authenticated>
         {activeView === "dashboard" ? (
           /* Dashboard View - Only for authenticated users */
-          <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+          <div className="min-h-screen bg-white">
             <div className="p-4 space-y-6">
               <div className="pt-8">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">

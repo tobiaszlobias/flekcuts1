@@ -94,10 +94,10 @@ const Hero = () => {
     <>
       {/* Loading Screen */}
       {isLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-50 touch-none">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white touch-none">
           <div className="text-center">
             <div className="mb-4">
-              <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <div className="w-16 h-16 border-4 border-[#3C493F] border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
             <p className="font-anek text-xl text-gray-700 font-semibold">
               Načítání FlekCuts...
@@ -112,7 +112,7 @@ const Hero = () => {
       {/* Main Content */}
       <section
         id="home"
-        className={`relative px-4 sm:px-6 lg:px-8 bg-blue-50 py-48 flex items-center justify-center overflow-hidden transition-opacity duration-500 ${
+        className={`relative px-4 sm:px-6 lg:px-8 bg-white py-48 flex items-center justify-center overflow-hidden transition-opacity duration-500 ${
           isLoading ? "opacity-0" : "opacity-100"
         }`}
       >
@@ -217,7 +217,7 @@ const Hero = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
             <Button
               onClick={() => scrollToSection("objednat")}
-              className="font-anek bg-blue-600 hover:bg-blue-500 text-white px-10 py-5 rounded-full text-lg sm:text-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-98 transition-all duration-200 relative overflow-hidden group animate-pulse-button cursor-pointer"
+              className="font-anek bg-[#3C493F] hover:bg-[#3C493F] text-white px-10 py-5 rounded-full text-lg sm:text-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-98 transition-all duration-200 relative overflow-hidden group animate-pulse-button cursor-pointer"
             >
               <span className="relative z-10 font-bold">Objednat se</span>
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-50 animate-shimmer"></span>
@@ -225,10 +225,10 @@ const Hero = () => {
             <Button
               onClick={() => scrollToSection("services")}
               variant="outline"
-              className="font-aileron bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-700 px-10 py-5 rounded-full text-lg sm:text-xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
+              className="font-aileron bg-white border-2 border-[#3C493F] text-[#3C493F] hover:bg-white hover:text-[#3C493F] hover:border-[#2d3730] px-10 py-5 rounded-full text-lg sm:text-xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
             >
               <span className="relative z-10">Zobrazit služby</span>
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200 to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d5ddd9] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
             </Button>
           </div>
         </div>

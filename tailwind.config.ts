@@ -9,8 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        anek: ["var(--font-anek)"],
-        aileron: ["var(--font-aileron)"],
+        crimson: ["var(--font-crimson)", "serif"],
+        montserrat: ["var(--font-montserrat)", "sans-serif"],
+        sans: ["var(--font-montserrat)", "sans-serif"],
+        serif: ["var(--font-crimson)", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",

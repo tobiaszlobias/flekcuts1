@@ -45,12 +45,12 @@ export default function AdminSetup() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
+    <div className="min-h-screen bg-white p-4">
       <div className="max-w-md mx-auto mt-20">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="text-center mb-6">
-            <div className="mx-auto bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-              <Shield className="h-6 w-6 text-blue-600" />
+            <div className="mx-auto bg-[#f0f3f2] w-12 h-12 rounded-full flex items-center justify-center mb-4">
+              <Shield className="h-6 w-6 text-[#3C493F]" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Admin Setup</h1>
             <p className="text-gray-600 mt-2">
@@ -75,14 +75,14 @@ export default function AdminSetup() {
                 }
                 placeholder="uzivatel@email.com"
                 disabled={isLoading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#7E8D85] focus:border-[#3C493F]"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center justify-center"
+              className="w-full bg-[#3C493F] hover:bg-[#2d3730] disabled:bg-[#7E8D85] text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center justify-center"
             >
               {isLoading ? (
                 "Povyšování..."
@@ -99,7 +99,7 @@ export default function AdminSetup() {
                 className={`p-3 rounded-lg text-sm ${
                   message.startsWith("✅")
                     ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
+                    : "bg-[#fafbfa] text-[#3C493F] border border-[#e5ebe9]"
                 }`}
               >
                 {message}

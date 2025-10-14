@@ -47,7 +47,7 @@ const CookieNotice = () => {
                   onClick={() => {
                     window.dispatchEvent(new CustomEvent("showPrivacyPolicy"));
                   }}
-                  className="text-blue-600 hover:text-blue-800 underline font-medium"
+                  className="text-[#3C493F] hover:text-[#3C493F] underline font-medium"
                 >
                   zásadách ochrany osobních údajů
                 </button>
@@ -66,7 +66,7 @@ const CookieNotice = () => {
             </button>
             <button
               onClick={handleAccept}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="px-4 py-2 text-sm bg-[#3C493F] text-white rounded-lg hover:bg-[#2d3730] transition-colors font-medium"
             >
               Přijmout
             </button>

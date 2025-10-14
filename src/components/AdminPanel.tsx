@@ -89,7 +89,7 @@ export default function AdminPanel() {
       case "confirmed":
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case "cancelled":
-        return <XCircle className="h-5 w-5 text-red-600" />;
+        return <XCircle className="h-5 w-5 text-[#3C493F]" />;
       default:
         return <AlertCircle className="h-5 w-5 text-yellow-600" />;
     }
@@ -100,14 +100,14 @@ export default function AdminPanel() {
       case "confirmed":
         return "bg-green-50 border-green-200";
       case "cancelled":
-        return "bg-red-50 border-red-200";
+        return "bg-[#fafbfa] border-[#e5ebe9]";
       default:
         return "bg-yellow-50 border-yellow-200";
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
+    <div className="min-h-screen bg-white p-4">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
@@ -154,10 +154,10 @@ export default function AdminPanel() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Zrušené</CardTitle>
-              <XCircle className="h-4 w-4 text-red-600" />
+              <XCircle className="h-4 w-4 text-[#3C493F]" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-2xl font-bold text-[#3C493F]">
                 {stats.cancelled}
               </div>
             </CardContent>
@@ -166,10 +166,10 @@ export default function AdminPanel() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Dnes</CardTitle>
-              <TrendingUp className="h-4 w-4 text-blue-600" />
+              <TrendingUp className="h-4 w-4 text-[#3C493F]" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-[#3C493F]">
                 {stats.today}
               </div>
             </CardContent>
@@ -272,7 +272,7 @@ export default function AdminPanel() {
                     </div>
 
                     <div className="bg-gray-50 rounded-lg p-3">
-                      <p className="font-medium text-blue-700">
+                      <p className="font-medium text-[#3C493F]">
                         {appointment.service}
                       </p>
                       {appointment.notes && (
@@ -340,7 +340,7 @@ export default function AdminPanel() {
                       onClick={() => handleDelete(appointment._id)}
                       variant="outline"
                       size="sm"
-                      className="border-red-300 text-red-600 hover:bg-red-50"
+                      className="border-[#d5ddd9] text-[#3C493F] hover:bg-[#fafbfa]"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
                       Smazat

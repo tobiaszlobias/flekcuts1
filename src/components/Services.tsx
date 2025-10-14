@@ -128,7 +128,7 @@ const Services = () => {
                 className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer relative active:scale-95"
                 onClick={() => handleServiceClick(service.name)}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/10 to-blue-500/0 shimmer-effect z-10 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#3C493F]/0 via-[#7E8D85]/10 to-[#3C493F]/0 shimmer-effect z-10 pointer-events-none"></div>
                 <style>{`
                   @keyframes shimmer {
                     0% { transform: translateX(-100%); }
@@ -151,10 +151,10 @@ const Services = () => {
                       {service.description}
                     </p>
                     <div className="flex items-center gap-4">
-                      <span className="font-anek text-3xl sm:text-4xl font-bold text-blue-600">
+                      <span className="font-anek text-3xl sm:text-4xl font-bold text-[#3C493F]">
                         {service.price} Kč
                       </span>
-                      <span className="font-aileron bg-blue-100 text-blue-800 text-sm px-4 py-2 rounded-full font-medium">
+                      <span className="font-aileron bg-[#f0f3f2] text-[#3C493F] text-sm px-4 py-2 rounded-full font-medium">
                         Objednat
                       </span>
                     </div>
@@ -197,7 +197,7 @@ const Services = () => {
                   className="bg-white rounded-xl shadow-md transition-all duration-300 cursor-pointer p-5 h-full group relative overflow-hidden active:scale-95"
                   onClick={() => handleServiceClick(service.name)}
                 >
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl group-hover:w-32 group-hover:h-32 transition-all duration-500 -translate-y-10 translate-x-10"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-[#3C493F]/10 rounded-full blur-2xl group-hover:w-32 group-hover:h-32 transition-all duration-500 -translate-y-10 translate-x-10"></div>
                   <h3 className="font-anek text-lg sm:text-xl font-bold text-gray-900 mb-2">
                     {service.name}
                   </h3>
@@ -205,10 +205,10 @@ const Services = () => {
                     {service.description}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="font-anek text-2xl font-bold text-blue-600">
+                    <span className="font-anek text-2xl font-bold text-[#3C493F]">
                       {service.price} Kč
                     </span>
-                    <span className="font-anek text-blue-600 text-xl font-medium">
+                    <span className="font-anek text-[#3C493F] text-xl font-medium">
                       →
                     </span>
                   </div>

@@ -84,7 +84,7 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({
                 </ul>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+              <div className="bg-white border border-[#e5ebe9] p-4 rounded-lg">
                 <h4 className="font-medium text-gray-800 mb-2">
                   Potvrzení objednávky:
                 </h4>
@@ -141,11 +141,11 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({
                 </ul>
               </div>
 
-              <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
-                <h4 className="font-medium text-red-800 mb-2">
+              <div className="bg-[#fafbfa] border border-[#e5ebe9] p-4 rounded-lg">
+                <h4 className="font-medium text-[#3C493F] mb-2">
                   ❌ Pozdní zrušení:
                 </h4>
-                <p className="text-red-700">
+                <p className="text-[#3C493F]">
                   Za zrušení termínu méně než 24 hodin před službou si
                   vyhrazujeme právo účtovat 50% z ceny objednané služby.
                 </p>
@@ -195,7 +195,7 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
               8. Hygiena a bezpečnost
             </h3>
-            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+            <div className="bg-white border border-[#e5ebe9] p-4 rounded-lg">
               <ul className="list-disc list-inside text-gray-700 space-y-2">
                 <li>
                   Všechny nástroje jsou řádně dezinfikovány a sterilizovány
