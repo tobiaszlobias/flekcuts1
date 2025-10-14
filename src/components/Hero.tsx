@@ -204,7 +204,7 @@ const Hero = () => {
 
         <div className="max-w-7xl mx-auto text-center relative z-10">
           {/* Main Heading - Largest (Golden Ratio Base) */}
-          <h1 className="font-crimson font-extrabold text-6xl sm:text-7xl lg:text-8xl xl:text-9xl text-gray-900 mb-6 leading-tight animate-fade-in-up">
+          <h1 className="font-crimson font-extrabold italic text-6xl sm:text-7xl lg:text-8xl xl:text-9xl text-gray-900 mb-6 leading-tight animate-fade-in-up">
             Zase to přerostlo?
           </h1>
 
