@@ -97,7 +97,7 @@ const Hero = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white touch-none">
           <div className="text-center">
             <div className="mb-4">
-              <div className="w-16 h-16 border-4 border-[#3C493F] border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <div className="w-16 h-16 border-4 border-[#FF6B35] border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
             <p className="font-crimson italic text-xl text-gray-700 font-semibold">
               Načítání FlekCuts...
@@ -217,7 +217,7 @@ const Hero = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
             <Button
               onClick={() => scrollToSection("objednat")}
-              className="font-montserrat bg-[#3C493F] hover:!bg-[#3C493F] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer min-w-[240px] sm:min-w-[280px] h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
+              className="font-montserrat bg-[#FF6B35] hover:!bg-[#E5572C] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer min-w-[240px] sm:min-w-[280px] h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
             >
               <span className="relative z-10">Objednat se</span>
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
@@ -225,10 +225,10 @@ const Hero = () => {
             <Button
               onClick={() => scrollToSection("services")}
               variant="outline"
-              className="font-montserrat bg-white border-2 border-[#3C493F] text-[#3C493F] hover:bg-white hover:text-[#3C493F] hover:border-[#2d3730] px-12 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer min-w-[240px] sm:min-w-[280px] h-[60px] sm:h-[64px] flex items-center justify-center"
+              className="font-montserrat bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] px-12 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer min-w-[240px] sm:min-w-[280px] h-[60px] sm:h-[64px] flex items-center justify-center"
             >
               <span className="relative z-10">Zobrazit služby</span>
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d5ddd9] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
             </Button>
           </div>
         </div>

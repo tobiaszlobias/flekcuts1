@@ -158,7 +158,7 @@ const Navbar = () => {
               onClick={handleLogoClick}
               className="flex items-center space-x-2 transition-all duration-300 group"
             >
-              <Scissors className="h-8 w-8 text-[#3C493F] group-hover:rotate-12 transition-transform duration-300" />
+              <Scissors className="h-8 w-8 text-[#FF6B35] group-hover:rotate-12 transition-transform duration-300" />
               <span className="font-crimson italic text-xl font-bold text-gray-900">
                 FlekCuts
               </span>
@@ -171,33 +171,33 @@ const Navbar = () => {
                 <>
                   <button
                     onClick={() => handleViewChange("dashboard")}
-                    className="font-montserrat text-gray-700 hover:text-[#3C493F] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#7E8D85]"
+                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#FF6B35]"
                   >
                     <span className="relative z-10">Moje objednávky</span>
                   </button>
                   {isAdmin && (
                     <button
                       onClick={() => handleViewChange("admin")}
-                      className="font-montserrat text-gray-700 hover:text-[#3C493F] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#7E8D85]"
+                      className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#FF6B35]"
                     >
                       <span className="relative z-10">Admin</span>
                     </button>
                   )}
                   <button
                     onClick={() => handleViewChange("home")}
-                    className="font-montserrat text-gray-700 hover:text-[#3C493F] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#7E8D85]"
+                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#FF6B35]"
                   >
                     <span className="relative z-10">Domů</span>
                   </button>
                   <button
                     onClick={() => scrollToSection("objednat")}
-                    className="font-montserrat text-gray-700 hover:text-[#3C493F] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#7E8D85]"
+                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#FF6B35]"
                   >
                     <span className="relative z-10">Objednat</span>
                   </button>
                   <button
                     onClick={handleServicesClick}
-                    className="font-montserrat text-gray-700 hover:text-[#3C493F] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#7E8D85]"
+                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#FF6B35]"
                   >
                     <span className="relative z-10">Služby</span>
                   </button>
@@ -211,23 +211,23 @@ const Navbar = () => {
                 <>
                   <button
                     onClick={() => scrollToSection("objednat")}
-                    className="font-montserrat text-gray-700 hover:text-[#3C493F] transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#3C493F]"
+                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
                   >
                     <span className="relative z-10">Objednat</span>
                   </button>
                   <button
                     onClick={handleServicesClick}
-                    className="font-montserrat text-gray-700 hover:text-[#3C493F] transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#3C493F]"
+                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
                   >
                     <span className="relative z-10">Služby</span>
                   </button>
                   <SignInButton mode="modal">
-                    <button className="font-montserrat text-gray-700 hover:text-[#3C493F] transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#3C493F]">
+                    <button className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]">
                       <span className="relative z-10">Přihlásit se</span>
                     </button>
                   </SignInButton>
                   <SignUpButton mode="modal">
-                    <button className="font-montserrat bg-[#3C493F] text-white px-6 py-2 rounded-full hover:bg-[#3C493F] transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 cursor-pointer relative overflow-hidden group">
+                    <button className="font-montserrat bg-[#FF6B35] text-white px-6 py-2 rounded-full hover:bg-[#E5572C] transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 cursor-pointer relative overflow-hidden group">
                       <span className="relative z-10 font-semibold">
                         Registrovat se
                       </span>
@@ -247,7 +247,7 @@ const Navbar = () => {
               )}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-700 p-2 hover:bg-[#3C493F]/10 rounded-md transition-all duration-300 active:scale-95 cursor-pointer"
+                className="text-gray-700 p-2 hover:bg-[#FF6B35]/10 rounded-md transition-all duration-300 active:scale-95 cursor-pointer"
               >
                 {isMenuOpen ? (
                   <X className="h-6 w-6 transition-transform duration-300" />
@@ -267,33 +267,33 @@ const Navbar = () => {
                   <>
                     <button
                       onClick={() => handleViewChange("dashboard")}
-                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#3C493F]/20 hover:border-[#7E8D85] transition-all duration-300 active:scale-95 cursor-pointer"
+                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
                     >
                       Moje objednávky
                     </button>
                     {isAdmin && (
                       <button
                         onClick={() => handleViewChange("admin")}
-                        className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#3C493F]/20 hover:border-[#7E8D85] transition-all duration-300 active:scale-95 cursor-pointer"
+                        className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
                       >
                         Admin
                       </button>
                     )}
                     <button
                       onClick={() => handleViewChange("home")}
-                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#3C493F]/20 hover:border-[#7E8D85] transition-all duration-300 active:scale-95 cursor-pointer"
+                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
                     >
                       Domů
                     </button>
                     <button
                       onClick={() => scrollToSection("objednat")}
-                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#3C493F]/20 hover:border-[#7E8D85] transition-all duration-300 active:scale-95 cursor-pointer"
+                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
                     >
                       Objednat
                     </button>
                     <button
                       onClick={handleServicesClick}
-                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#3C493F]/20 hover:border-[#7E8D85] transition-all duration-300 active:scale-95 cursor-pointer"
+                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
                     >
                       Služby
                     </button>
@@ -304,24 +304,24 @@ const Navbar = () => {
                   <>
                     <button
                       onClick={() => scrollToSection("objednat")}
-                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#3C493F]/20 hover:border-[#7E8D85] transition-all duration-300 active:scale-95 cursor-pointer"
+                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
                     >
                       Objednat
                     </button>
                     <button
                       onClick={handleServicesClick}
-                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#3C493F]/20 hover:border-[#7E8D85] transition-all duration-300 active:scale-95 cursor-pointer"
+                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
                     >
                       Služby
                     </button>
                     <div className="border-t border-white/50 my-2"></div>
                     <SignInButton mode="modal">
-                      <button className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#3C493F]/20 hover:border-[#7E8D85] transition-all duration-300 active:scale-95 cursor-pointer">
+                      <button className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer">
                         Přihlásit se
                       </button>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <button className="font-montserrat block w-full px-4 py-3 bg-[#3C493F] text-white border border-[#3C493F] rounded-full hover:bg-[#3C493F] hover:border-[#3C493F] transition-all duration-300 active:scale-95 font-semibold cursor-pointer relative overflow-hidden group">
+                      <button className="font-montserrat block w-full px-4 py-3 bg-[#FF6B35] text-white border border-[#FF6B35] rounded-full hover:bg-[#E5572C] hover:border-[#E5572C] transition-all duration-300 active:scale-95 font-semibold cursor-pointer relative overflow-hidden group">
                         <span className="relative z-10">Registrovat se</span>
                         <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-40 animate-shimmer"></span>
                       </button>

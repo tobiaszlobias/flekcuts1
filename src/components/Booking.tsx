@@ -85,7 +85,7 @@ const BookingConfirmationModal = ({
     <>
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden transform transition-all max-h-[90vh] overflow-y-auto">
-          <div className="bg-[#3C493F] p-4 text-center">
+          <div className="bg-[#FF6B35] p-4 text-center">
             <div className="animate-bounce mb-2">
               <CheckCircle className="w-12 h-12 text-white mx-auto" />
             </div>
@@ -98,9 +98,9 @@ const BookingConfirmationModal = ({
           </div>
 
           <div className="p-4 space-y-3">
-            <div className="bg-white rounded-lg p-3 border border-[#f0f3f2]">
+            <div className="bg-white rounded-lg p-3 border border-[#FF6B35]/20">
               <h3 className="font-semibold text-gray-800 mb-2 flex items-center text-sm">
-                <CalendarDays className="w-4 h-4 mr-2 text-[#3C493F]" />
+                <CalendarDays className="w-4 h-4 mr-2 text-[#FF6B35]" />
                 Detaily objednávky
               </h3>
 
@@ -133,9 +133,9 @@ const BookingConfirmationModal = ({
                   </span>
                 </div>
 
-                <div className="flex justify-between pt-2 border-t border-[#e5ebe9]">
+                <div className="flex justify-between pt-2 border-t border-[#FF6B35]/20">
                   <span className="text-gray-600">Cena:</span>
-                  <span className="font-bold text-sm text-green-600">
+                  <span className="font-bold text-sm text-[#FF6B35]">
                     {getServicePrice(bookingDetails.service)} Kč
                   </span>
                 </div>
@@ -175,10 +175,10 @@ const BookingConfirmationModal = ({
 
             <Button
               onClick={onClose}
-              className="w-full font-montserrat bg-white border-2 border-[#3C493F] text-[#3C493F] hover:bg-white hover:text-[#3C493F] hover:border-[#2d3730] px-12 py-6 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
+              className="w-full font-montserrat bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] px-12 py-6 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
             >
               <span className="relative z-10">Rozumím</span>
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d5ddd9] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
             </Button>
           </div>
         </div>
@@ -356,15 +356,15 @@ const CompactDateTimePicker = ({
                   disabled={!isSelectable}
                   className={`
                     w-full aspect-square text-xs rounded transition-all duration-200 relative
-                    ${day.isSelected ? "bg-[#3C493F] text-white font-semibold" : ""}
-                    ${day.isToday && !day.isSelected ? "bg-[#f0f3f2] text-[#3C493F] font-semibold" : ""}
+                    ${day.isSelected ? "bg-[#FF6B35] text-white font-semibold" : ""}
+                    ${day.isToday && !day.isSelected ? "bg-[#FFE5DC] text-[#FF6B35] font-semibold" : ""}
                     ${isSelectable && !day.isSelected && !day.isToday ? "hover:bg-white text-gray-900" : ""}
                     ${!isSelectable ? "text-gray-300 cursor-not-allowed" : ""}
                   `}
                 >
                   <span className="relative z-10">{day.day}</span>
                   {day.isWorking && !day.isPast && (
-                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-500 rounded-full"></div>
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-[#FF6B35] rounded-full"></div>
                   )}
                 </button>
               </div>
@@ -375,7 +375,7 @@ const CompactDateTimePicker = ({
         <div className="mt-2 pt-2 border-t border-gray-100">
           <div className="flex items-center gap-3 text-xs text-gray-600">
             <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+              <div className="w-1.5 h-1.5 bg-[#FF6B35] rounded-full"></div>
               <span>Otevřeno</span>
             </div>
             <div className="flex items-center gap-1">
@@ -411,9 +411,9 @@ const CompactDateTimePicker = ({
                       p-2 text-xs rounded border transition-all duration-200
                       ${
                         isSelected
-                          ? "bg-[#3C493F] text-white border-[#3C493F] font-medium"
+                          ? "bg-[#FF6B35] text-white border-[#FF6B35] font-medium"
                           : canSelect
-                            ? "border-[#e5ebe9] hover:border-[#7E8D85] hover:bg-white"
+                            ? "border-[#e5ebe9] hover:border-[#FF6B35] hover:bg-white"
                             : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
                       }
                     `}
@@ -433,8 +433,8 @@ const CompactDateTimePicker = ({
       )}
 
       {selectedDate && selectedTime && (
-        <div className="bg-white border border-[#e5ebe9] rounded-lg p-3">
-          <p className="text-[#3C493F] text-sm font-medium flex items-center">
+        <div className="bg-white border border-[#FF6B35]/30 rounded-lg p-3">
+          <p className="text-[#FF6B35] text-sm font-medium flex items-center">
             <CheckCircle className="w-4 h-4 mr-2" />
             Vybraný termín: {formatDate(selectedDate)} v {selectedTime}
           </p>
@@ -720,11 +720,11 @@ const Booking = () => {
           </p>
 
           {!isSignedIn && (
-            <div className="mt-4 p-4 bg-white border border-[#e5ebe9] rounded-lg">
-              <p className="text-[#3C493F] text-sm">
+            <div className="mt-4 p-4 bg-white border border-[#FF6B35]/20 rounded-lg">
+              <p className="text-gray-700 text-sm">
                 💡 Tip:{" "}
                 <SignInButton mode="modal">
-                  <button className="text-[#3C493F] hover:text-[#3C493F] underline font-medium">
+                  <button className="text-[#FF6B35] hover:text-[#E5572C] underline font-medium">
                     Přihlaste se
                   </button>
                 </SignInButton>{" "}
@@ -734,8 +734,8 @@ const Booking = () => {
           )}
 
           {serviceJustSelected && (
-            <div className="mt-4 p-3 bg-green-100 border border-green-300 rounded-lg">
-              <p className="text-green-700 font-medium">
+            <div className="mt-4 p-3 bg-[#FF6B35]/10 border border-[#FF6B35]/30 rounded-lg">
+              <p className="text-[#FF6B35] font-medium">
                 ✅ Služba &quot;{bookingForm.service}&quot; byla automaticky
                 vybrána!{" "}
               </p>
@@ -751,7 +751,7 @@ const Booking = () => {
                   <Label htmlFor="name" className="text-gray-700 font-medium">
                     Celé jméno{" "}
                     {attemptedSubmit && !bookingForm.name.trim() && (
-                      <span className="text-[#7E8D85]">*</span>
+                      <span className="text-[#FF6B35]">*</span>
                     )}
                   </Label>
                   <Input
@@ -759,11 +759,11 @@ const Booking = () => {
                     type="text"
                     value={bookingForm.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    className={`mt-2 rounded-lg ${errors.name ? "border-[#3C493F]" : "border-gray-300"}`}
+                    className={`mt-2 rounded-lg ${errors.name ? "border-[#FF6B35]" : "border-gray-300"}`}
                     placeholder="Zadejte vaše celé jméno"
                   />
                   {errors.name && (
-                    <p className="text-[#7E8D85] text-sm mt-1">{errors.name}</p>
+                    <p className="text-[#FF6B35] text-sm mt-1">{errors.name}</p>
                   )}
                 </div>
 
@@ -773,7 +773,7 @@ const Booking = () => {
                     {attemptedSubmit &&
                       (!bookingForm.email.trim() ||
                         !/\S+@\S+\.\S+/.test(bookingForm.email)) && (
-                        <span className="text-[#7E8D85]">*</span>
+                        <span className="text-[#FF6B35]">*</span>
                       )}
                   </Label>
                   <Input
@@ -781,11 +781,11 @@ const Booking = () => {
                     type="email"
                     value={bookingForm.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className={`mt-2 rounded-lg ${errors.email ? "border-[#3C493F]" : "border-gray-300"}`}
+                    className={`mt-2 rounded-lg ${errors.email ? "border-[#FF6B35]" : "border-gray-300"}`}
                     placeholder="vas@email.com"
                   />
                   {errors.email && (
-                    <p className="text-[#7E8D85] text-sm mt-1">{errors.email}</p>
+                    <p className="text-[#FF6B35] text-sm mt-1">{errors.email}</p>
                   )}
                 </div>
               </div>
@@ -796,7 +796,7 @@ const Booking = () => {
                   {attemptedSubmit &&
                     (!bookingForm.phone.trim() ||
                       !validatePhoneNumber(bookingForm.phone)) && (
-                      <span className="text-[#7E8D85]">*</span>
+                      <span className="text-[#FF6B35]">*</span>
                     )}
                 </Label>
                 <Input
@@ -804,11 +804,11 @@ const Booking = () => {
                   type="tel"
                   value={bookingForm.phone}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
-                  className={`mt-2 rounded-lg ${errors.phone ? "border-[#3C493F]" : "border-gray-300"}`}
+                  className={`mt-2 rounded-lg ${errors.phone ? "border-[#FF6B35]" : "border-gray-300"}`}
                   placeholder="+420 123 456 789"
                 />
                 {errors.phone && (
-                  <p className="text-[#7E8D85] text-sm mt-1">{errors.phone}</p>
+                  <p className="text-[#FF6B35] text-sm mt-1">{errors.phone}</p>
                 )}
               </div>
 
@@ -816,7 +816,7 @@ const Booking = () => {
                 <Label htmlFor="service" className="text-gray-700 font-medium">
                   Služba{" "}
                   {attemptedSubmit && !bookingForm.service && (
-                    <span className="text-[#7E8D85]">*</span>
+                    <span className="text-[#FF6B35]">*</span>
                   )}
                 </Label>
                 <Select
@@ -826,9 +826,9 @@ const Booking = () => {
                   <SelectTrigger
                     className={`mt-2 rounded-lg transition-all duration-300 ${
                       errors.service
-                        ? "border-[#3C493F]"
+                        ? "border-[#FF6B35]"
                         : serviceJustSelected
-                          ? "border-green-500 bg-green-50"
+                          ? "border-[#FF6B35] bg-[#FF6B35]/5"
                           : "border-gray-300"
                     }`}
                   >
@@ -843,7 +843,7 @@ const Booking = () => {
                   </SelectContent>
                 </Select>
                 {errors.service && (
-                  <p className="text-[#7E8D85] text-sm mt-1">{errors.service}</p>
+                  <p className="text-[#FF6B35] text-sm mt-1">{errors.service}</p>
                 )}
               </div>
 
@@ -852,7 +852,7 @@ const Booking = () => {
                   Preferovaný termín{" "}
                   {attemptedSubmit &&
                     (!bookingForm.date || !bookingForm.time) && (
-                      <span className="text-[#7E8D85]">*</span>
+                      <span className="text-[#FF6B35]">*</span>
                     )}
                 </Label>
 
@@ -868,17 +868,17 @@ const Booking = () => {
                 </div>
 
                 {errors.date && (
-                  <p className="text-[#7E8D85] text-sm mt-1">{errors.date}</p>
+                  <p className="text-[#FF6B35] text-sm mt-1">{errors.date}</p>
                 )}
                 {errors.time && (
-                  <p className="text-[#7E8D85] text-sm mt-1">{errors.time}</p>
+                  <p className="text-[#FF6B35] text-sm mt-1">{errors.time}</p>
                 )}
               </div>
 
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full font-montserrat bg-[#3C493F] hover:!bg-[#3C493F] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
+                className="w-full font-montserrat bg-[#FF6B35] hover:!bg-[#E5572C] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
               >
                 {isSubmitting ? (
                   <div className="flex items-center justify-center">
