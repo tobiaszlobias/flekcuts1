@@ -90,7 +90,7 @@ const Hero = () => {
 
         {/* Scissors - Middle Right */}
         <div
-          className="absolute top-48 right-16 w-24 h-22 sm:top-80 sm:right-24 sm:w-32 sm:h-28 pointer-events-none opacity-10 sm:opacity-50 will-change-transform"
+          className="absolute top-56 right-12 w-24 h-22 sm:top-96 sm:right-16 sm:w-32 sm:h-28 pointer-events-none opacity-10 sm:opacity-50 will-change-transform"
           style={{
             transform: `translate3d(0, ${-50 + scrollY * 0.22}px, 0) rotate(${-30 + scrollY * 0.04}deg)`,
           }}
