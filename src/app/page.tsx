@@ -86,6 +86,59 @@ export default function Home() {
 
   return (
     <main>
+      <AuthLoading>
+        {/* Skeleton Loading Screen */}
+        <div className="min-h-screen bg-white">
+          {/* Navbar Skeleton */}
+          <div className="sticky top-0 z-50 bg-white/30 backdrop-blur-md shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center h-16">
+                <div className="flex items-center space-x-2">
+                  <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-6 w-24 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="hidden md:flex items-center space-x-4">
+                  <div className="h-10 w-32 bg-gray-200 rounded-full animate-pulse"></div>
+                  <div className="h-10 w-32 bg-gray-200 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Hero Skeleton */}
+          <div className="px-4 sm:px-6 lg:px-8 bg-white py-48">
+            <div className="max-w-7xl mx-auto text-center">
+              <div className="h-16 sm:h-20 lg:h-24 w-3/4 bg-gray-200 rounded mx-auto mb-6 animate-pulse"></div>
+              <div className="h-8 sm:h-10 w-1/2 bg-gray-200 rounded mx-auto mb-12 animate-pulse"></div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <div className="h-16 w-64 bg-gray-200 rounded-full mx-auto animate-pulse"></div>
+                <div className="h-16 w-64 bg-gray-200 rounded-full mx-auto animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Services Skeleton */}
+          <div className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-12">
+                <div className="h-12 w-48 bg-gray-200 rounded mx-auto mb-4 animate-pulse"></div>
+                <div className="h-6 w-96 bg-gray-200 rounded mx-auto animate-pulse"></div>
+              </div>
+              <div className="space-y-6 mb-12">
+                <div className="h-64 bg-gray-200 rounded-2xl animate-pulse"></div>
+                <div className="h-64 bg-gray-200 rounded-2xl animate-pulse"></div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="h-48 bg-gray-200 rounded-xl animate-pulse"></div>
+                <div className="h-48 bg-gray-200 rounded-xl animate-pulse"></div>
+                <div className="h-48 bg-gray-200 rounded-xl animate-pulse"></div>
+                <div className="h-48 bg-gray-200 rounded-xl animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </AuthLoading>
+
       <Authenticated>
         {activeView === "dashboard" ? (
           /* Dashboard View - Only for authenticated users */
