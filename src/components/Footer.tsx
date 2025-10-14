@@ -25,14 +25,14 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-white border-t border-[#FF6B35]/20">
+    <footer className="bg-white border-t border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Top Section with Info and Opening Hours */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
           {/* About & Contact Section */}
           <div className="space-y-6">
             <div>
-              <h3 className="font-crimson italic text-2xl font-bold mb-3 text-[#FF6B35]">FlekCuts</h3>
+              <h3 className="font-crimson italic text-2xl font-bold mb-3 text-gray-900">FlekCuts</h3>
               <p className="font-montserrat text-gray-600 leading-relaxed text-base">
                 Profesionální holictví v srdci Bruntálu. Specializuji se na
                 moderní střihy, klasické úpravy vousů a kompletní péči o vaše
@@ -41,7 +41,7 @@ const Footer = () => {
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-crimson italic text-lg font-semibold mb-3 text-[#FF6B35]">
+              <h4 className="font-crimson italic text-lg font-semibold mb-3 text-gray-900">
                 Kontakt
               </h4>
 
@@ -49,7 +49,7 @@ const Footer = () => {
                 onClick={handlePhoneClick}
                 className="flex items-center gap-3 text-gray-600 hover:text-[#FF6B35] transition-colors group"
               >
-                <Phone className="w-5 h-5 text-[#FF6B35] group-hover:text-[#E5572C]" />
+                <Phone className="w-5 h-5 text-gray-500 group-hover:text-[#FF6B35]" />
                 <span className="font-montserrat text-base">+420 778 779 938</span>
               </button>
 
@@ -57,7 +57,7 @@ const Footer = () => {
                 onClick={handleDirectionsClick}
                 className="flex items-center gap-3 text-gray-600 hover:text-[#FF6B35] transition-colors group"
               >
-                <MapPin className="w-5 h-5 text-[#FF6B35] group-hover:text-[#E5572C]" />
+                <MapPin className="w-5 h-5 text-gray-500 group-hover:text-[#FF6B35]" />
                 <div className="font-montserrat text-left text-base">
                   <div>Zámecké náměstí 19</div>
                   <div>792 01 Bruntál</div>
@@ -70,8 +70,8 @@ const Footer = () => {
           {/* Opening Hours */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-3">
-              <Clock className="w-5 h-5 text-[#FF6B35]" />
-              <h4 className="font-crimson italic text-lg font-semibold text-[#FF6B35]">
+              <Clock className="w-5 h-5 text-gray-500" />
+              <h4 className="font-crimson italic text-lg font-semibold text-gray-900">
                 Otevírací doba
               </h4>
             </div>
@@ -87,7 +87,7 @@ const Footer = () => {
                   </span>
                   <span
                     className={`font-montserrat text-base ${
-                      item.isClosed ? "text-[#FF6B35]/70" : "text-gray-600"
+                      item.isClosed ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
                     {item.hours}
@@ -97,7 +97,7 @@ const Footer = () => {
             </div>
 
             {/* Current Status */}
-            <div className="mt-4 p-3 bg-white/60 backdrop-blur-sm rounded-lg border border-[#FF6B35]/20">
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
               <CurrentStatus />
             </div>
           </div>
@@ -106,20 +106,20 @@ const Footer = () => {
         {/* Map Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="font-crimson italic text-lg font-semibold flex items-center gap-2 text-[#FF6B35]">
-              <MapPin className="w-5 h-5 text-[#FF6B35]" />
+            <h4 className="font-crimson italic text-lg font-semibold flex items-center gap-2 text-gray-900">
+              <MapPin className="w-5 h-5 text-gray-500" />
               Kde nás najdete
             </h4>
             <button
               onClick={handleDirectionsClick}
-              className="font-montserrat text-[#FF6B35] hover:text-[#E5572C] transition-colors flex items-center gap-1 text-sm"
+              className="font-montserrat text-gray-600 hover:text-[#FF6B35] transition-colors flex items-center gap-1 text-sm"
             >
               Otevřít v mapách
               <ExternalLink className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="relative rounded-lg overflow-hidden shadow-md border border-[#FF6B35]/30">
+          <div className="relative rounded-lg overflow-hidden shadow-md border border-gray-200">
             {/* Map Container */}
             <div className="relative w-full h-64 md:h-72">
               <iframe
@@ -135,11 +135,11 @@ const Footer = () => {
               ></iframe>
 
               {/* Overlay with address info */}
-              <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm text-gray-800 p-3 rounded-lg border border-[#FF6B35]/30 shadow-md">
+              <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm text-gray-800 p-3 rounded-lg border border-gray-200 shadow-md">
                 <div className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 text-[#FF6B35] mt-0.5 flex-shrink-0" />
+                  <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
                   <div className="font-montserrat text-sm">
-                    <div className="font-semibold text-[#FF6B35]">FlekCuts</div>
+                    <div className="font-semibold text-gray-900">FlekCuts</div>
                     <div className="text-gray-600">Zámecké náměstí 19</div>
                     <div className="text-gray-600">792 01 Bruntál</div>
                   </div>
@@ -157,7 +157,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section with Legal Links */}
-        <div className="border-t border-[#FF6B35]/20 pt-6">
+        <div className="border-t border-gray-200 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="font-montserrat text-gray-500 text-sm">
               © 2025 FlekCuts. Všechna práva vyhrazena.
@@ -171,7 +171,7 @@ const Footer = () => {
               >
                 Ochrana osobních údajů
               </button>
-              <span className="text-[#FF6B35]/40">•</span>
+              <span className="text-gray-300">•</span>
               <button
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("showTermsOfService"));
@@ -180,7 +180,7 @@ const Footer = () => {
               >
                 Obchodní podmínky
               </button>
-              <span className="text-[#FF6B35]/40">•</span>
+              <span className="text-gray-300">•</span>
               <button
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("showBusinessInfo"));
@@ -266,12 +266,12 @@ const CurrentStatus = () => {
     <div className="flex items-center gap-2">
       <div
         className={`w-2.5 h-2.5 rounded-full ${
-          currentStatus.isOpen ? "bg-[#FF6B35]" : "bg-[#FF6B35]/50"
+          currentStatus.isOpen ? "bg-[#FF6B35]" : "bg-gray-400"
         }`}
       ></div>
       <span
         className={`font-montserrat text-sm ${
-          currentStatus.isOpen ? "text-[#FF6B35] font-medium" : "text-gray-500"
+          currentStatus.isOpen ? "text-[#FF6B35] font-medium" : "text-gray-600"
         }`}
       >
         {currentStatus.message}

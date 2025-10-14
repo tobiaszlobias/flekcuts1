@@ -1,9 +1,16 @@
 import { useEffect, useRef, useState } from "react";
+import { smoothScrollTo } from "@/utils/smoothScroll";
 
 const Services = () => {
   const [visibleItems, setVisibleItems] = useState<Set<number>>(new Set());
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [isClient, setIsClient] = useState(false);
+
+  // Ensure client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const featuredServices = [
     {
@@ -59,8 +66,8 @@ const Services = () => {
         });
       },
       {
-        threshold: 0.2,
-        rootMargin: "0px 0px -50px 0px",
+        threshold: 0.1,
+        rootMargin: "100px 0px 100px 0px",
       }
     );
 
@@ -80,15 +87,25 @@ const Services = () => {
   }, [visibleItems]);
 
   const handleServiceClick = (serviceName: string) => {
-    const bookingSection = document.getElementById("objednat");
-    if (bookingSection) {
-      bookingSection.scrollIntoView({ behavior: "smooth" });
+    console.log("Service clicked IMMEDIATELY:", serviceName, Date.now()); // Debug log with timestamp
 
-      window.dispatchEvent(
-        new CustomEvent("preSelectService", {
-          detail: { serviceName },
-        })
-      );
+    // Dispatch event first
+    window.dispatchEvent(
+      new CustomEvent("preSelectService", {
+        detail: { serviceName },
+      })
+    );
+
+    // Test with instant scroll to see if the delay is in the scroll function
+    const bookingElement = document.getElementById("objednat");
+    if (bookingElement) {
+      console.log("Starting scroll NOW:", Date.now());
+      // Use instant scroll for testing
+      const targetPosition = bookingElement.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -115,18 +132,22 @@ const Services = () => {
               ref={(el) => {
                 if (el) itemRefs.current[index] = el;
               }}
-              className="transition-all duration-700 ease-out"
+              className="cursor-pointer"
               style={{
-                opacity: visibleItems.has(index) ? 1 : 0,
+                opacity: 1,
                 transform: visibleItems.has(index)
                   ? "translateY(0)"
-                  : "translateY(30px)",
-                transitionDelay: `${index * 150}ms`,
+                  : "translateY(20px)",
+                transition: visibleItems.has(index) ? 'none' : 'transform 0.7s ease-out',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleServiceClick(service.name);
               }}
             >
               <div
-                className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer relative active:scale-95"
-                onClick={() => handleServiceClick(service.name)}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 relative active:scale-95"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B35]/0 via-[#FF6B35]/10 to-[#FF6B35]/0 shimmer-effect z-10 pointer-events-none"></div>
                 <style>{`
@@ -184,18 +205,22 @@ const Services = () => {
                 ref={(el) => {
                   if (el) itemRefs.current[actualIndex] = el;
                 }}
-                className="transition-all duration-700 ease-out"
+                className="cursor-pointer"
                 style={{
-                  opacity: visibleItems.has(actualIndex) ? 1 : 0,
+                  opacity: 1,
                   transform: visibleItems.has(actualIndex)
                     ? "translateY(0)"
-                    : "translateY(30px)",
-                  transitionDelay: `${actualIndex * 100}ms`,
+                    : "translateY(20px)",
+                  transition: visibleItems.has(actualIndex) ? 'none' : 'transform 0.7s ease-out',
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleServiceClick(service.name);
                 }}
               >
                 <div
-                  className="bg-white rounded-xl shadow-md transition-all duration-300 cursor-pointer p-5 h-full group relative overflow-hidden active:scale-95 flex flex-col"
-                  onClick={() => handleServiceClick(service.name)}
+                  className="bg-white rounded-xl shadow-md transition-all duration-300 p-5 h-full group relative overflow-hidden active:scale-95 flex flex-col"
                 >
                   <div className="absolute top-0 right-0 w-20 h-20 bg-[#FF6B35]/15 rounded-full blur-2xl group-hover:w-32 group-hover:h-32 transition-all duration-500 -translate-y-10 translate-x-10"></div>
                   <h3 className="font-crimson italic text-xl sm:text-2xl font-bold text-gray-900 mb-2">

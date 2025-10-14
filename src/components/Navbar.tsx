@@ -12,6 +12,7 @@ import {
 } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { smoothScrollTo, smoothScrollToTop } from "@/utils/smoothScroll";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -56,11 +57,8 @@ const Navbar = () => {
   }, []);
 
   const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      setIsMenuOpen(false);
-    }
+    smoothScrollTo(sectionId, 80); // 80px offset for navbar
+    setIsMenuOpen(false);
   };
 
   const handleViewChange = (view: "home" | "dashboard" | "admin") => {
@@ -73,7 +71,7 @@ const Navbar = () => {
     }
 
     // Scroll to top when changing views
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    smoothScrollToTop();
   };
 
   const handleLogoClick = () => {
@@ -81,7 +79,7 @@ const Navbar = () => {
       handleViewChange("home");
     } else {
       // For unauthenticated users, just scroll to top
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      smoothScrollToTop();
     }
   };
 

@@ -2,11 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { smoothScrollTo } from "@/utils/smoothScroll";
 
 const Hero = () => {
   const [scrollY, setScrollY] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadedImages, setLoadedImages] = useState(0);
 
   const images = [
     "/comb.png",
@@ -18,62 +17,12 @@ const Hero = () => {
   ];
 
   useEffect(() => {
-    let isMounted = true;
-
-    // Preload all images
-    const imagePromises = images.map((src) => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-          if (isMounted) {
-            setLoadedImages((prev) => prev + 1);
-          }
-          resolve(src);
-        };
-        img.onerror = reject;
-        img.src = src;
-      });
+    // Preload images in background without blocking UI
+    images.forEach((src) => {
+      const img = new Image();
+      img.src = src;
     });
-
-    Promise.all(imagePromises)
-      .then(() => {
-        if (isMounted) {
-          // Small delay to ensure smooth transition
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 300);
-        }
-      })
-      .catch((error) => {
-        console.error("Error loading images:", error);
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
-
-  // Prevent body scroll during loading
-  useEffect(() => {
-    if (isLoading) {
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.width = "100%";
-    } else {
-      document.body.style.overflow = "";
-      document.body.style.position = "";
-      document.body.style.width = "";
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-      document.body.style.position = "";
-      document.body.style.width = "";
-    };
-  }, [isLoading]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -85,36 +34,15 @@ const Hero = () => {
   }, []);
 
   const scrollToSection = (sectionId: string) => {
-    document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+    smoothScrollTo(sectionId, 80); // 80px offset for navbar
   };
-
-  const loadingPercentage = Math.round((loadedImages / images.length) * 100);
 
   return (
     <>
-      {/* Loading Screen */}
-      {isLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white touch-none">
-          <div className="text-center">
-            <div className="mb-4">
-              <div className="w-16 h-16 border-4 border-[#FF6B35] border-t-transparent rounded-full animate-spin mx-auto"></div>
-            </div>
-            <p className="font-crimson italic text-xl text-gray-700 font-semibold">
-              Načítání FlekCuts...
-            </p>
-            <p className="font-montserrat text-sm text-gray-500 mt-2">
-              {loadingPercentage}%
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Main Content */}
       <section
         id="home"
-        className={`relative px-4 sm:px-6 lg:px-8 bg-white py-48 flex items-center justify-center overflow-hidden transition-opacity duration-500 ${
-          isLoading ? "opacity-0" : "opacity-100"
-        }`}
+        className="relative px-4 sm:px-6 lg:px-8 bg-white py-48 flex items-center justify-center overflow-hidden"
       >
         {/* Animated Barbershop Tools Background */}
 

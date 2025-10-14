@@ -86,12 +86,6 @@ export default function Home() {
 
   return (
     <main>
-      <AuthLoading>
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="text-lg">Loading...</div>
-        </div>
-      </AuthLoading>
-
       <Authenticated>
         {activeView === "dashboard" ? (
           /* Dashboard View - Only for authenticated users */

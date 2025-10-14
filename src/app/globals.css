@@ -33,10 +33,29 @@
   --green-bg: 150 15% 98%;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: var(--font-montserrat), sans-serif;
+}
+
+/* Ultra smooth scrolling with momentum */
+* {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  * {
+    scroll-behavior: smooth;
+  }
 }
 
 h1, h2, h3, h4, h5, h6 {
