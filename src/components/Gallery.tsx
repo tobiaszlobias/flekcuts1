@@ -95,7 +95,7 @@ const Gallery = () => {
   };
 
   return (
-    <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+    <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto mb-8 sm:mb-12 text-center">
         <h2 className="font-crimson italic text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
           Moje práce
@@ -116,8 +116,8 @@ const Gallery = () => {
         onTouchEnd={handleTouchEnd}
       >
         {/* Gradient Overlays for fade effect - narrower on mobile */}
-        <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none"></div>
-        <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
 
         {/* Scrolling Images */}
         <div

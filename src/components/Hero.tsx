@@ -134,7 +134,7 @@ const Hero = () => {
 
         {/* Spray Bottle - Bottom Left */}
         <div
-          className="absolute bottom-80 left-16 sm:bottom-50 sm:left-15 w-16 h-16 sm:w-24 sm:h-24 pointer-events-none opacity-10 sm:opacity-45 will-change-transform"
+          className="absolute bottom-[26rem] left-16 sm:bottom-72 sm:left-15 w-16 h-16 sm:w-24 sm:h-24 pointer-events-none opacity-10 sm:opacity-45 will-change-transform"
           style={{
             transform: `translate3d(0, ${scrollY * -0.25}px, 0) rotate(${10 + scrollY * 0.05}deg)`,
           }}
@@ -162,7 +162,7 @@ const Hero = () => {
 
         {/* Scissors - Middle Right */}
         <div
-          className="absolute top-60 right-16 w-24 h-22 sm:top-65 sm:right-24 sm:w-32 sm:h-28 pointer-events-none opacity-10 sm:opacity-50 will-change-transform"
+          className="absolute top-48 right-16 w-24 h-22 sm:top-80 sm:right-24 sm:w-32 sm:h-28 pointer-events-none opacity-10 sm:opacity-50 will-change-transform"
           style={{
             transform: `translate3d(0, ${-50 + scrollY * 0.22}px, 0) rotate(${-30 + scrollY * 0.04}deg)`,
           }}

@@ -95,7 +95,7 @@ const Services = () => {
   return (
     <section
       id="services"
-      className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white"
+      className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white"
     >
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12 sm:mb-16">
@@ -151,7 +151,7 @@ const Services = () => {
                       {service.description}
                     </p>
                     <div className="flex items-center gap-4">
-                      <span className="font-crimson italic text-4xl sm:text-5xl font-bold text-[#3C493F]">
+                      <span className="font-montserrat text-4xl sm:text-5xl font-bold text-[#3C493F]">
                         {service.price} Kč
                       </span>
                       <span className="font-montserrat bg-[#f0f3f2] text-[#3C493F] text-base px-5 py-2 rounded-full font-medium">
@@ -194,18 +194,18 @@ const Services = () => {
                 }}
               >
                 <div
-                  className="bg-white rounded-xl shadow-md transition-all duration-300 cursor-pointer p-5 h-full group relative overflow-hidden active:scale-95"
+                  className="bg-white rounded-xl shadow-md transition-all duration-300 cursor-pointer p-5 h-full group relative overflow-hidden active:scale-95 flex flex-col"
                   onClick={() => handleServiceClick(service.name)}
                 >
                   <div className="absolute top-0 right-0 w-20 h-20 bg-[#3C493F]/10 rounded-full blur-2xl group-hover:w-32 group-hover:h-32 transition-all duration-500 -translate-y-10 translate-x-10"></div>
                   <h3 className="font-crimson italic text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                     {service.name}
                   </h3>
-                  <p className="font-montserrat text-base text-gray-600 mb-3">
+                  <p className="font-montserrat text-base text-gray-600 mb-3 flex-grow">
                     {service.description}
                   </p>
-                  <div className="flex items-center justify-between">
-                    <span className="font-crimson italic text-3xl font-bold text-[#3C493F]">
+                  <div className="flex items-center justify-between mt-auto">
+                    <span className="font-montserrat text-3xl font-bold text-[#3C493F]">
                       {service.price} Kč
                     </span>
                     <span className="font-crimson italic text-[#3C493F] text-2xl font-medium">

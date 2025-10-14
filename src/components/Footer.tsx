@@ -25,15 +25,15 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-white border-t border-[#7E8D85]/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Top Section with Info and Opening Hours */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
           {/* About & Contact Section */}
           <div className="space-y-6">
             <div>
-              <h3 className="font-crimson italic text-xl font-bold mb-3">FlekCuts</h3>
-              <p className="font-montserrat text-gray-400 leading-relaxed text-sm">
+              <h3 className="font-crimson italic text-2xl font-bold mb-3 text-[#3C493F]">FlekCuts</h3>
+              <p className="font-montserrat text-[#3C493F]/70 leading-relaxed text-base">
                 Profesionální holictví v srdci Bruntálu. Specializuji se na
                 moderní střihy, klasické úpravy vousů a kompletní péči o vaše
                 vlasy.
@@ -41,28 +41,28 @@ const Footer = () => {
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-crimson italic text-base font-semibold mb-3">
+              <h4 className="font-crimson italic text-lg font-semibold mb-3 text-[#3C493F]">
                 Kontakt
               </h4>
 
               <button
                 onClick={handlePhoneClick}
-                className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors group"
+                className="flex items-center gap-3 text-[#3C493F]/70 hover:text-[#3C493F] transition-colors group"
               >
-                <Phone className="w-4 h-4 text-[#7E8D85] group-hover:text-[#3C493F]" />
-                <span className="font-montserrat text-sm">+420 778 779 938</span>
+                <Phone className="w-5 h-5 text-[#7E8D85] group-hover:text-[#3C493F]" />
+                <span className="font-montserrat text-base">+420 778 779 938</span>
               </button>
 
               <button
                 onClick={handleDirectionsClick}
-                className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors group"
+                className="flex items-center gap-3 text-[#3C493F]/70 hover:text-[#3C493F] transition-colors group"
               >
-                <MapPin className="w-4 h-4 text-[#7E8D85] group-hover:text-[#3C493F]" />
-                <div className="font-montserrat text-left text-sm">
+                <MapPin className="w-5 h-5 text-[#7E8D85] group-hover:text-[#3C493F]" />
+                <div className="font-montserrat text-left text-base">
                   <div>Zámecké náměstí 19</div>
                   <div>792 01 Bruntál</div>
                 </div>
-                <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
             </div>
           </div>
@@ -70,24 +70,24 @@ const Footer = () => {
           {/* Opening Hours */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-3">
-              <Clock className="w-4 h-4 text-[#7E8D85]" />
-              <h4 className="font-crimson italic text-base font-semibold">
+              <Clock className="w-5 h-5 text-[#7E8D85]" />
+              <h4 className="font-crimson italic text-lg font-semibold text-[#3C493F]">
                 Otevírací doba
               </h4>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {openingHours.map((item, index) => (
                 <div
                   key={index}
-                  className="flex justify-between items-center py-1"
+                  className="flex justify-between items-center py-1.5"
                 >
-                  <span className="font-montserrat text-gray-400 text-sm">
+                  <span className="font-montserrat text-[#3C493F]/70 text-base">
                     {item.day}
                   </span>
                   <span
-                    className={`font-montserrat text-sm ${
-                      item.isClosed ? "text-[#7E8D85]" : "text-gray-400"
+                    className={`font-montserrat text-base ${
+                      item.isClosed ? "text-[#7E8D85]" : "text-[#3C493F]/70"
                     }`}
                   >
                     {item.hours}
@@ -97,7 +97,7 @@ const Footer = () => {
             </div>
 
             {/* Current Status */}
-            <div className="mt-4 p-2.5 bg-gray-800 rounded-lg">
+            <div className="mt-4 p-3 bg-white/60 backdrop-blur-sm rounded-lg border border-[#7E8D85]/20">
               <CurrentStatus />
             </div>
           </div>
@@ -105,21 +105,21 @@ const Footer = () => {
 
         {/* Map Section */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-crimson italic text-base font-semibold flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-[#7E8D85]" />
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-crimson italic text-lg font-semibold flex items-center gap-2 text-[#3C493F]">
+              <MapPin className="w-5 h-5 text-[#7E8D85]" />
               Kde nás najdete
             </h4>
             <button
               onClick={handleDirectionsClick}
-              className="font-montserrat text-[#7E8D85] hover:text-[#3C493F] transition-colors flex items-center gap-1 text-xs"
+              className="font-montserrat text-[#7E8D85] hover:text-[#3C493F] transition-colors flex items-center gap-1 text-sm"
             >
               Otevřít v mapách
-              <ExternalLink className="w-3 h-3" />
+              <ExternalLink className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="relative rounded-lg overflow-hidden shadow-lg border border-gray-800">
+          <div className="relative rounded-lg overflow-hidden shadow-md border border-[#7E8D85]/30">
             {/* Map Container */}
             <div className="relative w-full h-64 md:h-72">
               <iframe
@@ -135,13 +135,13 @@ const Footer = () => {
               ></iframe>
 
               {/* Overlay with address info */}
-              <div className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-sm text-white p-2.5 rounded-lg">
+              <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm text-[#3C493F] p-3 rounded-lg border border-[#7E8D85]/30 shadow-md">
                 <div className="flex items-start gap-2">
-                  <MapPin className="w-3.5 h-3.5 text-[#7E8D85] mt-0.5 flex-shrink-0" />
-                  <div className="font-montserrat text-xs">
+                  <MapPin className="w-4 h-4 text-[#7E8D85] mt-0.5 flex-shrink-0" />
+                  <div className="font-montserrat text-sm">
                     <div className="font-semibold">FlekCuts</div>
-                    <div className="text-gray-300">Zámecké náměstí 19</div>
-                    <div className="text-gray-300">792 01 Bruntál</div>
+                    <div className="text-[#3C493F]/70">Zámecké náměstí 19</div>
+                    <div className="text-[#3C493F]/70">792 01 Bruntál</div>
                   </div>
                 </div>
               </div>
@@ -157,35 +157,35 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section with Legal Links */}
-        <div className="border-t border-gray-800 pt-6">
+        <div className="border-t border-[#7E8D85]/20 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="font-montserrat text-gray-500 text-xs">
+            <p className="font-montserrat text-[#3C493F]/50 text-sm">
               © 2025 FlekCuts. Všechna práva vyhrazena.
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
               <button
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("showPrivacyPolicy"));
                 }}
-                className="font-montserrat text-gray-500 hover:text-gray-300 transition-colors"
+                className="font-montserrat text-[#3C493F]/60 hover:text-[#3C493F] transition-colors"
               >
                 Ochrana osobních údajů
               </button>
-              <span className="text-gray-700">•</span>
+              <span className="text-[#7E8D85]/40">•</span>
               <button
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("showTermsOfService"));
                 }}
-                className="font-montserrat text-gray-500 hover:text-gray-300 transition-colors"
+                className="font-montserrat text-[#3C493F]/60 hover:text-[#3C493F] transition-colors"
               >
                 Obchodní podmínky
               </button>
-              <span className="text-gray-700">•</span>
+              <span className="text-[#7E8D85]/40">•</span>
               <button
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("showBusinessInfo"));
                 }}
-                className="font-montserrat text-gray-500 hover:text-gray-300 transition-colors"
+                className="font-montserrat text-[#3C493F]/60 hover:text-[#3C493F] transition-colors"
               >
                 Právní informace
               </button>
@@ -265,13 +265,13 @@ const CurrentStatus = () => {
   return (
     <div className="flex items-center gap-2">
       <div
-        className={`w-2 h-2 rounded-full ${
-          currentStatus.isOpen ? "bg-green-400" : "bg-[#7E8D85]"
+        className={`w-2.5 h-2.5 rounded-full ${
+          currentStatus.isOpen ? "bg-[#3C493F]" : "bg-[#7E8D85]"
         }`}
       ></div>
       <span
-        className={`font-montserrat text-xs ${
-          currentStatus.isOpen ? "text-green-400" : "text-[#7E8D85]"
+        className={`font-montserrat text-sm ${
+          currentStatus.isOpen ? "text-[#3C493F] font-medium" : "text-[#7E8D85]"
         }`}
       >
         {currentStatus.message}
