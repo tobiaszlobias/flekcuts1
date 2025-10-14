@@ -175,9 +175,10 @@ const BookingConfirmationModal = ({
 
             <Button
               onClick={onClose}
-              className="w-full bg-[#3C493F] hover:bg-[#2d3730] text-white font-medium py-2 rounded-lg transition-colors"
+              className="w-full font-montserrat bg-white border-2 border-[#3C493F] text-[#3C493F] hover:bg-white hover:text-[#3C493F] hover:border-[#2d3730] px-12 py-6 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
             >
-              Rozumím
+              <span className="relative z-10">Rozumím</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d5ddd9] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
             </Button>
           </div>
         </div>
@@ -711,7 +712,7 @@ const Booking = () => {
     <section id="objednat" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="font-crimson text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
+          <h2 className="font-crimson italic text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
             Objednejte si termín
           </h2>
           <p className="font-montserrat text-lg sm:text-xl lg:text-2xl text-gray-600">
@@ -877,15 +878,18 @@ const Booking = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-[#3C493F] hover:bg-[#2d3730] text-white py-3 rounded-lg text-lg font-medium transition-colors"
+                className="w-full font-montserrat bg-[#3C493F] hover:!bg-[#3C493F] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
               >
                 {isSubmitting ? (
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Odesílání...
+                    <span className="relative z-10">Odesílání...</span>
                   </div>
                 ) : (
-                  "Odeslat objednávku"
+                  <>
+                    <span className="relative z-10">Odeslat objednávku</span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
+                  </>
                 )}
               </Button>
             </form>
@@ -900,6 +904,21 @@ const Booking = () => {
           bookingDetails={confirmedBooking}
         />
       )}
+
+      <style jsx>{`
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+
+        .animate-shimmer {
+          animation: shimmer 2s ease-in-out infinite;
+        }
+      `}</style>
     </section>
   );
 };

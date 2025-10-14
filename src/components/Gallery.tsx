@@ -97,7 +97,7 @@ const Gallery = () => {
   return (
     <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
       <div className="max-w-7xl mx-auto mb-8 sm:mb-12 text-center">
-        <h2 className="font-crimson text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
+        <h2 className="font-crimson italic text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
           Moje práce
         </h2>
         <p className="font-montserrat text-base sm:text-lg lg:text-xl text-gray-600">

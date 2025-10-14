@@ -159,7 +159,7 @@ const Navbar = () => {
               className="flex items-center space-x-2 transition-all duration-300 group"
             >
               <Scissors className="h-8 w-8 text-[#3C493F] group-hover:rotate-12 transition-transform duration-300" />
-              <span className="font-crimson text-xl font-bold text-gray-900">
+              <span className="font-crimson italic text-xl font-bold text-gray-900">
                 FlekCuts
               </span>
             </button>

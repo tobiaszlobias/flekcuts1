@@ -32,7 +32,7 @@ const Footer = () => {
           {/* About & Contact Section */}
           <div className="space-y-6">
             <div>
-              <h3 className="font-crimson text-xl font-bold mb-3">FlekCuts</h3>
+              <h3 className="font-crimson italic text-xl font-bold mb-3">FlekCuts</h3>
               <p className="font-montserrat text-gray-400 leading-relaxed text-sm">
                 Profesionální holictví v srdci Bruntálu. Specializuji se na
                 moderní střihy, klasické úpravy vousů a kompletní péči o vaše
@@ -41,7 +41,7 @@ const Footer = () => {
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-crimson text-base font-semibold mb-3">
+              <h4 className="font-crimson italic text-base font-semibold mb-3">
                 Kontakt
               </h4>
 
@@ -71,7 +71,7 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-3">
               <Clock className="w-4 h-4 text-[#7E8D85]" />
-              <h4 className="font-crimson text-base font-semibold">
+              <h4 className="font-crimson italic text-base font-semibold">
                 Otevírací doba
               </h4>
             </div>
@@ -106,7 +106,7 @@ const Footer = () => {
         {/* Map Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="font-crimson text-base font-semibold flex items-center gap-2">
+            <h4 className="font-crimson italic text-base font-semibold flex items-center gap-2">
               <MapPin className="w-4 h-4 text-[#7E8D85]" />
               Kde nás najdete
             </h4>

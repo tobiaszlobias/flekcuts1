@@ -80,9 +80,10 @@ export default function UserAppointments() {
             <button
               onClick={handleManualLink}
               disabled={isLinking}
-              className="text-sm bg-[#3C493F] text-white px-3 py-1 rounded hover:bg-[#2d3730] disabled:opacity-50"
+              className="font-montserrat bg-white border-2 border-[#3C493F] text-[#3C493F] hover:bg-white hover:text-[#3C493F] hover:border-[#2d3730] px-6 py-3 rounded-full text-base hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLinking ? "Propojuji..." : "Propojit existující objednávky"}
+              <span className="relative z-10">{isLinking ? "Propojuji..." : "Propojit existující objednávky"}</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d5ddd9] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
             </button>
           </div>
         )}
@@ -146,9 +147,10 @@ export default function UserAppointments() {
                 {appointment.status === "pending" && (
                   <button
                     onClick={() => handleCancel(appointment._id)}
-                    className="mt-2 text-[#3C493F] hover:text-[#3C493F] text-sm"
+                    className="mt-2 font-montserrat bg-white border-2 border-[#3C493F] text-[#3C493F] hover:bg-white hover:text-[#3C493F] hover:border-[#2d3730] px-4 py-2 rounded-full text-sm hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
                   >
-                    Zrušit
+                    <span className="relative z-10">Zrušit</span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d5ddd9] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
                   </button>
                 )}
               </div>

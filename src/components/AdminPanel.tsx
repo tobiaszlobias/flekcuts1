@@ -180,32 +180,48 @@ export default function AdminPanel() {
         <div className="bg-white rounded-lg shadow-sm border p-4">
           <div className="flex flex-wrap gap-2">
             <Button
-              variant={filter === "all" ? "default" : "outline"}
               onClick={() => setFilter("all")}
-              size="sm"
+              className={`font-montserrat ${
+                filter === "all"
+                  ? "bg-[#3C493F] hover:bg-[#2d3730] text-white"
+                  : "bg-white border-2 border-[#3C493F] text-[#3C493F] hover:bg-white hover:text-[#3C493F] hover:border-[#2d3730]"
+              } px-6 py-3 rounded-full text-base hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer`}
             >
-              Všechny ({stats.total})
+              <span className="relative z-10">Všechny ({stats.total})</span>
+              {filter !== "all" && <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d5ddd9] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>}
             </Button>
             <Button
-              variant={filter === "pending" ? "default" : "outline"}
               onClick={() => setFilter("pending")}
-              size="sm"
+              className={`font-montserrat ${
+                filter === "pending"
+                  ? "bg-[#3C493F] hover:bg-[#2d3730] text-white"
+                  : "bg-white border-2 border-[#3C493F] text-[#3C493F] hover:bg-white hover:text-[#3C493F] hover:border-[#2d3730]"
+              } px-6 py-3 rounded-full text-base hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer`}
             >
-              Čekající ({stats.pending})
+              <span className="relative z-10">Čekající ({stats.pending})</span>
+              {filter !== "pending" && <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d5ddd9] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>}
             </Button>
             <Button
-              variant={filter === "confirmed" ? "default" : "outline"}
               onClick={() => setFilter("confirmed")}
-              size="sm"
+              className={`font-montserrat ${
+                filter === "confirmed"
+                  ? "bg-[#3C493F] hover:bg-[#2d3730] text-white"
+                  : "bg-white border-2 border-[#3C493F] text-[#3C493F] hover:bg-white hover:text-[#3C493F] hover:border-[#2d3730]"
+              } px-6 py-3 rounded-full text-base hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer`}
             >
-              Potvrzené ({stats.confirmed})
+              <span className="relative z-10">Potvrzené ({stats.confirmed})</span>
+              {filter !== "confirmed" && <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d5ddd9] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>}
             </Button>
             <Button
-              variant={filter === "cancelled" ? "default" : "outline"}
               onClick={() => setFilter("cancelled")}
-              size="sm"
+              className={`font-montserrat ${
+                filter === "cancelled"
+                  ? "bg-[#3C493F] hover:bg-[#2d3730] text-white"
+                  : "bg-white border-2 border-[#3C493F] text-[#3C493F] hover:bg-white hover:text-[#3C493F] hover:border-[#2d3730]"
+              } px-6 py-3 rounded-full text-base hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer`}
             >
-              Zrušené ({stats.cancelled})
+              <span className="relative z-10">Zrušené ({stats.cancelled})</span>
+              {filter !== "cancelled" && <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d5ddd9] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>}
             </Button>
           </div>
         </div>
@@ -291,21 +307,21 @@ export default function AdminPanel() {
                           onClick={() =>
                             handleStatusUpdate(appointment._id, "confirmed")
                           }
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                          size="sm"
+                          className="font-montserrat bg-white border-2 border-green-600 text-green-600 hover:bg-white hover:text-green-700 hover:border-green-700 px-4 py-2 rounded-full text-sm hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
                         >
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Potvrdit
+                          <CheckCircle className="h-4 w-4 mr-2 inline" />
+                          <span className="relative z-10">Potvrdit</span>
+                          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-green-50 to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
                         </Button>
                         <Button
                           onClick={() =>
                             handleStatusUpdate(appointment._id, "cancelled")
                           }
-                          variant="destructive"
-                          size="sm"
+                          className="font-montserrat bg-white border-2 border-red-600 text-red-600 hover:bg-white hover:text-red-700 hover:border-red-700 px-4 py-2 rounded-full text-sm hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
                         >
-                          <XCircle className="h-4 w-4 mr-2" />
-                          Zrušit
+                          <XCircle className="h-4 w-4 mr-2 inline" />
+                          <span className="relative z-10">Zrušit</span>
+                          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-red-50 to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
                         </Button>
                       </>
                     )}
@@ -315,11 +331,11 @@ export default function AdminPanel() {
                         onClick={() =>
                           handleStatusUpdate(appointment._id, "cancelled")
                         }
-                        variant="destructive"
-                        size="sm"
+                        className="font-montserrat bg-white border-2 border-red-600 text-red-600 hover:bg-white hover:text-red-700 hover:border-red-700 px-4 py-2 rounded-full text-sm hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
                       >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Zrušit
+                        <XCircle className="h-4 w-4 mr-2 inline" />
+                        <span className="relative z-10">Zrušit</span>
+                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-red-50 to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
                       </Button>
                     )}
 
@@ -328,22 +344,21 @@ export default function AdminPanel() {
                         onClick={() =>
                           handleStatusUpdate(appointment._id, "confirmed")
                         }
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                        size="sm"
+                        className="font-montserrat bg-white border-2 border-green-600 text-green-600 hover:bg-white hover:text-green-700 hover:border-green-700 px-4 py-2 rounded-full text-sm hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
                       >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Obnovit
+                        <CheckCircle className="h-4 w-4 mr-2 inline" />
+                        <span className="relative z-10">Obnovit</span>
+                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-green-50 to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
                       </Button>
                     )}
 
                     <Button
                       onClick={() => handleDelete(appointment._id)}
-                      variant="outline"
-                      size="sm"
-                      className="border-[#d5ddd9] text-[#3C493F] hover:bg-[#fafbfa]"
+                      className="font-montserrat bg-white border-2 border-[#3C493F] text-[#3C493F] hover:bg-white hover:text-[#3C493F] hover:border-[#2d3730] px-4 py-2 rounded-full text-sm hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Smazat
+                      <Trash2 className="h-4 w-4 mr-2 inline" />
+                      <span className="relative z-10">Smazat</span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d5ddd9] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
                     </Button>
                   </div>
                 </div>
