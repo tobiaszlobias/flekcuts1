@@ -170,23 +170,24 @@ const Hero = () => {
 
           {/* Buttons - Small (Subheading / 1.618) */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
-            <Button
+            <button
               onClick={() => scrollToSection("objednat")}
-              className="font-montserrat bg-[#FF6B35] hover:!bg-[#FF6B35] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-105 active:scale-99 transition-all duration-200 relative overflow-visible group cursor-pointer min-w-[240px] sm:min-w-[280px] h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
+              className="font-montserrat bg-[#FF6B35] text-white px-8 py-3 rounded-full hover:bg-[#FF6B35] transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 cursor-pointer relative overflow-hidden group text-xl sm:text-2xl min-w-[240px] sm:min-w-[280px]"
             >
-              <span className="absolute inset-[-3px] rounded-full animate-border-rotate" style={{ background: 'conic-gradient(from 0deg, transparent 0deg, transparent 340deg, rgba(255, 255, 255, 0.9) 350deg, rgba(255, 255, 255, 0) 360deg)' }}></span>
-              <span className="absolute inset-0 bg-[#FF6B35] rounded-full"></span>
-              <span className="relative z-10">Objednat se</span>
+              <span className="relative z-10 font-semibold">
+                Objednat se
+              </span>
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 group-hover:opacity-70 animate-shimmer z-[5]"></span>
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={() => scrollToSection("services")}
-              variant="outline"
-              className="font-montserrat bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] px-12 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer min-w-[240px] sm:min-w-[280px] h-[60px] sm:h-[64px] flex items-center justify-center"
+              className="font-montserrat bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] px-8 py-3 rounded-full transition-all duration-300 hover:scale-102 active:scale-95 cursor-pointer relative overflow-hidden group text-xl sm:text-2xl min-w-[240px] sm:min-w-[280px]"
             >
-              <span className="relative z-10">Zobrazit služby</span>
+              <span className="relative z-10 font-semibold">
+                Zobrazit služby
+              </span>
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
-            </Button>
+            </button>
           </div>
         </div>
 
