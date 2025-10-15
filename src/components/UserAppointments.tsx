@@ -62,7 +62,31 @@ export default function UserAppointments() {
   };
 
   if (appointments === undefined) {
-    return <div className="p-4">Načítání objednávek...</div>;
+    return (
+      <div className="p-6 bg-white rounded-lg shadow-sm border">
+        <h2 className="text-xl font-semibold mb-4">Vaše objednávky</h2>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="p-4 border rounded-lg bg-gray-50 border-gray-200 animate-pulse"
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1 space-y-3">
+                  <div className="h-5 bg-gray-300 rounded w-1/3"></div>
+                  <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-2/3"></div>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <div className="h-6 bg-gray-300 rounded-full w-24"></div>
+                  <div className="h-8 bg-gray-300 rounded-full w-20"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (appointments.length === 0) {

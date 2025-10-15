@@ -356,9 +356,9 @@ const CompactDateTimePicker = ({
                   disabled={!isSelectable}
                   className={`
                     w-full aspect-square text-xs rounded transition-all duration-200 relative
-                    ${day.isSelected ? "bg-[#FF6B35] text-white font-semibold shadow-md scale-105" : ""}
+                    ${day.isSelected ? "bg-[#FF8C5A] text-white font-semibold shadow-md scale-105" : ""}
                     ${day.isToday && !day.isSelected ? "bg-[#FFE5DC] text-[#FF6B35] font-semibold" : ""}
-                    ${isSelectable && !day.isSelected && !day.isToday ? "hover:bg-[#FF8C5A] hover:text-white text-gray-900" : ""}
+                    ${isSelectable && !day.isSelected && !day.isToday ? "hover:bg-[#FFF9F6] hover:text-[#FF6B35] text-gray-900" : ""}
                     ${!isSelectable ? "text-gray-300 cursor-not-allowed" : ""}
                   `}
                 >
@@ -411,7 +411,7 @@ const CompactDateTimePicker = ({
                       p-2 text-xs rounded border transition-all duration-200
                       ${
                         isSelected
-                          ? "bg-[#FF6B35] text-white border-[#FF6B35] font-medium"
+                          ? "bg-[#FF8C5A] text-white border-[#FF8C5A] font-medium"
                           : canSelect
                             ? "border-[#e5ebe9] hover:border-[#FF6B35] hover:bg-white"
                             : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"

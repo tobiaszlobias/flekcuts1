@@ -73,8 +73,67 @@ export default function AdminPanel() {
 
   if (appointments === undefined || stats === undefined) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-lg">Načítání admin panelu...</div>
+      <div className="min-h-screen bg-white p-4">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Header Skeleton */}
+          <div className="bg-white rounded-lg shadow-sm border p-6 animate-pulse">
+            <div className="h-8 bg-gray-300 rounded w-48 mb-2"></div>
+            <div className="h-4 bg-gray-300 rounded w-64"></div>
+          </div>
+
+          {/* Statistics Cards Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <div className="h-4 bg-gray-300 rounded w-16"></div>
+                  <div className="h-4 w-4 bg-gray-300 rounded"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-8 bg-gray-300 rounded w-12"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Filters Skeleton */}
+          <div className="bg-white rounded-lg shadow-sm border p-4 animate-pulse">
+            <div className="flex flex-wrap gap-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-12 bg-gray-300 rounded-full w-32"></div>
+              ))}
+            </div>
+          </div>
+
+          {/* Appointments List Skeleton */}
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="bg-white rounded-lg shadow-sm border p-6 animate-pulse"
+              >
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <div className="h-5 bg-gray-300 rounded w-24"></div>
+                      <div className="h-5 bg-gray-300 rounded w-32"></div>
+                      <div className="h-5 bg-gray-300 rounded w-20"></div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="h-4 bg-gray-300 rounded w-40"></div>
+                      <div className="h-4 bg-gray-300 rounded w-48"></div>
+                    </div>
+                    <div className="h-12 bg-gray-300 rounded"></div>
+                  </div>
+                  <div className="flex flex-col gap-2 min-w-fit">
+                    <div className="h-10 bg-gray-300 rounded-full w-32"></div>
+                    <div className="h-10 bg-gray-300 rounded-full w-32"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

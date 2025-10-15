@@ -12,7 +12,6 @@ import {
 } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { smoothScrollTo, smoothScrollToTop } from "@/utils/smoothScroll";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -57,7 +56,14 @@ const Navbar = () => {
   }, []);
 
   const scrollToSection = (sectionId: string) => {
-    smoothScrollTo(sectionId, 80); // 80px offset for navbar
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
+      });
+    }
     setIsMenuOpen(false);
   };
 
@@ -71,32 +77,58 @@ const Navbar = () => {
     }
 
     // Scroll to top when changing views
-    smoothScrollToTop();
+    if (view !== "home" || activeView !== "home") {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
   };
 
   const handleLogoClick = () => {
-    if (isSignedIn) {
-      handleViewChange("home");
-    } else {
-      // For unauthenticated users, just scroll to top
-      smoothScrollToTop();
+    // Scroll to top immediately using native smooth scroll
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+
+    // Handle view change asynchronously
+    if (isSignedIn && activeView !== "home") {
+      setActiveView("home");
+      setIsMenuOpen(false);
+      window.dispatchEvent(new CustomEvent("viewChange", { detail: "home" }));
     }
   };
 
   const handleServicesClick = () => {
     if (isSignedIn && (activeView === "dashboard" || activeView === "admin")) {
-      // If on dashboard, switch to home view first, then scroll to services
+      // If on dashboard, switch to home view first
       setActiveView("home");
       setIsMenuOpen(false);
       window.dispatchEvent(new CustomEvent("viewChange", { detail: "home" }));
 
       // Wait for view change to complete, then scroll
       setTimeout(() => {
-        scrollToSection("services");
+        const element = document.getElementById("services");
+        if (element) {
+          const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - 80;
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+        }
       }, 100);
     } else {
-      // If already on home view or not signed in, just scroll
-      scrollToSection("services");
+      // If already on home view or not signed in, just scroll immediately
+      const element = document.getElementById("services");
+      if (element) {
+        const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        });
+      }
+      setIsMenuOpen(false);
     }
   };
 
@@ -169,33 +201,33 @@ const Navbar = () => {
                 <>
                   <button
                     onClick={() => handleViewChange("dashboard")}
-                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#FF6B35]"
+                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
                   >
                     <span className="relative z-10">Moje objednávky</span>
                   </button>
                   {isAdmin && (
                     <button
                       onClick={() => handleViewChange("admin")}
-                      className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#FF6B35]"
+                      className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
                     >
                       <span className="relative z-10">Admin</span>
                     </button>
                   )}
                   <button
                     onClick={() => handleViewChange("home")}
-                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#FF6B35]"
+                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
                   >
                     <span className="relative z-10">Domů</span>
                   </button>
                   <button
                     onClick={() => scrollToSection("objednat")}
-                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#FF6B35]"
+                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
                   >
                     <span className="relative z-10">Objednat</span>
                   </button>
                   <button
                     onClick={handleServicesClick}
-                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer hover:outline hover:outline-1 hover:outline-[#FF6B35]"
+                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
                   >
                     <span className="relative z-10">Služby</span>
                   </button>

@@ -34,7 +34,7 @@ const Footer = () => {
             <div>
               <h3 className="font-crimson italic text-2xl font-bold mb-3 text-gray-900">FlekCuts</h3>
               <p className="font-montserrat text-gray-600 leading-relaxed text-base">
-                Profesionální holictví v srdci Bruntálu. Specializuji se na
+                Profesionální holičství v srdci Bruntálu. Specializuji se na
                 moderní střihy, klasické úpravy vousů a kompletní péči o vaše
                 vlasy.
               </p>
