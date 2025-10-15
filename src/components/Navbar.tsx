@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Scissors, Menu, X } from "lucide-react";
+import { Scissors } from "lucide-react";
 import {
   useAuth,
   UserButton,
@@ -54,6 +54,19 @@ const Navbar = () => {
       );
     };
   }, []);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -135,29 +148,6 @@ const Navbar = () => {
   return (
     <>
       <style jsx>{`
-        @keyframes slideDown {
-          from {
-            max-height: 0;
-            opacity: 0;
-          }
-          to {
-            max-height: 500px;
-            opacity: 1;
-          }
-        }
-
-        @keyframes buttonPress {
-          0% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(0.95);
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
-
         @keyframes shimmer {
           0% {
             transform: translateX(-100%);
@@ -167,22 +157,28 @@ const Navbar = () => {
           }
         }
 
-        .animate-slideDown {
-          animation: slideDown 0.3s ease-out;
-          overflow: hidden;
-        }
-
-        .animate-press {
-          animation: buttonPress 0.3s ease-out;
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
 
         .animate-shimmer {
           animation: shimmer 2s ease-in-out infinite;
         }
+
+        .animate-slideDown {
+          animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
       `}</style>
 
-      <nav className="bg-white/30 backdrop-blur-md shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="bg-white/30 backdrop-blur-md shadow-sm sticky top-0 z-50 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="flex justify-between items-center h-16">
             <button
               onClick={handleLogoClick}
@@ -277,55 +273,96 @@ const Navbar = () => {
               )}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-700 p-2 hover:bg-[#FF6B35]/10 rounded-md transition-all duration-300 active:scale-95 cursor-pointer"
+                className="text-gray-700 p-2 rounded-md transition-all duration-200 cursor-pointer relative w-10 h-10"
               >
-                {isMenuOpen ? (
-                  <X className="h-6 w-6 transition-transform duration-300" />
-                ) : (
-                  <Menu className="h-6 w-6 transition-transform duration-300" />
-                )}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-5 h-4 relative">
+                    <span
+                      className={`absolute left-0 w-full h-[2px] bg-gray-700 transition-all duration-300 ease-in-out ${
+                        isMenuOpen ? 'top-1/2 -translate-y-1/2 rotate-45' : 'top-0'
+                      }`}
+                    ></span>
+                    <span
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-full h-[2px] bg-gray-700 transition-all duration-300 ease-in-out ${
+                        isMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
+                      }`}
+                    ></span>
+                    <span
+                      className={`absolute left-0 w-full h-[2px] bg-gray-700 transition-all duration-300 ease-in-out ${
+                        isMenuOpen ? 'top-1/2 -translate-y-1/2 -rotate-45' : 'bottom-0'
+                      }`}
+                    ></span>
+                  </div>
+                </div>
               </button>
             </div>
           </div>
+        </div>
+      </nav>
 
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div className="md:hidden bg-white/30 backdrop-blur-md border-t border-white/50 animate-slideDown">
-              <div className="px-2 pt-2 pb-3 space-y-2">
+      {/* Backdrop Blur Overlay */}
+      {isMenuOpen && (
+        <div
+          className="md:hidden fixed top-16 left-0 right-0 bottom-0 bg-black/10 backdrop-blur-sm"
+          style={{ zIndex: 9998, pointerEvents: 'all' }}
+          onClick={() => setIsMenuOpen(false)}
+          onTouchStart={(e) => e.preventDefault()}
+          onMouseDown={(e) => e.preventDefault()}
+        />
+      )}
+
+      {/* Mobile Navigation - Overlay */}
+      {isMenuOpen && (
+        <div
+          className="md:hidden fixed left-0 right-0 top-16 shadow-sm animate-slideDown"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.3)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            pointerEvents: 'all',
+            zIndex: 9999
+          }}
+        >
+          <div className="px-4 pt-4 pb-4 space-y-2">
                 <SignedIn>
                   {/* Authenticated mobile navigation */}
                   <>
                     <button
+                      onClick={() => {
+                        handleViewChange("home");
+                        setTimeout(() => {
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }, 100);
+                      }}
+                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                    >
+                      Domů
+                    </button>
+                    <button
+                      onClick={handleServicesClick}
+                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                    >
+                      Služby
+                    </button>
+                    <button
                       onClick={() => handleViewChange("dashboard")}
-                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
+                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
                     >
                       Moje objednávky
                     </button>
                     {isAdmin && (
                       <button
                         onClick={() => handleViewChange("admin")}
-                        className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
+                        className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
                       >
                         Admin
                       </button>
                     )}
                     <button
-                      onClick={() => handleViewChange("home")}
-                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
-                    >
-                      Domů
-                    </button>
-                    <button
                       onClick={() => scrollToSection("objednat")}
-                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
+                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
                     >
                       Objednat
-                    </button>
-                    <button
-                      onClick={handleServicesClick}
-                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
-                    >
-                      Služby
                     </button>
                   </>
                 </SignedIn>
@@ -333,27 +370,35 @@ const Navbar = () => {
                   {/* Unauthenticated mobile navigation */}
                   <>
                     <button
-                      onClick={() => scrollToSection("objednat")}
-                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
+                      onClick={() => {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        setIsMenuOpen(false);
+                      }}
+                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
                     >
-                      Objednat
+                      Domů
                     </button>
                     <button
                       onClick={handleServicesClick}
-                      className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer"
+                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
                     >
                       Služby
                     </button>
-                    <div className="border-t border-white/50 my-2"></div>
+                    <button
+                      onClick={() => scrollToSection("objednat")}
+                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                    >
+                      Objednat
+                    </button>
+                    <div className="border-t border-gray-200 my-3"></div>
                     <SignInButton mode="modal">
-                      <button className="font-montserrat block w-full text-left px-4 py-3 text-gray-700 bg-white/50 border border-[#e5ebe9] rounded-full hover:bg-[#FF6B35]/20 hover:border-[#FF6B35] transition-all duration-300 active:scale-95 cursor-pointer">
+                      <button className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer">
                         Přihlásit se
                       </button>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <button className="font-montserrat block w-full px-4 py-3 bg-[#FF6B35] text-white border border-[#FF6B35] rounded-full hover:bg-[#FF6B35] hover:border-[#FF6B35] hover:scale-105 transition-all duration-300 active:scale-95 font-semibold cursor-pointer relative overflow-hidden group">
-                        <span className="relative z-10">Registrovat se</span>
-                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-40 animate-shimmer"></span>
+                      <button className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer">
+                        Registrovat se
                       </button>
                     </SignUpButton>
                   </>
@@ -361,8 +406,6 @@ const Navbar = () => {
               </div>
             </div>
           )}
-        </div>
-      </nav>
     </>
   );
 };
