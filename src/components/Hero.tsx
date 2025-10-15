@@ -6,6 +6,7 @@ import { smoothScrollTo } from "@/utils/smoothScroll";
 
 const Hero = () => {
   const [scrollY, setScrollY] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   const images = [
     "/comb.png",
@@ -25,8 +26,28 @@ const Hero = () => {
   }, []);
 
   useEffect(() => {
+    // Check if mobile on mount
+    setIsMobile(window.innerWidth < 640);
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      setScrollY(window.scrollY);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrollY(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -50,7 +71,8 @@ const Hero = () => {
         <div
           className="absolute top-8 right-12 w-36 h-48 sm:w-56 sm:h-72 pointer-events-none opacity-15 sm:opacity-60 will-change-transform"
           style={{
-            transform: `translate3d(0, ${scrollY * 0.4}px, 0) rotate(${-5 + scrollY * 0.06}deg)`,
+            transform: `translate3d(0, ${scrollY * (isMobile ? 0.2 : 0.4)}px, 0) rotate(${-5 + scrollY * (isMobile ? 0.03 : 0.06)}deg)`,
+            backfaceVisibility: "hidden",
           }}
         >
           <img
@@ -64,7 +86,8 @@ const Hero = () => {
         <div
           className="absolute bottom-[22rem] left-16 sm:bottom-[240px] sm:left-[110px] w-24 h-24 sm:w-36 sm:h-36 pointer-events-none opacity-15 sm:opacity-55 will-change-transform"
           style={{
-            transform: `translate3d(0, ${scrollY * -0.5}px, 0) rotate(${10 + scrollY * 0.1}deg)`,
+            transform: `translate3d(0, ${scrollY * (isMobile ? -0.25 : -0.5)}px, 0) rotate(${10 + scrollY * (isMobile ? 0.05 : 0.1)}deg)`,
+            backfaceVisibility: "hidden",
           }}
         >
           <img
@@ -78,7 +101,8 @@ const Hero = () => {
         <div
           className="absolute top-36 left-8 w-36 h-36 sm:top-20 sm:left-20 sm:w-56 sm:h-56 pointer-events-none opacity-18 sm:opacity-65 will-change-transform"
           style={{
-            transform: `translate3d(${scrollY * 0.14}px, ${scrollY * 0.6}px, 0) rotate(${15 + scrollY * 0.08}deg)`,
+            transform: `translate3d(${scrollY * (isMobile ? 0.07 : 0.14)}px, ${scrollY * (isMobile ? 0.3 : 0.6)}px, 0) rotate(${15 + scrollY * (isMobile ? 0.04 : 0.08)}deg)`,
+            backfaceVisibility: "hidden",
           }}
         >
           <img
@@ -92,7 +116,8 @@ const Hero = () => {
         <div
           className="absolute top-80 right-12 w-36 h-32 sm:top-96 sm:right-16 sm:w-48 sm:h-42 pointer-events-none opacity-15 sm:opacity-60 will-change-transform"
           style={{
-            transform: `translate3d(0, ${-50 + scrollY * 0.44}px, 0) rotate(${-30 + scrollY * 0.08}deg)`,
+            transform: `translate3d(0, ${-50 + scrollY * (isMobile ? 0.22 : 0.44)}px, 0) rotate(${-30 + scrollY * (isMobile ? 0.04 : 0.08)}deg)`,
+            backfaceVisibility: "hidden",
           }}
         >
           <img
@@ -106,7 +131,8 @@ const Hero = () => {
         <div
           className="absolute bottom-44 right-8 w-40 h-40 sm:bottom-[30px] sm:right-[140px] sm:w-52 sm:h-52 pointer-events-none opacity-15 sm:opacity-55 will-change-transform"
           style={{
-            transform: `translate3d(${scrollY * -0.1}px, ${scrollY * -0.56}px, 0) rotate(${60 + scrollY * 0.06}deg)`,
+            transform: `translate3d(${scrollY * (isMobile ? -0.05 : -0.1)}px, ${scrollY * (isMobile ? -0.28 : -0.56)}px, 0) rotate(${60 + scrollY * (isMobile ? 0.03 : 0.06)}deg)`,
+            backfaceVisibility: "hidden",
           }}
         >
           <img
@@ -120,7 +146,8 @@ const Hero = () => {
         <div
           className="absolute top-[68%] left-12 w-48 h-48 sm:top-[70%] sm:left-[120px] sm:w-60 sm:h-60 pointer-events-none opacity-12 sm:opacity-50 will-change-transform"
           style={{
-            transform: `translate3d(0, ${scrollY * 0.36}px, 0) rotate(${-45 + scrollY * 0.1}deg)`,
+            transform: `translate3d(0, ${scrollY * (isMobile ? 0.18 : 0.36)}px, 0) rotate(${-45 + scrollY * (isMobile ? 0.05 : 0.1)}deg)`,
+            backfaceVisibility: "hidden",
           }}
         >
           <img

@@ -15,6 +15,7 @@ const config: Config = {
         serif: ["var(--font-crimson)", "serif"],
       },
       colors: {
+        'custom-orange': '#fff9f2',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

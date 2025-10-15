@@ -227,7 +227,7 @@ const Navbar = () => {
                   >
                     <span className="relative z-10">Služby</span>
                   </button>
-                  <div className="cursor-pointer">
+                  <div className="cursor-pointer flex items-center">
                     <UserButton />
                   </div>
                 </>
@@ -267,7 +267,7 @@ const Navbar = () => {
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center space-x-2">
               {isSignedIn && (
-                <div className="cursor-pointer">
+                <div className="cursor-pointer flex items-center">
                   <UserButton />
                 </div>
               )}
@@ -360,9 +360,10 @@ const Navbar = () => {
                     )}
                     <button
                       onClick={() => scrollToSection("objednat")}
-                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                      className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group"
                     >
-                      Objednat
+                      <span className="relative z-10">Objednat</span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
                     </button>
                   </>
                 </SignedIn>
@@ -386,19 +387,22 @@ const Navbar = () => {
                     </button>
                     <button
                       onClick={() => scrollToSection("objednat")}
-                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                      className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group"
                     >
-                      Objednat
+                      <span className="relative z-10">Objednat</span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
                     </button>
                     <div className="border-t border-gray-200 my-3"></div>
                     <SignInButton mode="modal">
-                      <button className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer">
-                        Přihlásit se
+                      <button className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group">
+                        <span className="relative z-10">Přihlásit se</span>
+                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
                       </button>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <button className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer">
-                        Registrovat se
+                      <button className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group">
+                        <span className="relative z-10">Registrovat se</span>
+                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
                       </button>
                     </SignUpButton>
                   </>

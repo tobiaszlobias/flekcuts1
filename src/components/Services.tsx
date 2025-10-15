@@ -182,11 +182,11 @@ const Services = () => {
                   </div>
 
                   {/* Image */}
-                  <div className="w-full md:w-2/5 h-48 md:h-auto overflow-hidden">
+                  <div className="w-full h-48 md:w-1/2 md:h-80 overflow-hidden bg-custom-orange">
                     <img
                       src={service.imageUrl}
                       alt={service.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                 </div>

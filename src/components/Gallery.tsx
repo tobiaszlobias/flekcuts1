@@ -30,9 +30,9 @@ const Gallery = () => {
 
     // Calculate total width based on screen size
     const getCardWidth = () => {
-      if (window.innerWidth >= 1024) return 384 + 24; // lg: w-96 + gap-6
-      if (window.innerWidth >= 640) return 320 + 16; // sm: w-80 + gap-4
-      return 192 + 12; // mobile: w-48 + gap-3
+      if (window.innerWidth >= 1024) return 384 + 24; // lg: w-[24rem] + gap-6
+      if (window.innerWidth >= 640) return 320 + 16; // sm: w-[20rem] + gap-4
+      return 256 + 12; // mobile: w-64 + gap-3
     };
 
     const totalWidth = getCardWidth() * images.length; // Width of one complete set
@@ -43,8 +43,11 @@ const Gallery = () => {
       lastTimeRef.current = currentTime;
 
       if (!isPaused) {
-        // Speed: normal is ~30s for full cycle, slowed is ~90s
-        const speed = isSlowed ? totalWidth / 90000 : totalWidth / 30000;
+        // Speed: slower on mobile for smoother experience
+        const isMobile = window.innerWidth < 640;
+        const baseTime = isMobile ? 45000 : 30000; // Mobile: 45s, Desktop: 30s
+        const slowTime = isMobile ? 120000 : 90000; // Mobile: 120s, Desktop: 90s
+        const speed = isSlowed ? totalWidth / slowTime : totalWidth / baseTime;
         positionRef.current += speed * deltaTime;
 
         // Reset position for infinite loop - reset when we've scrolled through one set
@@ -52,7 +55,7 @@ const Gallery = () => {
           positionRef.current = positionRef.current % totalWidth;
         }
 
-        element.style.transform = `translateX(-${positionRef.current}px)`;
+        element.style.transform = `translate3d(-${positionRef.current}px, 0, 0)`;
       }
 
       animationRef.current = requestAnimationFrame(animate);
@@ -123,12 +126,16 @@ const Gallery = () => {
         <div
           ref={scrollRef}
           className="flex gap-3 sm:gap-4 lg:gap-6"
-          style={{ willChange: "transform" }}
+          style={{
+            willChange: "transform",
+            transform: "translateZ(0)",
+            backfaceVisibility: "hidden" as const
+          }}
         >
           {allImages.map((image, index) => (
             <div
               key={index}
-              className="flex-shrink-0 w-48 h-48 sm:w-80 sm:h-64 lg:w-96 lg:h-80 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg select-none"
+              className="flex-shrink-0 w-64 h-48 sm:w-[20rem] sm:h-64 lg:w-[24rem] lg:h-80 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg select-none bg-custom-orange"
             >
               <img
                 src={image}
