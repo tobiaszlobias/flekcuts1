@@ -48,9 +48,9 @@ const Hero = () => {
 
         {/* Comb 1 - Top Right */}
         <div
-          className="absolute top-14 right-20 w-24 h-32 sm:w-36 sm:h-45 pointer-events-none opacity-10 sm:opacity-50 will-change-transform"
+          className="absolute top-8 right-12 w-36 h-48 sm:w-56 sm:h-72 pointer-events-none opacity-15 sm:opacity-60 will-change-transform"
           style={{
-            transform: `translate3d(0, ${scrollY * 0.2}px, 0) rotate(${-25 + scrollY * 0.03}deg)`,
+            transform: `translate3d(0, ${scrollY * 0.4}px, 0) rotate(${-5 + scrollY * 0.06}deg)`,
           }}
         >
           <img
@@ -62,9 +62,9 @@ const Hero = () => {
 
         {/* Spray Bottle - Bottom Left */}
         <div
-          className="absolute bottom-[26rem] left-16 sm:bottom-72 sm:left-15 w-16 h-16 sm:w-24 sm:h-24 pointer-events-none opacity-10 sm:opacity-45 will-change-transform"
+          className="absolute bottom-[22rem] left-16 sm:bottom-[240px] sm:left-[110px] w-24 h-24 sm:w-36 sm:h-36 pointer-events-none opacity-15 sm:opacity-55 will-change-transform"
           style={{
-            transform: `translate3d(0, ${scrollY * -0.25}px, 0) rotate(${10 + scrollY * 0.05}deg)`,
+            transform: `translate3d(0, ${scrollY * -0.5}px, 0) rotate(${10 + scrollY * 0.1}deg)`,
           }}
         >
           <img
@@ -76,9 +76,9 @@ const Hero = () => {
 
         {/* Clippers - Top Left */}
         <div
-          className="absolute top-16 left-8 w-24 h-24 sm:top-20 sm:left-20 sm:w-36 sm:h-36 pointer-events-none opacity-12 sm:opacity-55 will-change-transform"
+          className="absolute top-36 left-8 w-36 h-36 sm:top-20 sm:left-20 sm:w-56 sm:h-56 pointer-events-none opacity-18 sm:opacity-65 will-change-transform"
           style={{
-            transform: `translate3d(${scrollY * 0.07}px, ${scrollY * 0.3}px, 0) rotate(${15 + scrollY * 0.04}deg)`,
+            transform: `translate3d(${scrollY * 0.14}px, ${scrollY * 0.6}px, 0) rotate(${15 + scrollY * 0.08}deg)`,
           }}
         >
           <img
@@ -90,9 +90,9 @@ const Hero = () => {
 
         {/* Scissors - Middle Right */}
         <div
-          className="absolute top-56 right-12 w-24 h-22 sm:top-96 sm:right-16 sm:w-32 sm:h-28 pointer-events-none opacity-10 sm:opacity-50 will-change-transform"
+          className="absolute top-80 right-12 w-36 h-32 sm:top-96 sm:right-16 sm:w-48 sm:h-42 pointer-events-none opacity-15 sm:opacity-60 will-change-transform"
           style={{
-            transform: `translate3d(0, ${-50 + scrollY * 0.22}px, 0) rotate(${-30 + scrollY * 0.04}deg)`,
+            transform: `translate3d(0, ${-50 + scrollY * 0.44}px, 0) rotate(${-30 + scrollY * 0.08}deg)`,
           }}
         >
           <img
@@ -104,9 +104,9 @@ const Hero = () => {
 
         {/* Razor - Bottom Right */}
         <div
-          className="absolute bottom-20 right-16 w-26 h-26 sm:right-16 sm:w-34 sm:h-34 pointer-events-none opacity-10 sm:opacity-45 will-change-transform"
+          className="absolute bottom-44 right-8 w-40 h-40 sm:bottom-[30px] sm:right-[140px] sm:w-52 sm:h-52 pointer-events-none opacity-15 sm:opacity-55 will-change-transform"
           style={{
-            transform: `translate3d(${scrollY * -0.05}px, ${scrollY * -0.28}px, 0) rotate(${60 + scrollY * 0.03}deg)`,
+            transform: `translate3d(${scrollY * -0.1}px, ${scrollY * -0.56}px, 0) rotate(${60 + scrollY * 0.06}deg)`,
           }}
         >
           <img
@@ -118,9 +118,9 @@ const Hero = () => {
 
         {/* Small Comb 2 - Middle Left */}
         <div
-          className="absolute top-3/4 left-12 w-32 h-32 sm:top-2/3 sm:left-24 sm:w-40 sm:h-40 pointer-events-none opacity-8 sm:opacity-40 will-change-transform"
+          className="absolute top-[68%] left-12 w-48 h-48 sm:top-[70%] sm:left-[120px] sm:w-60 sm:h-60 pointer-events-none opacity-12 sm:opacity-50 will-change-transform"
           style={{
-            transform: `translate3d(0, ${scrollY * 0.18}px, 0) rotate(${-45 + scrollY * 0.05}deg)`,
+            transform: `translate3d(0, ${scrollY * 0.36}px, 0) rotate(${-45 + scrollY * 0.1}deg)`,
           }}
         >
           <img
