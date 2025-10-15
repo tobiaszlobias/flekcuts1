@@ -20,9 +20,17 @@ const Gallery = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [isSlowed, setIsSlowed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const animationRef = useRef<number | null>(null);
   const positionRef = useRef(0);
   const lastTimeRef = useRef(0);
+
+  useEffect(() => {
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 640);
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   useEffect(() => {
     const element = scrollRef.current;
@@ -44,9 +52,9 @@ const Gallery = () => {
 
       if (!isPaused) {
         // Speed: slower on mobile for smoother experience
-        const isMobile = window.innerWidth < 640;
-        const baseTime = isMobile ? 45000 : 30000; // Mobile: 45s, Desktop: 30s
-        const slowTime = isMobile ? 120000 : 90000; // Mobile: 120s, Desktop: 90s
+        const isMobileDevice = window.innerWidth < 640;
+        const baseTime = isMobileDevice ? 60000 : 45000; // Mobile: 60s, Desktop: 45s
+        const slowTime = isMobileDevice ? 150000 : 120000; // Mobile: 150s, Desktop: 120s
         const speed = isSlowed ? totalWidth / slowTime : totalWidth / baseTime;
         positionRef.current += speed * deltaTime;
 
@@ -97,6 +105,15 @@ const Gallery = () => {
     setIsPaused(false);
   };
 
+  const desktopHandlers = {
+    onMouseEnter: handleMouseEnter,
+    onMouseLeave: handleMouseLeave,
+    onMouseDown: handleMouseDown,
+    onMouseUp: handleMouseUp,
+    onTouchStart: handleTouchStart,
+    onTouchEnd: handleTouchEnd,
+  };
+
   return (
     <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto mb-8 sm:mb-12 text-center">
@@ -111,12 +128,7 @@ const Gallery = () => {
       {/* Scrolling Gallery Container */}
       <div
         className="relative overflow-hidden py-4"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        {...(!isMobile && desktopHandlers)}
       >
         {/* Gradient Overlays for fade effect - narrower on mobile */}
         <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>

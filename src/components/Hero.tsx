@@ -69,7 +69,7 @@ const Hero = () => {
 
         {/* Comb 1 - Top Right */}
         <div
-          className="absolute top-8 right-12 w-36 h-48 sm:w-56 sm:h-72 pointer-events-none opacity-15 sm:opacity-60 will-change-transform"
+          className="absolute top-20 sm:top-16 right-12 w-36 h-48 sm:w-56 sm:h-72 pointer-events-none opacity-15 sm:opacity-60 will-change-transform"
           style={{
             transform: `translate3d(0, ${scrollY * (isMobile ? 0.2 : 0.4)}px, 0) rotate(${-5 + scrollY * (isMobile ? 0.03 : 0.06)}deg)`,
             backfaceVisibility: "hidden",
