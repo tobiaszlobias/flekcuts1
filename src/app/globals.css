@@ -24,7 +24,7 @@
   --destructive-foreground: 0 0% 98%;
   --border: 150 8% 85%;
   --input: 150 8% 85%;
-  --ring: 150 15% 45%;
+  --ring: 16 100% 60%;
   --radius: 0.5rem;
 
   /* Custom green palette */
@@ -64,10 +64,25 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Fix for shadcn/ui components focus rings */
+@keyframes inputFocusGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 3px hsla(var(--ring), 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 3px hsla(var(--ring), 0.4), 0 0 20px hsla(var(--ring), 0.2);
+  }
+}
+
 input:focus-visible,
 [data-slot="select-trigger"]:focus-visible {
   border-color: hsl(var(--ring)) !important;
-  box-shadow: 0 0 0 3px hsla(var(--ring), 0.5) !important;
+  transform: scale(1.02);
+  animation: inputFocusGlow 2s ease-in-out infinite;
+}
+
+input,
+[data-slot="select-trigger"] {
+  transition: all 0.2s ease-in-out;
 }
 /* Fix dropdown content border to match inputs */
 [data-slot="select-content"] {

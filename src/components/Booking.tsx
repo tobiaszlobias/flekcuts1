@@ -358,7 +358,7 @@ const CompactDateTimePicker = ({
                     w-full aspect-square text-xs rounded transition-all duration-200 relative
                     ${day.isSelected ? "bg-[#FF6B35] text-white font-semibold shadow-md scale-105" : ""}
                     ${day.isToday && !day.isSelected ? "bg-[#FFE5DC] text-[#FF6B35] font-semibold" : ""}
-                    ${isSelectable && !day.isSelected && !day.isToday ? "hover:bg-[#FFE5DC] hover:text-[#FF6B35] hover:scale-110 text-gray-900" : ""}
+                    ${isSelectable && !day.isSelected && !day.isToday ? "hover:bg-[#FF8C5A] hover:text-white text-gray-900" : ""}
                     ${!isSelectable ? "text-gray-300 cursor-not-allowed" : ""}
                   `}
                 >
@@ -878,7 +878,7 @@ const Booking = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full font-montserrat bg-[#FF6B35] hover:!bg-[#FF6B35] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-105 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
+                className="w-full font-montserrat bg-[#FF6B35] hover:!bg-[#FF6B35] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-105 active:scale-99 transition-all duration-200 relative overflow-visible group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
               >
                 {isSubmitting ? (
                   <div className="flex items-center justify-center">
@@ -887,8 +887,10 @@ const Booking = () => {
                   </div>
                 ) : (
                   <>
+                    <span className="absolute inset-[-3px] rounded-full animate-border-rotate" style={{ background: 'conic-gradient(from 0deg, transparent 0deg, transparent 340deg, rgba(255, 255, 255, 0.9) 350deg, rgba(255, 255, 255, 0) 360deg)' }}></span>
+                    <span className="absolute inset-0 bg-[#FF6B35] rounded-full"></span>
                     <span className="relative z-10">Odeslat objednávku</span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 group-hover:opacity-70 animate-shimmer z-[5]"></span>
                   </>
                 )}
               </Button>
@@ -915,8 +917,30 @@ const Booking = () => {
           }
         }
 
+        @keyframes borderRotate {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+
         .animate-shimmer {
-          animation: shimmer 2s ease-in-out infinite;
+          animation: shimmer 4s ease-in-out infinite;
+        }
+
+        .animate-border-rotate {
+          animation: borderRotate 6s linear infinite;
+          pointer-events: none;
+        }
+
+        .group:hover .animate-shimmer {
+          animation: shimmer 1.5s ease-in-out infinite;
+        }
+
+        .group:hover .animate-border-rotate {
+          animation: borderRotate 2s linear infinite;
         }
       `}</style>
     </section>
