@@ -44,6 +44,15 @@ const validatePhoneNumber = (phone: string): boolean => {
   return numbers.length >= 9;
 };
 
+// Phone formatting helper
+const formatPhoneDisplay = (phone: string): string => {
+  const numbers = phone.replace(/\D/g, "");
+  if (numbers.length >= 9) {
+    return `${numbers.slice(0, 3)} ${numbers.slice(3, 6)} ${numbers.slice(6, 9)}`;
+  }
+  return phone;
+};
+
 // Confirmation Modal Component
 const BookingConfirmationModal = ({
   isOpen,
@@ -83,103 +92,90 @@ const BookingConfirmationModal = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden transform transition-all max-h-[90vh] overflow-y-auto">
-          <div className="bg-[#FF6B35] p-4 text-center">
-            <div className="animate-bounce mb-2">
-              <CheckCircle className="w-12 h-12 text-white mx-auto" />
+      <div
+        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white rounded-lg shadow-xl max-w-lg w-full"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="border-b border-gray-200 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Objednávka potvrzena
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-            <h2 className="text-xl font-bold text-white mb-1">
-              Objednávka odeslána!
-            </h2>
-            <p className="text-white/90 text-sm">
-              Brzy vás budeme kontaktovat pro potvrzení
-            </p>
           </div>
 
-          <div className="p-4 space-y-3">
-            <div className="bg-white rounded-lg p-3 border border-[#FF6B35]/20">
-              <h3 className="font-semibold text-gray-800 mb-2 flex items-center text-sm">
-                <CalendarDays className="w-4 h-4 mr-2 text-[#FF6B35]" />
-                Detaily objednávky
-              </h3>
-
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Jméno:</span>
-                  <span className="font-medium text-gray-800">
-                    {bookingDetails.name}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Služba:</span>
-                  <span className="font-medium text-gray-800">
-                    {bookingDetails.service}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Datum:</span>
-                  <span className="font-medium text-gray-800">
-                    {formatDate(bookingDetails.date)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Čas:</span>
-                  <span className="font-medium text-gray-800">
-                    {bookingDetails.time}
-                  </span>
-                </div>
-
-                <div className="flex justify-between pt-2 border-t border-[#FF6B35]/20">
-                  <span className="text-gray-600">Cena:</span>
-                  <span className="font-bold text-sm text-[#FF6B35]">
-                    {getServicePrice(bookingDetails.service)} Kč
-                  </span>
+          {/* Content */}
+          <div className="px-6 py-5 space-y-4">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-green-900">
+                    Vaše objednávka byla úspěšně vytvořena
+                  </p>
+                  <p className="text-sm text-green-700 mt-1">
+                    Do 24 hodin vás budeme kontaktovat pro potvrzení termínu.
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-              <h3 className="font-semibold text-gray-800 mb-2 text-sm">
-                Kontaktní údaje
-              </h3>
-              <div className="space-y-1 text-xs">
-                <div className="flex items-center">
-                  <Mail className="w-3 h-3 mr-2 text-gray-500" />
-                  <span className="text-gray-600">{bookingDetails.email}</span>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-y-3 gap-x-4">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Služba</p>
+                  <p className="text-sm font-medium text-gray-900 mt-1">{bookingDetails.service}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Cena</p>
+                  <p className="text-sm font-medium text-gray-900 mt-1">{getServicePrice(bookingDetails.service)} Kč</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Datum</p>
+                  <p className="text-sm font-medium text-gray-900 mt-1">{formatDate(bookingDetails.date)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Čas</p>
+                  <p className="text-sm font-medium text-gray-900 mt-1">{bookingDetails.time}</p>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-3 space-y-2">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Email</p>
+                  <p className="text-sm text-gray-900 mt-1">{bookingDetails.email}</p>
                 </div>
                 {bookingDetails.phone && (
-                  <div className="flex items-center">
-                    <Phone className="w-3 h-3 mr-2 text-gray-500" />
-                    <span className="text-gray-600">
-                      {bookingDetails.phone}
-                    </span>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider">Telefon</p>
+                    <p className="text-sm text-gray-900 mt-1">{formatPhoneDisplay(bookingDetails.phone)}</p>
                   </div>
                 )}
               </div>
             </div>
+          </div>
 
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-              <h3 className="font-semibold text-gray-800 mb-2 text-sm">
-                Co bude následovat?
-              </h3>
-              <ul className="text-xs text-gray-600 space-y-1">
-                <li>Během 24 hodin vás budeme kontaktovat</li>
-                <li>Potvrdíme váš termín</li>
-                <li>Pošleme vám připomínku den před návštěvou</li>
-              </ul>
-            </div>
-
-            <Button
+          {/* Footer */}
+          <div className="border-t border-gray-200 px-6 py-4">
+            <button
               onClick={onClose}
-              className="w-full font-montserrat bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] px-12 py-6 rounded-full text-xl sm:text-2xl hover:scale-102 active:scale-99 transition-all duration-200 relative overflow-hidden group cursor-pointer"
+              className="w-full bg-[#FF6B35] text-white px-4 py-2.5 rounded-lg font-medium hover:bg-[#E5572C] transition-colors"
             >
-              <span className="relative z-10">Rozumím</span>
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
-            </Button>
+              Zavřít
+            </button>
           </div>
         </div>
       </div>
@@ -716,10 +712,29 @@ const Booking = () => {
     }
   };
 
+  const formatPhoneInput = (value: string): string => {
+    // Remove all non-numeric characters
+    const numbers = value.replace(/\D/g, "");
+
+    // Format as XXX XXX XXX
+    if (numbers.length === 0) return "";
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 6) return `${numbers.slice(0, 3)} ${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)} ${numbers.slice(3, 6)} ${numbers.slice(6, 9)}`;
+  };
+
   const handleInputChange = (field: keyof BookingForm, value: string) => {
     setBookingForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const handlePhoneChange = (value: string) => {
+    const formatted = formatPhoneInput(value);
+    setBookingForm((prev) => ({ ...prev, phone: formatted }));
+    if (errors.phone) {
+      setErrors((prev) => ({ ...prev, phone: undefined }));
     }
   };
 
@@ -855,9 +870,9 @@ const Booking = () => {
                   id="phone"
                   type="tel"
                   value={bookingForm.phone}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
                   className={`mt-2 rounded-lg transition-all duration-200 ${errors.phone ? "border-[#FF6B35]" : "border-gray-300 hover:border-[#FF6B35] focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20"}`}
-                  placeholder="+420 123 456 789"
+                  placeholder="123 456 789"
                 />
                 {errors.phone && (
                   <p className="text-[#FF6B35] text-sm mt-1">{errors.phone}</p>
