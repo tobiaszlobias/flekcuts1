@@ -136,6 +136,75 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          {/* Gallery Skeleton */}
+          <div className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white">
+            <div className="max-w-7xl mx-auto mb-8 sm:mb-12 text-center">
+              <div className="h-12 w-48 bg-gray-200 rounded mx-auto mb-4 animate-pulse"></div>
+              <div className="h-6 w-80 bg-gray-200 rounded mx-auto animate-pulse"></div>
+            </div>
+            <div className="relative overflow-hidden py-4">
+              <div className="flex gap-3 sm:gap-4 lg:gap-6">
+                <div className="flex-shrink-0 w-64 h-48 sm:w-[20rem] sm:h-64 lg:w-[24rem] lg:h-80 bg-gray-200 rounded-xl sm:rounded-2xl animate-pulse"></div>
+                <div className="flex-shrink-0 w-64 h-48 sm:w-[20rem] sm:h-64 lg:w-[24rem] lg:h-80 bg-gray-200 rounded-xl sm:rounded-2xl animate-pulse"></div>
+                <div className="flex-shrink-0 w-64 h-48 sm:w-[20rem] sm:h-64 lg:w-[24rem] lg:h-80 bg-gray-200 rounded-xl sm:rounded-2xl animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Booking Skeleton */}
+          <div className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+            <div className="max-w-2xl mx-auto">
+              <div className="text-center mb-12">
+                <div className="h-12 w-64 bg-gray-200 rounded mx-auto mb-4 animate-pulse"></div>
+                <div className="h-6 w-80 bg-gray-200 rounded mx-auto animate-pulse"></div>
+              </div>
+              <div className="bg-gray-100 rounded-xl p-8 space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+                  <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+                </div>
+                <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="h-64 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="h-16 bg-gray-200 rounded-full animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Skeleton */}
+          <div className="bg-white border-t border-gray-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+                <div className="space-y-6">
+                  <div className="h-8 w-32 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-20 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="space-y-3">
+                    <div className="h-6 w-48 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-6 w-56 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="space-y-2">
+                    <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+              <div className="h-64 md:h-72 bg-gray-200 rounded-lg animate-pulse mb-8"></div>
+              <div className="border-t border-gray-200 pt-6">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <div className="h-4 w-48 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="flex gap-4">
+                    <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </AuthLoading>
 
@@ -144,14 +213,6 @@ export default function Home() {
           /* Dashboard View - Only for authenticated users */
           <div className="min-h-screen bg-white">
             <div className="p-4 space-y-6">
-              <div className="pt-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Vítejte zpět!
-                </h1>
-                <p className="text-gray-600 mb-6">
-                  Zde můžete spravovat své objednávky
-                </p>
-              </div>
               <UserAppointments />
             </div>
             <Booking /> <Footer />

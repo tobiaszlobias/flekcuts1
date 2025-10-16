@@ -1,15 +1,43 @@
 import { useEffect, useRef, useState } from "react";
-import { smoothScrollTo } from "@/utils/smoothScroll";
 
 const Services = () => {
   const [visibleItems, setVisibleItems] = useState<Set<number>>(new Set());
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const [isSectionVisible, setIsSectionVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   // Ensure client-side rendering
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  // Scroll animation observer for entire section
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsSectionVisible(true);
+          }
+        });
+      },
+      {
+        threshold: 0.2,
+        rootMargin: '-100px 0px -100px 0px'
+      }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
   }, []);
 
   const featuredServices = [
@@ -87,8 +115,6 @@ const Services = () => {
   }, [visibleItems]);
 
   const handleServiceClick = (serviceName: string) => {
-    console.log("Service clicked IMMEDIATELY:", serviceName, Date.now()); // Debug log with timestamp
-
     // Dispatch event first
     window.dispatchEvent(
       new CustomEvent("preSelectService", {
@@ -96,11 +122,9 @@ const Services = () => {
       })
     );
 
-    // Test with instant scroll to see if the delay is in the scroll function
+    // Scroll to booking section immediately
     const bookingElement = document.getElementById("objednat");
     if (bookingElement) {
-      console.log("Starting scroll NOW:", Date.now());
-      // Use instant scroll for testing
       const targetPosition = bookingElement.getBoundingClientRect().top + window.pageYOffset - 80;
       window.scrollTo({
         top: targetPosition,
@@ -111,11 +135,24 @@ const Services = () => {
 
   return (
     <section
+      ref={sectionRef}
       id="services"
       className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white"
+      style={{
+        opacity: isSectionVisible ? 1 : 0,
+        transform: isSectionVisible ? 'translateY(0)' : 'translateY(30px)',
+        transition: 'opacity 0.8s ease-out, transform 0.8s ease-out'
+      }}
     >
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12 sm:mb-16">
+        <div
+          className="text-center mb-12 sm:mb-16"
+          style={{
+            opacity: isSectionVisible ? 1 : 0,
+            transform: isSectionVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'opacity 0.6s ease-out 0.2s, transform 0.6s ease-out 0.2s'
+          }}
+        >
           <h2 className="font-crimson italic text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
             Služby
           </h2>
@@ -125,7 +162,14 @@ const Services = () => {
         </div>
 
         {/* Featured Services with Images */}
-        <div className="space-y-6 mb-12 sm:mb-16">
+        <div
+          className="space-y-6 mb-12 sm:mb-16"
+          style={{
+            opacity: isSectionVisible ? 1 : 0,
+            transform: isSectionVisible ? 'translateY(0)' : 'translateY(30px)',
+            transition: 'opacity 0.8s ease-out 0.3s, transform 0.8s ease-out 0.3s'
+          }}
+        >
           {featuredServices.map((service, index) => (
             <div
               key={index}
@@ -196,7 +240,14 @@ const Services = () => {
         </div>
 
         {/* Other Services - Compact Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          style={{
+            opacity: isSectionVisible ? 1 : 0,
+            transform: isSectionVisible ? 'translateY(0)' : 'translateY(30px)',
+            transition: 'opacity 0.8s ease-out 0.5s, transform 0.8s ease-out 0.5s'
+          }}
+        >
           {otherServices.map((service, index) => {
             const actualIndex = featuredServices.length + index;
             return (

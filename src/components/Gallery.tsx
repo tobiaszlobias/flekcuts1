@@ -21,6 +21,8 @@ const Gallery = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [isSlowed, setIsSlowed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
   const positionRef = useRef(0);
   const lastTimeRef = useRef(0);
@@ -30,6 +32,33 @@ const Gallery = () => {
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);
     return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  // Scroll animation observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      {
+        threshold: 0.2,
+        rootMargin: '-100px 0px -100px 0px'
+      }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -115,12 +144,34 @@ const Gallery = () => {
   };
 
   return (
-    <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white">
+    <section
+      ref={sectionRef}
+      className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white"
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+        transition: 'opacity 0.8s ease-out, transform 0.8s ease-out'
+      }}
+    >
       <div className="max-w-7xl mx-auto mb-8 sm:mb-12 text-center">
-        <h2 className="font-crimson italic text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
+        <h2
+          className="font-crimson italic text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'opacity 0.6s ease-out 0.2s, transform 0.6s ease-out 0.2s'
+          }}
+        >
           Moje práce
         </h2>
-        <p className="font-montserrat text-base sm:text-lg lg:text-xl text-gray-600">
+        <p
+          className="font-montserrat text-base sm:text-lg lg:text-xl text-gray-600"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'opacity 0.6s ease-out 0.3s, transform 0.6s ease-out 0.3s'
+          }}
+        >
           Podívejte se na moje nejnovější stříhy
         </p>
       </div>
@@ -129,6 +180,11 @@ const Gallery = () => {
       <div
         className="relative overflow-hidden py-4"
         {...(!isMobile && desktopHandlers)}
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+          transition: 'opacity 0.8s ease-out 0.4s, transform 0.8s ease-out 0.4s'
+        }}
       >
         {/* Gradient Overlays for fade effect - narrower on mobile */}
         <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>

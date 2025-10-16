@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
@@ -467,6 +467,8 @@ const Booking = () => {
   const [confirmedBooking, setConfirmedBooking] = useState<BookingForm | null>(
     null
   );
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   const createAppointment = useMutation(api.appointments.createAppointment);
   const createAnonymousAppointment = useMutation(
@@ -606,6 +608,33 @@ const Booking = () => {
       );
   }, []);
 
+  // Scroll animation observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      {
+        threshold: 0.2,
+        rootMargin: '-100px 0px -100px 0px'
+      }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
+
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
@@ -709,9 +738,25 @@ const Booking = () => {
   };
 
   return (
-    <section id="objednat" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+    <section
+      ref={sectionRef}
+      id="objednat"
+      className="py-20 px-4 sm:px-6 lg:px-8 bg-white"
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+        transition: 'opacity 0.8s ease-out, transform 0.8s ease-out'
+      }}
+    >
       <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-12">
+        <div
+          className="text-center mb-12"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'opacity 0.6s ease-out 0.2s, transform 0.6s ease-out 0.2s'
+          }}
+        >
           <h2 className="font-crimson italic text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
             Objednejte si termín
           </h2>
@@ -743,7 +788,14 @@ const Booking = () => {
           )}
         </div>
 
-        <Card className="rounded-xl border-0 shadow-lg">
+        <Card
+          className="rounded-xl border-0 shadow-lg"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+            transition: 'opacity 0.8s ease-out 0.4s, transform 0.8s ease-out 0.4s'
+          }}
+        >
           <CardContent className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

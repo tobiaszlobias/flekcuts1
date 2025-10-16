@@ -89,13 +89,11 @@ const Navbar = () => {
       window.dispatchEvent(new CustomEvent("viewChange", { detail: view }));
     }
 
-    // Scroll to top when changing views
-    if (view !== "home" || activeView !== "home") {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    }
+    // Always scroll to top when changing views
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   };
 
   const handleLogoClick = () => {
@@ -119,29 +117,18 @@ const Navbar = () => {
       setActiveView("home");
       setIsMenuOpen(false);
       window.dispatchEvent(new CustomEvent("viewChange", { detail: "home" }));
-
-      // Wait for view change to complete, then scroll
-      setTimeout(() => {
-        const element = document.getElementById("services");
-        if (element) {
-          const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - 80;
-          window.scrollTo({
-            top: targetPosition,
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
     } else {
-      // If already on home view or not signed in, just scroll immediately
-      const element = document.getElementById("services");
-      if (element) {
-        const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - 80;
-        window.scrollTo({
-          top: targetPosition,
-          behavior: 'smooth'
-        });
-      }
       setIsMenuOpen(false);
+    }
+
+    // Scroll immediately without delay
+    const element = document.getElementById("services");
+    if (element) {
+      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -330,9 +317,7 @@ const Navbar = () => {
                     <button
                       onClick={() => {
                         handleViewChange("home");
-                        setTimeout(() => {
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }, 100);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
                       className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
                     >

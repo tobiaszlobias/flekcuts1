@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { smoothScrollTo } from "@/utils/smoothScroll";
 
 const Hero = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -55,7 +54,14 @@ const Hero = () => {
   }, []);
 
   const scrollToSection = (sectionId: string) => {
-    smoothScrollTo(sectionId, 80); // 80px offset for navbar
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
+      });
+    }
   };
 
   return (
