@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { MapPin, Phone, Clock, ExternalLink } from "lucide-react";
 
 const Footer = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
   const openingHours = [
     { day: "Pondělí", hours: "9:00 - 11:45, 13:00 - 17:00" },
     { day: "Úterý", hours: "9:00 - 11:45, 13:00 - 17:00" },
@@ -15,33 +13,6 @@ const Footer = () => {
     { day: "Sobota", hours: "Zavřeno", isClosed: true },
     { day: "Neděle", hours: "Zavřeno", isClosed: true },
   ];
-
-  // Scroll animation observer
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-          }
-        });
-      },
-      {
-        threshold: 0.2,
-        rootMargin: '-100px 0px -100px 0px'
-      }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
 
   const handleDirectionsClick = () => {
     const address = "Zámecké náměstí 19, Bruntál";
@@ -54,25 +25,10 @@ const Footer = () => {
   };
 
   return (
-    <footer
-      ref={sectionRef}
-      className="bg-white border-t border-gray-200"
-      style={{
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-        transition: 'opacity 0.8s ease-out, transform 0.8s ease-out'
-      }}
-    >
+    <footer className="bg-white border-t border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Top Section with Info and Opening Hours */}
-        <div
-          className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12"
-          style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'opacity 0.6s ease-out 0.2s, transform 0.6s ease-out 0.2s'
-          }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
           {/* About & Contact Section */}
           <div className="space-y-6">
             <div>
@@ -148,14 +104,7 @@ const Footer = () => {
         </div>
 
         {/* Map Section */}
-        <div
-          className="mb-8"
-          style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'opacity 0.6s ease-out 0.4s, transform 0.6s ease-out 0.4s'
-          }}
-        >
+        <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h4 className="font-crimson italic text-lg font-semibold flex items-center gap-2 text-gray-900">
               <MapPin className="w-5 h-5 text-gray-500" />
@@ -208,14 +157,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section with Legal Links */}
-        <div
-          className="border-t border-gray-200 pt-6"
-          style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'opacity 0.6s ease-out 0.6s, transform 0.6s ease-out 0.6s'
-          }}
-        >
+        <div className="border-t border-gray-200 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="font-montserrat text-gray-500 text-sm">
               © 2025 FlekCuts. Všechna práva vyhrazena.
