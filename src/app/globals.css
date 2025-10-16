@@ -670,3 +670,52 @@ html {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
 }
+
+/* Clerk Auth Modal Buttons - Match Site Styling */
+.cl-formButtonPrimary,
+.cl-button,
+.cl-footerActionButton {
+  position: relative !important;
+  overflow: hidden !important;
+  transition: all 0.3s ease !important;
+}
+
+.cl-formButtonPrimary::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent) !important;
+  transform: translateX(-100%) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.cl-formButtonPrimary:hover::before {
+  animation: shimmerClerk 0.7s ease-out !important;
+}
+
+@keyframes shimmerClerk {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.cl-formButtonPrimary:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 10px 25px -5px rgba(255, 107, 53, 0.3) !important;
+}
+
+.cl-formButtonPrimary:active {
+  transform: scale(0.95) !important;
+}
+
+.cl-footerActionLink {
+  transition: all 0.2s ease !important;
+}
+
+.cl-footerActionLink:hover {
+  transform: translateX(2px) !important;
+}

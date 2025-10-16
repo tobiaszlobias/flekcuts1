@@ -203,16 +203,16 @@ const Navbar = () => {
                     <span className="relative z-10">Domů</span>
                   </button>
                   <button
-                    onClick={() => scrollToSection("objednat")}
-                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
-                  >
-                    <span className="relative z-10">Objednat</span>
-                  </button>
-                  <button
                     onClick={handleServicesClick}
                     className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
                   >
                     <span className="relative z-10">Služby</span>
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("objednat")}
+                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-4 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
+                  >
+                    <span className="relative z-10">Objednat</span>
                   </button>
                   <div className="cursor-pointer flex items-center">
                     <UserButton />
@@ -223,16 +223,16 @@ const Navbar = () => {
                 {/* Unauthenticated navigation */}
                 <>
                   <button
-                    onClick={() => scrollToSection("objednat")}
-                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
-                  >
-                    <span className="relative z-10">Objednat</span>
-                  </button>
-                  <button
                     onClick={handleServicesClick}
                     className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
                   >
                     <span className="relative z-10">Služby</span>
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("objednat")}
+                    className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]"
+                  >
+                    <span className="relative z-10">Objednat</span>
                   </button>
                   <SignInButton mode="modal">
                     <button className="font-montserrat text-gray-700 hover:text-[#FF6B35] transition-all duration-300 relative px-3 py-2 rounded-full group cursor-pointer border border-transparent hover:border-[#FF6B35]">
@@ -324,12 +324,6 @@ const Navbar = () => {
                       Domů
                     </button>
                     <button
-                      onClick={handleServicesClick}
-                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
-                    >
-                      Služby
-                    </button>
-                    <button
                       onClick={() => handleViewChange("dashboard")}
                       className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
                     >
@@ -343,6 +337,12 @@ const Navbar = () => {
                         Admin
                       </button>
                     )}
+                    <button
+                      onClick={handleServicesClick}
+                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                    >
+                      Služby
+                    </button>
                     <button
                       onClick={() => scrollToSection("objednat")}
                       className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group"

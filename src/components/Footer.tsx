@@ -112,7 +112,7 @@ const Footer = () => {
             </h4>
             <button
               onClick={handleDirectionsClick}
-              className="font-montserrat text-gray-600 hover:text-[#FF6B35] transition-colors flex items-center gap-1 text-sm"
+              className="font-montserrat text-[#FF6B35] hover:text-[#E5572C] transition-colors flex items-center gap-1 text-sm"
             >
               Otevřít v mapách
               <ExternalLink className="w-4 h-4" />
@@ -123,12 +123,12 @@ const Footer = () => {
             {/* Map Container */}
             <div className="relative w-full h-64 md:h-72">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2578.5123456789!2d17.464722!3d49.988611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4713d9f5a5b4c8f1%3A0x1234567890abcdef!2sZ%C3%A1meck%C3%A9%20n%C3%A1m%C4%9Bst%C3%AD%2019%2C%20792%2001%20Brunt%C3%A1l!5e0!3m2!1scs!2scz!4v1234567890123"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2578.5123456789!2d17.464722!3d49.988611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4713d9f5a5b4c8f1%3A0x1234567890abcdef!2sZ%C3%A1meck%C3%A9%20n%C3%A1m%C4%9Bst%C3%AD%2019%2C%20792%2001%20Brunt%C3%A1l!5e0!3m2!1scs!2scz!4v1234567890123&style=feature:poi|element:labels|visibility:off"
                 width="100%"
                 height="100%"
-                style={{ border: 0 }}
+                style={{ border: 0, filter: 'hue-rotate(0deg) saturate(1.2)' }}
                 allowFullScreen
-                loading="lazy"
+                loading="eager"
                 referrerPolicy="no-referrer-when-downgrade"
                 className="absolute inset-0"
                 title="FlekCuts Location"

@@ -99,6 +99,14 @@ export default function RootLayout({
         <meta name="geo.placename" content="Bruntál" />
         <meta name="geo.position" content="49.9884;17.4647" />
         <meta name="ICBM" content="49.9884,17.4647" />
+
+        {/* Preload Google Maps resources */}
+        <link rel="dns-prefetch" href="https://www.google.com" />
+        <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+        <link rel="dns-prefetch" href="https://maps.gstatic.com" />
+        <link rel="preconnect" href="https://www.google.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://maps.googleapis.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://maps.gstatic.com" crossOrigin="anonymous" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -154,7 +162,88 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ClerkProvider>
+        <ClerkProvider
+          appearance={{
+            layout: {
+              socialButtonsPlacement: "bottom",
+              socialButtonsVariant: "iconButton",
+            },
+            variables: {
+              colorPrimary: "#FF6B35",
+              colorText: "#1f2937",
+              colorTextSecondary: "#6b7280",
+              colorBackground: "#ffffff",
+              colorInputBackground: "#ffffff",
+              colorInputText: "#1f2937",
+              fontFamily: "var(--font-montserrat), sans-serif",
+              fontFamilyButtons: "var(--font-montserrat), sans-serif",
+              borderRadius: "0.75rem",
+            },
+            elements: {
+              formButtonPrimary: {
+                backgroundColor: "#FF6B35",
+                color: "#ffffff",
+                fontWeight: "600",
+                fontSize: "1rem",
+                padding: "0.75rem 2rem",
+                borderRadius: "9999px",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                textTransform: "none",
+                "&:hover": {
+                  backgroundColor: "#FF6B35",
+                },
+                "&:focus": {
+                  backgroundColor: "#FF6B35",
+                  boxShadow: "0 0 0 3px rgba(255, 107, 53, 0.2)",
+                },
+                "&:active": {
+                  backgroundColor: "#FF6B35",
+                },
+              },
+              card: {
+                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+                borderRadius: "1rem",
+              },
+              headerTitle: {
+                fontFamily: "var(--font-crimson), serif",
+                fontStyle: "italic",
+                fontSize: "1.875rem",
+                fontWeight: "700",
+              },
+              headerSubtitle: {
+                fontFamily: "var(--font-montserrat), sans-serif",
+                color: "#6b7280",
+              },
+              socialButtonsIconButton: {
+                borderColor: "#e5e7eb",
+                borderRadius: "9999px",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  borderColor: "#FF6B35",
+                  transform: "scale(1.05)",
+                },
+                "&:active": {
+                  transform: "scale(0.95)",
+                },
+              },
+              footerActionLink: {
+                color: "#FF6B35",
+                fontWeight: "600",
+                "&:hover": {
+                  color: "#E5572C",
+                },
+              },
+              formFieldInput: {
+                borderColor: "#e5e7eb",
+                borderRadius: "0.5rem",
+                "&:focus": {
+                  borderColor: "#FF6B35",
+                  boxShadow: "0 0 0 3px rgba(255, 107, 53, 0.1)",
+                },
+              },
+            },
+          }}
+        >
           <ConvexClientProvider>
             <Navbar />
             {children}

@@ -8,15 +8,6 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["@clerk/nextjs", "convex/react", "lucide-react"],
   },
 
-  // Turbopack configuration (now stable in Next.js 15)
-  turbopack: {
-    rules: {
-      "*.svg": {
-        loaders: ["@svgr/webpack"],
-        as: "*.js",
-      },
-    },
-  },
 
   // Compiler optimizations
   compiler: {
@@ -34,15 +25,15 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
-      {
-        protocol: "https",
-        hostname: "your-cdn-domain.com", // Replace with your actual CDN
-        port: "",
-        pathname: "/**",
-      },
     ],
-    // Optimize image formats
-    formats: ["image/webp", "image/avif"],
+    // Optimize image formats - AVIF first for better compression
+    formats: ["image/avif", "image/webp"],
+    // Device sizes for responsive images
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    // Image sizes for different layouts
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Allow local images
+    unoptimized: false,
   },
 
   // Build optimization

@@ -71,6 +71,9 @@ const Hero = () => {
         id="home"
         className="relative px-4 sm:px-6 lg:px-8 bg-white py-48 flex items-center justify-center overflow-hidden"
       >
+        {/* Gradient Fade at Bottom - to smoothly hide parallax effect */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-white to-transparent z-20 pointer-events-none"></div>
+
         {/* Animated Barbershop Tools Background */}
 
         {/* Comb 1 - Top Right */}

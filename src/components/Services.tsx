@@ -18,14 +18,14 @@ const Services = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
             setIsSectionVisible(true);
           }
         });
       },
       {
-        threshold: 0.2,
-        rootMargin: '-100px 0px -100px 0px'
+        threshold: [0, 0.3, 0.5],
+        rootMargin: '-100px 0px 0px 0px'
       }
     );
 
@@ -94,8 +94,8 @@ const Services = () => {
         });
       },
       {
-        threshold: 0.1,
-        rootMargin: "100px 0px 100px 0px",
+        threshold: 0.15,
+        rootMargin: "0px 0px -50px 0px",
       }
     );
 
@@ -138,11 +138,6 @@ const Services = () => {
       ref={sectionRef}
       id="services"
       className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white"
-      style={{
-        opacity: isSectionVisible ? 1 : 0,
-        transform: isSectionVisible ? 'translateY(0)' : 'translateY(30px)',
-        transition: 'opacity 0.8s ease-out, transform 0.8s ease-out'
-      }}
     >
       <div className="max-w-6xl mx-auto">
         <div
@@ -150,7 +145,8 @@ const Services = () => {
           style={{
             opacity: isSectionVisible ? 1 : 0,
             transform: isSectionVisible ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'opacity 0.6s ease-out 0.2s, transform 0.6s ease-out 0.2s'
+            transition: 'opacity 0.4s ease-out 0.1s, transform 0.4s ease-out 0.1s',
+            visibility: isSectionVisible ? 'visible' : 'hidden'
           }}
         >
           <h2 className="font-crimson italic text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
@@ -162,14 +158,7 @@ const Services = () => {
         </div>
 
         {/* Featured Services with Images */}
-        <div
-          className="space-y-6 mb-12 sm:mb-16"
-          style={{
-            opacity: isSectionVisible ? 1 : 0,
-            transform: isSectionVisible ? 'translateY(0)' : 'translateY(30px)',
-            transition: 'opacity 0.8s ease-out 0.3s, transform 0.8s ease-out 0.3s'
-          }}
-        >
+        <div className="space-y-6 mb-12 sm:mb-16">
           {featuredServices.map((service, index) => (
             <div
               key={index}
@@ -178,11 +167,10 @@ const Services = () => {
               }}
               className="cursor-pointer"
               style={{
-                opacity: 1,
-                transform: visibleItems.has(index)
-                  ? "translateY(0)"
-                  : "translateY(20px)",
-                transition: visibleItems.has(index) ? 'none' : 'transform 0.7s ease-out',
+                opacity: visibleItems.has(index) ? 1 : 0,
+                transform: visibleItems.has(index) ? "translateY(0)" : "translateY(30px)",
+                transition: 'opacity 0.5s ease-out, transform 0.5s ease-out',
+                visibility: visibleItems.has(index) ? 'visible' : 'hidden'
               }}
               onClick={(e) => {
                 e.preventDefault();
@@ -231,6 +219,7 @@ const Services = () => {
                       src={service.imageUrl}
                       alt={service.name}
                       className="w-full h-full object-contain"
+                      loading="eager"
                     />
                   </div>
                 </div>
@@ -240,14 +229,7 @@ const Services = () => {
         </div>
 
         {/* Other Services - Compact Grid */}
-        <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-          style={{
-            opacity: isSectionVisible ? 1 : 0,
-            transform: isSectionVisible ? 'translateY(0)' : 'translateY(30px)',
-            transition: 'opacity 0.8s ease-out 0.5s, transform 0.8s ease-out 0.5s'
-          }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {otherServices.map((service, index) => {
             const actualIndex = featuredServices.length + index;
             return (
@@ -258,11 +240,10 @@ const Services = () => {
                 }}
                 className="cursor-pointer"
                 style={{
-                  opacity: 1,
-                  transform: visibleItems.has(actualIndex)
-                    ? "translateY(0)"
-                    : "translateY(20px)",
-                  transition: visibleItems.has(actualIndex) ? 'none' : 'transform 0.7s ease-out',
+                  opacity: visibleItems.has(actualIndex) ? 1 : 0,
+                  transform: visibleItems.has(actualIndex) ? "translateY(0)" : "translateY(30px)",
+                  transition: 'opacity 0.5s ease-out, transform 0.5s ease-out',
+                  visibility: visibleItems.has(actualIndex) ? 'visible' : 'hidden'
                 }}
                 onClick={(e) => {
                   e.preventDefault();

@@ -22,11 +22,7 @@ export const sendAppointmentConfirmation = action({
     appointmentId: v.id("appointments"),
   },
   handler: async (ctx, args): Promise<EmailResult> => {
-    // DEBUG: Check if API key is available
     const apiKey = process.env.RESEND_API_KEY;
-    console.log("🔑 API Key available:", !!apiKey);
-    console.log("🔑 API Key starts with 're_':", apiKey?.startsWith("re_"));
-    console.log("🔑 API Key length:", apiKey?.length);
 
     if (!apiKey) {
       throw new Error("RESEND_API_KEY environment variable is not set");
@@ -70,15 +66,10 @@ export const sendAppointmentConfirmation = action({
         }),
       });
 
-      console.log("📡 Response status:", response.status);
-      console.log("📡 Response ok:", response.ok);
-
       const emailResult: ResendResponse = await response.json();
-      console.log("📧 Email result:", emailResult);
 
       if (!response.ok) {
-        console.error("❌ Response not ok. Status:", response.status);
-        console.error("❌ Error details:", emailResult);
+        console.error("❌ Email send failed. Status:", response.status, "Error:", emailResult.message || emailResult.name);
         throw new Error(
           `Email sending failed: ${emailResult.message || emailResult.name || "Unknown error"}`
         );
