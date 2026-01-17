@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { MapPin, Phone, Clock, ExternalLink } from "lucide-react";
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
   const openingHours = [
     { day: "Pondělí", hours: "9:00 - 11:45, 13:00 - 17:00" },
     { day: "Úterý", hours: "9:00 - 11:45, 13:00 - 17:00" },
@@ -160,7 +161,7 @@ const Footer = () => {
         <div className="border-t border-gray-200 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="font-montserrat text-gray-500 text-sm">
-              © 2025 FlekCuts. Všechna práva vyhrazena.
+              © {currentYear} FlekCuts. Všechna práva vyhrazena.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
               <button
