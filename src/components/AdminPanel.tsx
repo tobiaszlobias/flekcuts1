@@ -7,7 +7,7 @@ import ConfirmationDialog from "./ConfirmationDialog";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Calendar,
   Clock,
@@ -22,12 +22,18 @@ import {
   Phone,
 } from "lucide-react";
 
+const timeToMinutes = (time: string) => {
+  const [hoursStr, minutesStr = "0"] = time.split(":");
+  return Number(hoursStr) * 60 + Number(minutesStr);
+};
+
 export default function AdminPanel() {
   const appointments = useQuery(api.admin.getAllAppointments);
   const stats = useQuery(api.admin.getAppointmentStats);
   const updateStatus = useMutation(api.admin.updateAppointmentStatus);
   const deleteAppointment = useMutation(api.admin.deleteAppointment);
 
+  const [mode, setMode] = useState<"overview" | "manage">("overview");
   const [filter, setFilter] = useState<
     "all" | "pending" | "confirmed" | "cancelled"
   >("all");
@@ -139,6 +145,7 @@ export default function AdminPanel() {
   }
 
   const filteredAppointments = appointments.filter((appointment) => {
+    if (mode === "manage") return true;
     if (filter === "all") return true;
     return appointment.status === filter;
   });
@@ -148,34 +155,80 @@ export default function AdminPanel() {
       case "confirmed":
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case "cancelled":
-        return <XCircle className="h-5 w-5 text-[#3C493F]" />;
+        return <XCircle className="h-5 w-5 text-red-600" />;
       default:
         return <AlertCircle className="h-5 w-5 text-yellow-600" />;
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getCardChrome = (status: string) => {
     switch (status) {
       case "confirmed":
         return "bg-green-50 border-green-200";
       case "cancelled":
-        return "bg-[#fafbfa] border-[#e5ebe9]";
+        return "bg-red-50 border-red-200";
       default:
-        return "bg-yellow-50 border-yellow-200";
+        return "bg-orange-50 border-orange-200";
     }
   };
+
+  const sortedAppointments = filteredAppointments
+    .slice()
+    .sort((a, b) => {
+      const dateCmp = a.date.localeCompare(b.date);
+      if (dateCmp !== 0) return dateCmp;
+      return timeToMinutes(a.time) - timeToMinutes(b.time);
+    });
+
+  const appointmentsByDate = sortedAppointments.reduce<Record<string, typeof sortedAppointments>>(
+    (acc, apt) => {
+      (acc[apt.date] ||= []).push(apt);
+      return acc;
+    },
+    {}
+  );
+
+  const dateKeys = Object.keys(appointmentsByDate).sort((a, b) => a.localeCompare(b));
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-crimson italic text-4xl sm:text-5xl font-bold text-gray-900 mb-2">
-            Admin Panel
-          </h1>
-          <p className="font-montserrat text-lg text-gray-600">
-            Správa všech objednávek FlekCuts
-          </p>
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="font-crimson italic text-4xl sm:text-5xl font-bold text-gray-900 mb-2">
+              Admin Panel
+            </h1>
+            <p className="font-montserrat text-lg text-gray-600">
+              Správa všech objednávek FlekCuts
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setMode("overview")}
+              className={`font-montserrat ${
+                mode === "overview"
+                  ? "bg-[#FF6B35] hover:bg-[#E5572C] text-white shadow-sm"
+                  : "bg-white border-2 border-gray-300 text-gray-700 hover:border-[#FF6B35] hover:bg-gray-50"
+              } px-4 py-2 rounded-full text-sm font-medium transition-colors`}
+            >
+              Přehled
+            </Button>
+            <Button
+              onClick={() => {
+                setMode("manage");
+                setFilter("all");
+              }}
+              className={`font-montserrat ${
+                mode === "manage"
+                  ? "bg-[#FF6B35] hover:bg-[#E5572C] text-white shadow-sm"
+                  : "bg-white border-2 border-gray-300 text-gray-700 hover:border-[#FF6B35] hover:bg-gray-50"
+              } px-4 py-2 rounded-full text-sm font-medium transition-colors`}
+            >
+              Upravit
+            </Button>
+          </div>
         </div>
 
         {/* Statistics Cards */}
@@ -231,52 +284,56 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="font-montserrat text-sm font-semibold text-gray-900 mb-4">Filtrovat objednávky</h3>
-          <div className="flex flex-wrap gap-3">
-            <Button
-              onClick={() => setFilter("all")}
-              className={`font-montserrat ${
-                filter === "all"
-                  ? "bg-[#FF6B35] hover:bg-[#E5572C] text-white shadow-md"
-                  : "bg-white border-2 border-gray-300 text-gray-700 hover:border-[#FF6B35] hover:bg-gray-50"
-              } px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95`}
-            >
-              Všechny ({stats.total})
-            </Button>
-            <Button
-              onClick={() => setFilter("pending")}
-              className={`font-montserrat ${
-                filter === "pending"
-                  ? "bg-orange-600 hover:bg-orange-700 text-white shadow-md"
-                  : "bg-white border-2 border-orange-300 text-orange-700 hover:border-orange-600 hover:bg-orange-50"
-              } px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95`}
-            >
-              Čekající ({stats.pending})
-            </Button>
-            <Button
-              onClick={() => setFilter("confirmed")}
-              className={`font-montserrat ${
-                filter === "confirmed"
-                  ? "bg-green-600 hover:bg-green-700 text-white shadow-md"
-                  : "bg-white border-2 border-green-300 text-green-700 hover:border-green-600 hover:bg-green-50"
-              } px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95`}
-            >
-              Potvrzené ({stats.confirmed})
-            </Button>
-            <Button
-              onClick={() => setFilter("cancelled")}
-              className={`font-montserrat ${
-                filter === "cancelled"
-                  ? "bg-gray-600 hover:bg-gray-700 text-white shadow-md"
-                  : "bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-600 hover:bg-gray-50"
-              } px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95`}
-            >
-              Zrušené ({stats.cancelled})
-            </Button>
+        {/* Filters (Overview only) */}
+        {mode === "overview" && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="font-montserrat text-sm font-semibold text-gray-900 mb-4">
+              Filtrovat objednávky
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                onClick={() => setFilter("all")}
+                className={`font-montserrat ${
+                  filter === "all"
+                    ? "bg-[#FF6B35] hover:bg-[#E5572C] text-white shadow-sm"
+                    : "bg-white border-2 border-gray-300 text-gray-700 hover:border-[#FF6B35] hover:bg-gray-50"
+                } px-6 py-2.5 rounded-full text-sm font-medium transition-colors`}
+              >
+                Všechny ({stats.total})
+              </Button>
+              <Button
+                onClick={() => setFilter("pending")}
+                className={`font-montserrat ${
+                  filter === "pending"
+                    ? "bg-orange-600 hover:bg-orange-700 text-white shadow-sm"
+                    : "bg-white border-2 border-orange-300 text-orange-700 hover:border-orange-600 hover:bg-orange-50"
+                } px-6 py-2.5 rounded-full text-sm font-medium transition-colors`}
+              >
+                Čekající ({stats.pending})
+              </Button>
+              <Button
+                onClick={() => setFilter("confirmed")}
+                className={`font-montserrat ${
+                  filter === "confirmed"
+                    ? "bg-green-600 hover:bg-green-700 text-white shadow-sm"
+                    : "bg-white border-2 border-green-300 text-green-700 hover:border-green-600 hover:bg-green-50"
+                } px-6 py-2.5 rounded-full text-sm font-medium transition-colors`}
+              >
+                Potvrzené ({stats.confirmed})
+              </Button>
+              <Button
+                onClick={() => setFilter("cancelled")}
+                className={`font-montserrat ${
+                  filter === "cancelled"
+                    ? "bg-red-600 hover:bg-red-700 text-white shadow-sm"
+                    : "bg-white border-2 border-red-300 text-red-700 hover:border-red-600 hover:bg-red-50"
+                } px-6 py-2.5 rounded-full text-sm font-medium transition-colors`}
+              >
+                Zrušené ({stats.cancelled})
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Appointments List */}
         <div>
@@ -298,150 +355,227 @@ export default function AdminPanel() {
                 <p className="font-montserrat text-gray-600">Žádné objednávky k zobrazení</p>
               </div>
             ) : (
-              filteredAppointments.map((appointment) => (
-                <div
-                  key={appointment._id}
-                  className={`bg-white rounded-xl shadow-sm border p-4 hover:shadow-md transition-all duration-200 ${
-                    appointment.status === "pending" ? "border-orange-200" :
-                    appointment.status === "confirmed" ? "border-green-200" :
-                    "border-gray-200"
-                  }`}
-                >
-                  <div className="grid grid-cols-1 lg:grid-cols-[180px_1fr_auto] gap-4 items-start">
-                    {/* Date/Time */}
-                    <div className="rounded-lg bg-gray-50 border border-gray-200 p-3">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Calendar className="w-4 h-4" />
-                        <p className="font-montserrat text-xs font-medium">
-                          {new Date(appointment.date + "T00:00:00").toLocaleDateString("cs-CZ", {
-                            weekday: "long",
-                            day: "numeric",
-                            month: "long",
-                          })}
-                        </p>
-                      </div>
-                      <div className="mt-2 flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-gray-500" />
-                        <p className="font-montserrat text-2xl font-bold text-gray-900">
-                          {appointment.time}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Details */}
-                    <div className="min-w-0">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <h4 className="font-crimson italic text-xl font-bold text-gray-900 leading-snug">
-                            {appointment.service}
-                          </h4>
-                          <div className="mt-1 flex items-center gap-2">
-                            <span
-                              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${
-                                appointment.status === "pending"
-                                  ? "border-orange-200 bg-orange-50 text-orange-700"
-                                  : appointment.status === "confirmed"
-                                    ? "border-green-200 bg-green-50 text-green-700"
-                                    : "border-gray-200 bg-gray-100 text-gray-700"
-                              }`}
-                            >
-                              {getStatusIcon(appointment.status)}
-                              {appointment.status === "pending" && "Čeká na potvrzení"}
-                              {appointment.status === "confirmed" && "Potvrzeno"}
-                              {appointment.status === "cancelled" && "Zrušeno"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mt-3 rounded-lg border border-orange-100 bg-[#FFF9F6] p-3">
-                        <p className="text-xs text-gray-500 font-medium mb-2">Zákazník</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <User className="h-4 w-4 text-[#FF6B35]" />
-                            <span className="font-montserrat text-sm font-semibold text-gray-900 truncate">
-                              {appointment.customerName}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 min-w-0">
-                            <Mail className="h-4 w-4 text-[#FF6B35]" />
-                            <span className="font-montserrat text-sm text-gray-700 truncate">
-                              {appointment.customerEmail}
-                            </span>
-                          </div>
-                          {appointment.customerPhone && (
-                            <div className="flex items-center gap-2 min-w-0">
-                              <Phone className="h-4 w-4 text-[#FF6B35]" />
-                              <span className="font-montserrat text-sm text-gray-700 truncate">
-                                {appointment.customerPhone}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        {appointment.notes && (
-                          <div className="mt-2 pt-2 border-t border-orange-100">
-                            <p className="text-xs text-gray-500 font-medium mb-1">Poznámka</p>
-                            <p className="font-montserrat text-sm text-gray-700 leading-relaxed">
-                              {appointment.notes}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex lg:flex-col gap-2 lg:min-w-[150px]">
-                      {appointment.status === "pending" && (
-                        <>
-                          <Button
-                            onClick={() => handleStatusUpdate(appointment._id, "confirmed")}
-                            className="flex-1 lg:flex-none font-montserrat bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                            Potvrdit
-                          </Button>
-                          <Button
-                            onClick={() => handleStatusUpdate(appointment._id, "cancelled")}
-                            variant="outline"
-                            className="flex-1 lg:flex-none font-montserrat border-2 border-red-600 text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                          >
-                            <XCircle className="h-4 w-4" />
-                            Odmítnout
-                          </Button>
-                        </>
-                      )}
-
-                      {appointment.status === "confirmed" && (
-                        <Button
-                          onClick={() => handleStatusUpdate(appointment._id, "cancelled")}
-                          variant="outline"
-                          className="flex-1 lg:flex-none font-montserrat border-2 border-red-600 text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                        >
-                          <XCircle className="h-4 w-4" />
-                          Zrušit
-                        </Button>
-                      )}
-
-                      {appointment.status === "cancelled" && (
-                        <Button
-                          onClick={() => handleStatusUpdate(appointment._id, "confirmed")}
-                          className="flex-1 lg:flex-none font-montserrat bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                          Obnovit
-                        </Button>
-                      )}
-
-                      <Button
-                        onClick={() => handleDelete(appointment._id)}
-                        variant="outline"
-                        className="flex-1 lg:flex-none font-montserrat border-2 border-gray-300 text-gray-700 hover:border-red-600 hover:text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Smazat
-                      </Button>
+              dateKeys.map((date) => (
+                <div key={date} className="space-y-2">
+                  <div className="sticky top-2 z-10">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-white/90 backdrop-blur border border-gray-200 px-4 py-2 shadow-sm">
+                      <Calendar className="w-4 h-4 text-gray-500" />
+                      <span className="font-montserrat text-sm font-semibold text-gray-900">
+                        {new Date(date + "T00:00:00").toLocaleDateString("cs-CZ", {
+                          weekday: "long",
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </span>
+                      <span className="font-montserrat text-xs text-gray-500">
+                        ({appointmentsByDate[date].length})
+                      </span>
                     </div>
                   </div>
+
+                  {appointmentsByDate[date].map((appointment) => {
+                    if (mode === "overview") {
+                      return (
+                        <div
+                          key={appointment._id}
+                          className={`rounded-xl border p-3 ${getCardChrome(appointment.status)}`}
+                        >
+                          <div className="grid grid-cols-[72px_1fr] sm:grid-cols-[88px_1fr_220px] gap-3 items-center">
+                            <div className="rounded-lg bg-white/70 border border-white/60 px-3 py-2 text-center">
+                              <div className="font-montserrat text-xl font-bold text-gray-900">
+                                {appointment.time}
+                              </div>
+                            </div>
+
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-montserrat text-sm font-semibold text-gray-900 truncate">
+                                  {appointment.service}
+                                </span>
+                                <span
+                                  className={`hidden sm:inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${
+                                    appointment.status === "pending"
+                                      ? "border-orange-200 bg-white text-orange-700"
+                                      : appointment.status === "confirmed"
+                                        ? "border-green-200 bg-white text-green-700"
+                                        : "border-red-200 bg-white text-red-700"
+                                  }`}
+                                >
+                                  {getStatusIcon(appointment.status)}
+                                  {appointment.status === "pending" && "Čeká"}
+                                  {appointment.status === "confirmed" && "OK"}
+                                  {appointment.status === "cancelled" && "Zrušeno"}
+                                </span>
+                              </div>
+                              <div className="mt-1 text-xs text-gray-600 truncate">
+                                {appointment.customerName} • {appointment.customerEmail}
+                                {appointment.customerPhone ? ` • ${appointment.customerPhone}` : ""}
+                              </div>
+                            </div>
+
+                            <div className="hidden sm:block text-right">
+                              <span
+                                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${
+                                  appointment.status === "pending"
+                                    ? "border-orange-200 bg-white text-orange-700"
+                                    : appointment.status === "confirmed"
+                                      ? "border-green-200 bg-white text-green-700"
+                                      : "border-red-200 bg-white text-red-700"
+                                }`}
+                              >
+                                {getStatusIcon(appointment.status)}
+                                {appointment.status === "pending" && "Čeká na potvrzení"}
+                                {appointment.status === "confirmed" && "Potvrzeno"}
+                                {appointment.status === "cancelled" && "Zrušeno"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={appointment._id}
+                        className={`rounded-xl border p-4 ${getCardChrome(appointment.status)}`}
+                      >
+                        <div className="grid grid-cols-1 lg:grid-cols-[180px_1fr_auto] gap-4 items-start">
+                          <div className="rounded-lg bg-white/70 border border-white/60 p-3">
+                            <div className="flex items-center gap-2 text-gray-700">
+                              <Calendar className="w-4 h-4" />
+                              <p className="font-montserrat text-xs font-medium">
+                                {new Date(appointment.date + "T00:00:00").toLocaleDateString("cs-CZ", {
+                                  weekday: "long",
+                                  day: "numeric",
+                                  month: "long",
+                                })}
+                              </p>
+                            </div>
+                            <div className="mt-2 flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-gray-600" />
+                              <p className="font-montserrat text-2xl font-bold text-gray-900">
+                                {appointment.time}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="min-w-0">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <h4 className="font-crimson italic text-xl font-bold text-gray-900 leading-snug">
+                                  {appointment.service}
+                                </h4>
+                                <div className="mt-1 flex items-center gap-2">
+                                  <span
+                                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium bg-white ${
+                                      appointment.status === "pending"
+                                        ? "border-orange-200 text-orange-700"
+                                        : appointment.status === "confirmed"
+                                          ? "border-green-200 text-green-700"
+                                          : "border-red-200 text-red-700"
+                                    }`}
+                                  >
+                                    {getStatusIcon(appointment.status)}
+                                    {appointment.status === "pending" && "Čeká na potvrzení"}
+                                    {appointment.status === "confirmed" && "Potvrzeno"}
+                                    {appointment.status === "cancelled" && "Zrušeno"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="mt-3 rounded-lg border border-white/60 bg-white/70 p-3">
+                              <p className="text-xs text-gray-600 font-medium mb-2">Zákazník</p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <User className="h-4 w-4 text-[#FF6B35]" />
+                                  <span className="font-montserrat text-sm font-semibold text-gray-900 truncate">
+                                    {appointment.customerName}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <Mail className="h-4 w-4 text-[#FF6B35]" />
+                                  <span className="font-montserrat text-sm text-gray-700 truncate">
+                                    {appointment.customerEmail}
+                                  </span>
+                                </div>
+                                {appointment.customerPhone && (
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <Phone className="h-4 w-4 text-[#FF6B35]" />
+                                    <span className="font-montserrat text-sm text-gray-700 truncate">
+                                      {appointment.customerPhone}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                              {appointment.notes && (
+                                <div className="mt-2 pt-2 border-t border-gray-200/60">
+                                  <p className="text-xs text-gray-600 font-medium mb-1">Poznámka</p>
+                                  <p className="font-montserrat text-sm text-gray-700 leading-relaxed">
+                                    {appointment.notes}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex lg:flex-col gap-2 lg:min-w-[160px]">
+                            {appointment.status === "pending" && (
+                              <>
+                                <Button
+                                  onClick={() => handleStatusUpdate(appointment._id, "confirmed")}
+                                  className="flex-1 lg:flex-none font-montserrat bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <CheckCircle className="h-4 w-4" />
+                                  Potvrdit
+                                </Button>
+                                <Button
+                                  onClick={() => handleStatusUpdate(appointment._id, "cancelled")}
+                                  variant="outline"
+                                  className="flex-1 lg:flex-none font-montserrat border-2 border-red-600 text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <XCircle className="h-4 w-4" />
+                                  Zrušit
+                                </Button>
+                              </>
+                            )}
+
+                            {appointment.status === "confirmed" && (
+                              <Button
+                                onClick={() => handleStatusUpdate(appointment._id, "cancelled")}
+                                variant="outline"
+                                className="flex-1 lg:flex-none font-montserrat border-2 border-red-600 text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                              >
+                                <XCircle className="h-4 w-4" />
+                                Zrušit
+                              </Button>
+                            )}
+
+                            {appointment.status === "cancelled" && (
+                              <>
+                                <Button
+                                  onClick={() => handleStatusUpdate(appointment._id, "confirmed")}
+                                  className="flex-1 lg:flex-none font-montserrat bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <CheckCircle className="h-4 w-4" />
+                                  Obnovit
+                                </Button>
+                                <Button
+                                  onClick={() => handleDelete(appointment._id)}
+                                  variant="outline"
+                                  className="flex-1 lg:flex-none font-montserrat border-2 border-gray-300 text-gray-700 hover:border-red-600 hover:text-red-600 hover:bg-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                  Trvale smazat
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               ))
             )}
