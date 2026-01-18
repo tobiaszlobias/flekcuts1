@@ -82,14 +82,14 @@ h6 {
   }
 }
 
-input:focus-visible,
+[data-slot="input"]:focus-visible,
 [data-slot="select-trigger"]:focus-visible {
   border-color: hsl(var(--ring)) !important;
   transform: scale(1.02);
   animation: inputFocusGlow 2s ease-in-out infinite;
 }
 
-input,
+[data-slot="input"],
 [data-slot="select-trigger"] {
   transition: all 0.2s ease-in-out;
 }
