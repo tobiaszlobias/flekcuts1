@@ -2,8 +2,6 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
-const SLOT_MINUTES = 15;
-
 const parseTimeToMinutes = (time: string): number => {
   const [hoursStr, minutesStr = "0"] = time.split(":");
   const hours = Number(hoursStr);
@@ -42,11 +40,6 @@ const getNowInPrague = (): { date: string; minutes: number } => {
   };
 };
 
-const roundUpToSlotMinutes = (durationMinutes: number): number => {
-  if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) return SLOT_MINUTES;
-  return Math.ceil(durationMinutes / SLOT_MINUTES) * SLOT_MINUTES;
-};
-
 const isDateWithinNextMonth = (dateString: string): boolean => {
   const date = new Date(dateString + "T00:00:00");
   if (Number.isNaN(date.getTime())) return false;
@@ -58,6 +51,52 @@ const isDateWithinNextMonth = (dateString: string): boolean => {
   maxDate.setMonth(maxDate.getMonth() + 1);
 
   return date >= todayStart && date <= maxDate;
+};
+
+const getWeekdayIndexInPrague = (dateString: string): number => {
+  const date = new Date(dateString + "T12:00:00Z");
+  if (Number.isNaN(date.getTime())) return -1;
+  const weekday = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Prague",
+    weekday: "short",
+  }).format(date);
+  const map: Record<string, number> = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6,
+  };
+  return map[weekday] ?? -1;
+};
+
+const getWorkingPeriodsForWeekday = (weekdayIndex: number): Array<[number, number]> => {
+  // Minutes from midnight, Europe/Prague local business hours:
+  // Mon/Tue/Wed/Fri: 09:00–11:45 and 13:00–17:00
+  // Thu: 13:00–19:30
+  // Sat/Sun: closed
+  switch (weekdayIndex) {
+    case 1:
+    case 2:
+    case 3:
+    case 5:
+      return [
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
+      ];
+    case 4:
+      return [[13 * 60, 19 * 60 + 30]];
+    default:
+      return [];
+  }
+};
+
+const isWithinWorkingHours = (dateString: string, startMinutes: number, endMinutes: number) => {
+  const weekday = getWeekdayIndexInPrague(dateString);
+  const periods = getWorkingPeriodsForWeekday(weekday);
+  return periods.some(([pStart, pEnd]) => startMinutes >= pStart && endMinutes <= pEnd);
 };
 
 const deriveServiceDurationMinutes = (serviceName: string): number => {
@@ -192,8 +231,12 @@ export const createAppointment = mutation({
     }
 
     const derivedDuration = deriveServiceDurationMinutes(args.service);
-    const newDuration = roundUpToSlotMinutes(args.durationMinutes ?? derivedDuration);
+    const newDuration = args.durationMinutes ?? derivedDuration;
     const newEnd = newStart + newDuration;
+
+    if (!isWithinWorkingHours(args.date, newStart, newEnd)) {
+      throw new Error("Selected time is outside working hours.");
+    }
 
     // Check for overlapping appointments on the same date (ignore cancelled)
     const existingAppointments = await ctx.db
@@ -206,7 +249,7 @@ export const createAppointment = mutation({
       const existingStart = parseTimeToMinutes(existing.time);
       if (!Number.isFinite(existingStart)) continue;
       const existingDerived = deriveServiceDurationMinutes(existing.service);
-      const existingDuration = roundUpToSlotMinutes(existingDerived);
+      const existingDuration = existingDerived;
       const existingEnd = existingStart + existingDuration;
 
       if (overlaps(newStart, newEnd, existingStart, existingEnd)) {
@@ -279,8 +322,12 @@ export const createAnonymousAppointment = mutation({
     }
 
     const derivedDuration = deriveServiceDurationMinutes(args.service);
-    const newDuration = roundUpToSlotMinutes(args.durationMinutes ?? derivedDuration);
+    const newDuration = args.durationMinutes ?? derivedDuration;
     const newEnd = newStart + newDuration;
+
+    if (!isWithinWorkingHours(args.date, newStart, newEnd)) {
+      throw new Error("Selected time is outside working hours.");
+    }
 
     // Check for overlapping appointments on the same date (ignore cancelled)
     const existingAppointments = await ctx.db
@@ -293,7 +340,7 @@ export const createAnonymousAppointment = mutation({
       const existingStart = parseTimeToMinutes(existing.time);
       if (!Number.isFinite(existingStart)) continue;
       const existingDerived = deriveServiceDurationMinutes(existing.service);
-      const existingDuration = roundUpToSlotMinutes(existingDerived);
+      const existingDuration = existingDerived;
       const existingEnd = existingStart + existingDuration;
 
       if (overlaps(newStart, newEnd, existingStart, existingEnd)) {

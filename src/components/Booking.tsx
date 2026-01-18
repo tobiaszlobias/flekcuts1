@@ -225,6 +225,13 @@ const generateSlots = (
   return slots;
 };
 
+const overlapsMinutes = (
+  startA: number,
+  endA: number,
+  startB: number,
+  endB: number
+): boolean => startA < endB && startB < endA;
+
 const isDateTimeAvailable = (date: string, time: string): boolean => {
   const now = new Date();
   const [hours, minutes] = time.split(":").map(Number);
@@ -583,11 +590,6 @@ const Booking = () => {
     addWash: bookingForm.addWash,
   });
 
-  const selectedServiceSlotCount = Math.max(
-    1,
-    Math.ceil((derivedSelection.durationMinutes || SLOT_MINUTES) / SLOT_MINUTES)
-  );
-
   const getOpenSlotsForDate = (selectedDate: string): string[] => {
     if (!selectedDate) return [];
     const date = new Date(selectedDate + "T00:00:00");
@@ -619,52 +621,84 @@ const Booking = () => {
     return periods.flatMap(([start, end]) => generateSlots(start, end, SLOT_MINUTES));
   };
 
-  const openSlots = getOpenSlotsForDate(bookingForm.date);
+  const getWorkingPeriodsForDate = (selectedDate: string): Array<[number, number]> => {
+    if (!selectedDate) return [];
+    const date = new Date(selectedDate + "T00:00:00");
+    const dayOfWeek = date.getDay();
+    const schedule: Record<number, Array<[number, number]>> = {
+      1: [
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
+      ],
+      2: [
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
+      ],
+      3: [
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
+      ],
+      4: [[13 * 60, 19 * 60 + 30]],
+      5: [
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
+      ],
+    };
+    return schedule[dayOfWeek as keyof typeof schedule] || [];
+  };
 
-  const blockedSlotSet = new Set<string>();
-  for (const apt of appointmentsForDate || []) {
-    if (apt.status === "cancelled") continue;
-    const start = timeStringToMinutes(apt.time);
-    if (!Number.isFinite(start)) continue;
-    const durationMinutes = deriveServiceFromName(apt.service).durationMinutes ?? 30;
-    const slotCount = Math.max(1, Math.ceil(durationMinutes / SLOT_MINUTES));
-    for (let i = 0; i < slotCount; i++) {
-      blockedSlotSet.add(minutesToTimeString(start + i * SLOT_MINUTES));
-    }
+  const openSlots = getOpenSlotsForDate(bookingForm.date);
+  const workingPeriods = getWorkingPeriodsForDate(bookingForm.date);
+
+  const existingIntervals = (appointmentsForDate || [])
+    .filter((apt) => apt.status !== "cancelled")
+    .map((apt) => {
+      const start = timeStringToMinutes(apt.time);
+      const durationMinutes = deriveServiceFromName(apt.service).durationMinutes ?? 30;
+      const end = start + durationMinutes;
+      return { start, end };
+    })
+    .filter((interval) => Number.isFinite(interval.start) && Number.isFinite(interval.end));
+
+  const bookedSlotSet = new Set<string>();
+  for (const slot of openSlots) {
+    const slotStart = timeStringToMinutes(slot);
+    const slotEnd = slotStart + SLOT_MINUTES;
+    if (!Number.isFinite(slotStart)) continue;
+    const isBooked = existingIntervals.some((apt) =>
+      overlapsMinutes(slotStart, slotEnd, apt.start, apt.end)
+    );
+    if (isBooked) bookedSlotSet.add(slot);
   }
 
-  const bookedTimes = Array.from(blockedSlotSet);
+  const bookedTimes = Array.from(bookedSlotSet);
 
   const availableTimeSlots = (() => {
     if (!bookingForm.date) return [];
     if (openSlots.length === 0) return [];
 
-    const openSlotMinutes = openSlots.map(timeStringToMinutes);
-    const availableStarts: string[] = [];
+    const durationMinutes = derivedSelection.durationMinutes || SLOT_MINUTES;
 
-    for (let i = 0; i <= openSlots.length - selectedServiceSlotCount; i++) {
-      let ok = true;
-      const startMinutes = openSlotMinutes[i];
-      if (!Number.isFinite(startMinutes)) continue;
+    return openSlots.filter((time) => {
+      const start = timeStringToMinutes(time);
+      if (!Number.isFinite(start)) return false;
+      const end = start + durationMinutes;
 
-      for (let j = 0; j < selectedServiceSlotCount; j++) {
-        const expectedMinutes = startMinutes + j * SLOT_MINUTES;
-        if (openSlotMinutes[i + j] !== expectedMinutes) {
-          ok = false;
-          break;
-        }
-        if (blockedSlotSet.has(openSlots[i + j])) {
-          ok = false;
-          break;
-        }
-      }
+      const fitsWithinWorkingHours = workingPeriods.some(
+        ([pStart, pEnd]) => start >= pStart && end <= pEnd
+      );
+      if (!fitsWithinWorkingHours) return false;
 
-      if (ok) {
-        availableStarts.push(openSlots[i]);
-      }
-    }
+      const overlapsExisting = existingIntervals.some((apt) =>
+        overlapsMinutes(start, end, apt.start, apt.end)
+      );
+      if (overlapsExisting) return false;
 
-    return availableStarts;
+      // Also require the first 15-min slot to be free (UI uses this for greying)
+      if (bookedSlotSet.has(time)) return false;
+
+      return true;
+    });
   })();
 
   useEffect(() => {
