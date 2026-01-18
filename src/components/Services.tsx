@@ -195,7 +195,7 @@ const Services = () => {
               <div
                 className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 relative active:scale-95"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B35]/0 via-[#FF6B35]/10 to-[#FF6B35]/0 shimmer-effect z-10 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B35]/0 via-[#FF6B35]/20 to-[#FF6B35]/0 shimmer-effect z-10 pointer-events-none"></div>
                 <style>{`
                   @keyframes shimmer {
                     0% { transform: translateX(-100%); }
@@ -205,7 +205,7 @@ const Services = () => {
                     transform: translateX(-100%);
                   }
                   div:hover > .shimmer-effect {
-                    animation: shimmer 0.7s ease-out;
+                    animation: shimmer 1.4s ease-out;
                   }
                 `}</style>
                 <div className="flex flex-col md:flex-row relative">
