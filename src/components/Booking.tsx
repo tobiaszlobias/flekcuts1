@@ -547,9 +547,7 @@ const Booking = () => {
     const start = timeStringToMinutes(apt.time);
     if (!Number.isFinite(start)) continue;
     const durationMinutes =
-      apt.durationMinutes ??
-      getServiceOptionByName(apt.service)?.durationMinutes ??
-      30;
+      getServiceOptionByName(apt.service)?.durationMinutes ?? 30;
     const slotCount = Math.max(1, Math.ceil(durationMinutes / SLOT_MINUTES));
     for (let i = 0; i < slotCount; i++) {
       blockedSlotSet.add(minutesToTimeString(start + i * SLOT_MINUTES));
