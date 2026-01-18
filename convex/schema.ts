@@ -12,7 +12,6 @@ export default defineSchema({
     service: v.string(),
     date: v.string(),
     time: v.string(),
-    durationMinutes: v.optional(v.number()),
     status: v.union(
       v.literal("pending"),
       v.literal("confirmed"),

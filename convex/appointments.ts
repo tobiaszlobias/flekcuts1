@@ -17,6 +17,44 @@ const roundUpToSlotMinutes = (durationMinutes: number): number => {
   return Math.ceil(durationMinutes / SLOT_MINUTES) * SLOT_MINUTES;
 };
 
+const deriveServiceDurationMinutes = (serviceName: string): number => {
+  const normalized = serviceName.trim();
+
+  // Base services
+  if (normalized === "Fade") return 45;
+  if (normalized === "Klasický střih") return 30;
+  if (normalized === "Dětský střih - fade") return 45;
+  if (normalized === "Dětský střih - klasický") return 30;
+  if (normalized === "Dětský střih - do ztracena") return 30;
+  if (normalized === "Vousy") return 15;
+  if (normalized === "Mytí vlasů") return 10;
+  if (normalized === "Kompletka") return 70;
+
+  // Legacy naming
+  if (normalized === "Vlasy do ztracena + Vousy") return 65;
+
+  // Combos (generated on the frontend)
+  const hasBeard = normalized.includes("+ Vousy");
+  const hasWash = normalized.includes("+ Mytí vlasů");
+
+  let base: number | null = null;
+  if (normalized.startsWith("Fade")) base = 45;
+  if (normalized.startsWith("Klasický střih")) base = 30;
+
+  if (base === null) return 30;
+
+  if (normalized.startsWith("Fade") && hasBeard) {
+    // Special-case duration per your list: Fade + Vousy = 65 min (not 60).
+    base = 65;
+  } else if (hasBeard) {
+    base += 15;
+  }
+
+  if (hasWash) base += 10;
+
+  return base;
+};
+
 const overlaps = (
   startA: number,
   endA: number,
@@ -91,7 +129,8 @@ export const createAppointment = mutation({
       throw new Error("Invalid time format.");
     }
 
-    const newDuration = roundUpToSlotMinutes(args.durationMinutes ?? 30);
+    const derivedDuration = deriveServiceDurationMinutes(args.service);
+    const newDuration = roundUpToSlotMinutes(args.durationMinutes ?? derivedDuration);
     const newEnd = newStart + newDuration;
 
     // Check for overlapping appointments on the same date (ignore cancelled)
@@ -104,7 +143,8 @@ export const createAppointment = mutation({
     for (const existing of existingAppointments) {
       const existingStart = parseTimeToMinutes(existing.time);
       if (!Number.isFinite(existingStart)) continue;
-      const existingDuration = roundUpToSlotMinutes(existing.durationMinutes ?? 30);
+      const existingDerived = deriveServiceDurationMinutes(existing.service);
+      const existingDuration = roundUpToSlotMinutes(existingDerived);
       const existingEnd = existingStart + existingDuration;
 
       if (overlaps(newStart, newEnd, existingStart, existingEnd)) {
@@ -120,7 +160,6 @@ export const createAppointment = mutation({
       service: args.service,
       date: args.date,
       time: args.time,
-      durationMinutes: newDuration,
       status: "pending",
       notes: args.notes,
     });
@@ -162,7 +201,8 @@ export const createAnonymousAppointment = mutation({
       throw new Error("Invalid time format.");
     }
 
-    const newDuration = roundUpToSlotMinutes(args.durationMinutes ?? 30);
+    const derivedDuration = deriveServiceDurationMinutes(args.service);
+    const newDuration = roundUpToSlotMinutes(args.durationMinutes ?? derivedDuration);
     const newEnd = newStart + newDuration;
 
     // Check for overlapping appointments on the same date (ignore cancelled)
@@ -175,7 +215,8 @@ export const createAnonymousAppointment = mutation({
     for (const existing of existingAppointments) {
       const existingStart = parseTimeToMinutes(existing.time);
       if (!Number.isFinite(existingStart)) continue;
-      const existingDuration = roundUpToSlotMinutes(existing.durationMinutes ?? 30);
+      const existingDerived = deriveServiceDurationMinutes(existing.service);
+      const existingDuration = roundUpToSlotMinutes(existingDerived);
       const existingEnd = existingStart + existingDuration;
 
       if (overlaps(newStart, newEnd, existingStart, existingEnd)) {
@@ -192,7 +233,6 @@ export const createAnonymousAppointment = mutation({
       service: args.service,
       date: args.date,
       time: args.time,
-      durationMinutes: newDuration,
       status: "pending",
       notes: args.notes,
     });
@@ -306,7 +346,6 @@ export const debugAllAppointments = query({
         service: a.service,
         date: a.date,
         time: a.time,
-        durationMinutes: a.durationMinutes,
         status: a.status,
       }))
     );
