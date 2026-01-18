@@ -211,6 +211,14 @@ const isDateTimeAvailable = (date: string, time: string): boolean => {
   return hoursUntilAppointment >= 2;
 };
 
+const isDateTimeInFuture = (date: string, time: string): boolean => {
+  const now = new Date();
+  const [hours, minutes] = time.split(":").map(Number);
+  const appointmentDate = new Date(date);
+  appointmentDate.setHours(hours, minutes, 0, 0);
+  return appointmentDate.getTime() > now.getTime();
+};
+
 const formatDate = (dateString: string): string => {
   if (!dateString) return "";
   const date = new Date(dateString + "T00:00:00");
@@ -220,6 +228,20 @@ const formatDate = (dateString: string): string => {
     month: "long",
     day: "numeric",
   });
+};
+
+const isDateWithinNextMonth = (dateString: string): boolean => {
+  if (!dateString) return false;
+  const date = new Date(dateString + "T00:00:00");
+  if (Number.isNaN(date.getTime())) return false;
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const maxDate = new Date(todayStart);
+  maxDate.setMonth(maxDate.getMonth() + 1);
+
+  return date >= todayStart && date <= maxDate;
 };
 
 const CompactDateTimePicker = ({
@@ -241,6 +263,12 @@ const CompactDateTimePicker = ({
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showTimeSlots, setShowTimeSlots] = useState(!!selectedDate);
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const maxDate = new Date(todayStart);
+  maxDate.setMonth(maxDate.getMonth() + 1);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -269,6 +297,7 @@ const CompactDateTimePicker = ({
       const dayOfWeek = currentDate.getDay();
       const isToday = new Date().toDateString() === currentDate.toDateString();
       const isPast = currentDate < new Date(new Date().setHours(0, 0, 0, 0));
+      const isTooFar = currentDate > maxDate;
       const isWorking = dayOfWeek >= 1 && dayOfWeek <= 5;
       const isSelected = selectedDate === dateString;
 
@@ -278,6 +307,7 @@ const CompactDateTimePicker = ({
         dayOfWeek,
         isToday,
         isPast,
+        isTooFar,
         isWorking,
         isSelected,
       });
@@ -287,10 +317,10 @@ const CompactDateTimePicker = ({
   };
 
   const isDateSelectable = (
-    day: { isWorking: boolean; isPast: boolean } | null
+    day: { isWorking: boolean; isPast: boolean; isTooFar: boolean } | null
   ): boolean => {
     if (!day) return false;
-    return day.isWorking && !day.isPast;
+    return day.isWorking && !day.isPast && !day.isTooFar;
   };
 
   const handleDateClick = (dateString: string) => {
@@ -664,12 +694,28 @@ const Booking = () => {
     if (!bookingForm.service) newErrors.service = "Služba je povinná";
     if (!bookingForm.date) newErrors.date = "Datum je povinné";
     if (!bookingForm.time) newErrors.time = "Čas je povinný";
+    if (bookingForm.date && !isDateWithinNextMonth(bookingForm.date)) {
+      newErrors.date = "Termín lze rezervovat maximálně 1 měsíc dopředu";
+    }
     if (
       bookingForm.date &&
       bookingForm.time &&
       !availableTimeSlots.includes(bookingForm.time)
     ) {
       newErrors.time = "Vybraný čas už není dostupný pro zvolenou službu";
+    }
+    if (
+      bookingForm.date &&
+      bookingForm.time &&
+      !isDateTimeInFuture(bookingForm.date, bookingForm.time)
+    ) {
+      newErrors.time = "Termín musí být v budoucnu";
+    } else if (
+      bookingForm.date &&
+      bookingForm.time &&
+      !isDateTimeAvailable(bookingForm.date, bookingForm.time)
+    ) {
+      newErrors.time = "Termín musí být alespoň 2 hodiny dopředu";
     }
 
     setErrors(newErrors);

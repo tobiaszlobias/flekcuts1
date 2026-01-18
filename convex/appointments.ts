@@ -12,9 +12,52 @@ const parseTimeToMinutes = (time: string): number => {
   return hours * 60 + minutes;
 };
 
+const getNowInPrague = (): { date: string; minutes: number } => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Prague",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date());
+
+  const get = (type: string) => parts.find((p) => p.type === type)?.value;
+  const year = get("year");
+  const month = get("month");
+  const day = get("day");
+  const hour = get("hour");
+  const minute = get("minute");
+
+  if (!year || !month || !day || !hour || !minute) {
+    const fallback = new Date();
+    const date = fallback.toISOString().slice(0, 10);
+    return { date, minutes: fallback.getHours() * 60 + fallback.getMinutes() };
+  }
+
+  return {
+    date: `${year}-${month}-${day}`,
+    minutes: Number(hour) * 60 + Number(minute),
+  };
+};
+
 const roundUpToSlotMinutes = (durationMinutes: number): number => {
   if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) return SLOT_MINUTES;
   return Math.ceil(durationMinutes / SLOT_MINUTES) * SLOT_MINUTES;
+};
+
+const isDateWithinNextMonth = (dateString: string): boolean => {
+  const date = new Date(dateString + "T00:00:00");
+  if (Number.isNaN(date.getTime())) return false;
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const maxDate = new Date(todayStart);
+  maxDate.setMonth(maxDate.getMonth() + 1);
+
+  return date >= todayStart && date <= maxDate;
 };
 
 const deriveServiceDurationMinutes = (serviceName: string): number => {
@@ -124,9 +167,24 @@ export const createAppointment = mutation({
       throw new Error("Not authenticated");
     }
 
+    if (!isDateWithinNextMonth(args.date)) {
+      throw new Error("Appointments can only be booked up to 1 month in advance.");
+    }
+
     const newStart = parseTimeToMinutes(args.time);
     if (!Number.isFinite(newStart)) {
       throw new Error("Invalid time format.");
+    }
+
+    const now = getNowInPrague();
+    if (args.date < now.date) {
+      throw new Error("Appointments must be in the future.");
+    }
+    if (args.date === now.date && newStart < now.minutes + 1) {
+      throw new Error("Appointments must be in the future.");
+    }
+    if (args.date === now.date && newStart < now.minutes + 120) {
+      throw new Error("Appointments must be booked at least 2 hours in advance.");
     }
 
     const derivedDuration = deriveServiceDurationMinutes(args.service);
@@ -196,9 +254,24 @@ export const createAnonymousAppointment = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    if (!isDateWithinNextMonth(args.date)) {
+      throw new Error("Appointments can only be booked up to 1 month in advance.");
+    }
+
     const newStart = parseTimeToMinutes(args.time);
     if (!Number.isFinite(newStart)) {
       throw new Error("Invalid time format.");
+    }
+
+    const now = getNowInPrague();
+    if (args.date < now.date) {
+      throw new Error("Appointments must be in the future.");
+    }
+    if (args.date === now.date && newStart < now.minutes + 1) {
+      throw new Error("Appointments must be in the future.");
+    }
+    if (args.date === now.date && newStart < now.minutes + 120) {
+      throw new Error("Appointments must be booked at least 2 hours in advance.");
     }
 
     const derivedDuration = deriveServiceDurationMinutes(args.service);
