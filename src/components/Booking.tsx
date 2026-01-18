@@ -227,14 +227,16 @@ const CompactDateTimePicker = ({
   selectedTime,
   onDateSelect,
   onTimeSelect,
-  availableTimeSlots,
+  timeSlots,
+  availableStartTimes,
   bookedTimes,
 }: {
   selectedDate: string;
   selectedTime: string;
   onDateSelect: (date: string) => void;
   onTimeSelect: (time: string) => void;
-  availableTimeSlots: string[];
+  timeSlots: string[];
+  availableStartTimes: string[];
   bookedTimes: string[];
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -407,12 +409,13 @@ const CompactDateTimePicker = ({
             Dostupné časy - {formatDate(selectedDate)}
           </h4>
 
-          {availableTimeSlots.length > 0 ? (
+          {timeSlots.length > 0 ? (
             <div className="grid grid-cols-4 gap-1.5">
-              {availableTimeSlots.map((time) => {
+              {timeSlots.map((time) => {
                 const isBooked = bookedTimes.includes(time);
-                const isAvailable = isDateTimeAvailable(selectedDate, time);
-                const canSelect = !isBooked && isAvailable;
+                const isWithin2Hours = !isDateTimeAvailable(selectedDate, time);
+                const isStartAvailable = availableStartTimes.includes(time);
+                const canSelect = !isBooked && !isWithin2Hours && isStartAvailable;
                 const isSelected = selectedTime === time;
 
                 return (
@@ -424,11 +427,13 @@ const CompactDateTimePicker = ({
                     className={`
                       p-2 text-xs rounded border transition-all duration-200
                       ${
-                        isSelected
+                        isSelected && canSelect
                           ? "bg-[#FF8C5A] text-white border-[#FF8C5A] font-medium"
-                          : canSelect
-                            ? "border-[#e5ebe9] hover:border-[#FF6B35] hover:bg-white"
-                            : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : isSelected && !canSelect
+                            ? "border-gray-300 bg-gray-200 text-gray-600 font-medium"
+                            : canSelect
+                              ? "border-[#e5ebe9] hover:border-[#FF6B35] hover:bg-white"
+                              : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
                       }
                     `}
                   >
@@ -589,13 +594,6 @@ const Booking = () => {
   })();
 
   useEffect(() => {
-    if (bookingForm.time && !availableTimeSlots.includes(bookingForm.time)) {
-      handleInputChange("time", "");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookingForm.service, bookingForm.date]);
-
-  useEffect(() => {
     const handleServicePreSelection = (event: CustomEvent) => {
       const { serviceName } = event.detail;
       setBookingForm((prev) => ({ ...prev, service: serviceName }));
@@ -660,6 +658,13 @@ const Booking = () => {
     if (!bookingForm.service) newErrors.service = "Služba je povinná";
     if (!bookingForm.date) newErrors.date = "Datum je povinné";
     if (!bookingForm.time) newErrors.time = "Čas je povinný";
+    if (
+      bookingForm.date &&
+      bookingForm.time &&
+      !availableTimeSlots.includes(bookingForm.time)
+    ) {
+      newErrors.time = "Vybraný čas už není dostupný pro zvolenou službu";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -937,7 +942,8 @@ const Booking = () => {
                     selectedTime={bookingForm.time}
                     onDateSelect={handleDateSelect}
                     onTimeSelect={handleTimeSelect}
-                    availableTimeSlots={availableTimeSlots}
+                    timeSlots={openSlots}
+                    availableStartTimes={availableTimeSlots}
                     bookedTimes={bookedTimes}
                   />
                 </div>
