@@ -84,7 +84,7 @@ const renderEmail = (args: {
               <td style="padding:0 0 12px 0;">
                 <div style="text-align:center; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; font-weight:700; letter-spacing:0.5px; color:${BRAND.text};">
                   <span style="display:inline-block; padding:10px 16px; border-radius:999px; background:${BRAND.surface}; border:1px solid ${BRAND.border};">
-                    <span style="color:${BRAND.primary};">✂</span> ${BRAND.name}
+                    ${BRAND.name}
                   </span>
                 </div>
               </td>
@@ -137,10 +137,47 @@ const renderEmail = (args: {
 `;
 };
 
+const deriveServiceDurationMinutes = (serviceName: string): number => {
+  const normalized = serviceName.trim();
+
+  if (normalized === "Fade") return 45;
+  if (normalized === "Klasický střih") return 30;
+  if (normalized === "Dětský střih - fade") return 45;
+  if (normalized === "Dětský střih - klasický") return 30;
+  if (normalized === "Dětský střih - do ztracena") return 30;
+  if (normalized === "Vousy") return 15;
+  if (normalized === "Mytí vlasů") return 10;
+  if (normalized === "Kompletka") return 70;
+  if (normalized === "Vlasy do ztracena + Vousy") return 65;
+
+  const hasBeard = normalized.includes("+ Vousy");
+  const hasWash = normalized.includes("+ Mytí vlasů");
+
+  let base: number | null = null;
+  if (normalized.startsWith("Fade")) base = 45;
+  if (normalized.startsWith("Klasický střih")) base = 30;
+  if (normalized.startsWith("Dětský střih - fade")) base = 45;
+  if (normalized.startsWith("Dětský střih - klasický")) base = 30;
+  if (normalized.startsWith("Vousy")) base = 15;
+  if (normalized.startsWith("Mytí vlasů")) base = 10;
+
+  if (base === null) return 30;
+
+  if (normalized.startsWith("Fade") && hasBeard) {
+    base = 65;
+  } else if (hasBeard) {
+    base += 15;
+  }
+
+  if (hasWash) base += 10;
+  return base;
+};
+
 const renderReservationDetails = (data: EmailData): string => {
   const service = escapeHtml(data.service);
   const date = escapeHtml(formatPrettyDate(data.date));
   const time = escapeHtml(data.time);
+  const durationMinutes = deriveServiceDurationMinutes(data.service);
   return `
     <div style="margin:16px 0; padding:14px 14px; border-radius:12px; background:rgba(255,107,53,0.08); border:1px solid rgba(255,107,53,0.22);">
       <div style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:${BRAND.text}; font-weight:700; font-size:13px; letter-spacing:0.4px; text-transform:uppercase;">
@@ -156,6 +193,9 @@ const renderReservationDetails = (data: EmailData): string => {
         <div style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:${BRAND.text}; font-size:14px;">
           <span style="color:${BRAND.muted};">Čas:</span> <strong>${time}</strong>
         </div>
+        <div style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:${BRAND.text}; font-size:14px;">
+          <span style="color:${BRAND.muted};">Délka:</span> <strong>${durationMinutes} min</strong>
+        </div>
       </div>
     </div>
   `;
@@ -166,6 +206,7 @@ const appointmentConfirmation = (data: EmailData) => {
   const subject = `Potvrzení rezervace - FlekCuts`;
 
   const safeName = escapeHtml(data.customerName);
+  const durationMinutes = deriveServiceDurationMinutes(data.service);
   const html = renderEmail({
     title: "Rezervace přijata",
     subtitle: "Do 24 hodin vás budeme kontaktovat pro potvrzení.",
@@ -194,6 +235,7 @@ const appointmentConfirmation = (data: EmailData) => {
     - Služba: ${data.service}
     - Datum: ${data.date}
     - Čas: ${data.time}
+    - Délka: ${durationMinutes} min
     
     Těšíme se na vaši návštěvu!
     
@@ -209,6 +251,7 @@ const appointmentReminder = (data: EmailData) => {
   const subject = `Připomínka termínu - FlekCuts zítra`;
 
   const safeName = escapeHtml(data.customerName);
+  const durationMinutes = deriveServiceDurationMinutes(data.service);
   const html = renderEmail({
     title: "Připomínka termínu",
     subtitle: "Těšíme se na vás zítra.",
@@ -234,6 +277,7 @@ const appointmentReminder = (data: EmailData) => {
     - Služba: ${data.service}
     - Datum: ${data.date}
     - Čas: ${data.time}
+    - Délka: ${durationMinutes} min
     
     Těšíme se na vás!
     
@@ -264,6 +308,7 @@ const statusUpdate = (data: StatusEmailData) => {
   const safeName = escapeHtml(data.customerName);
   const safeStatus = escapeHtml(data.statusMessage);
   const statusColor = getStatusColor(data.newStatus);
+  const durationMinutes = deriveServiceDurationMinutes(data.service);
   const html = renderEmail({
     title: "Aktualizace rezervace",
     subtitle: "Změna stavu vaší rezervace",
@@ -296,6 +341,7 @@ const statusUpdate = (data: StatusEmailData) => {
     - Služba: ${data.service}
     - Datum: ${data.date}
     - Čas: ${data.time}
+    - Délka: ${durationMinutes} min
     
     S pozdravem,
     Tým FlekCuts
@@ -309,6 +355,7 @@ const cancellationConfirmation = (data: EmailData) => {
   const subject = `Potvrzení zrušení rezervace - FlekCuts`;
 
   const safeName = escapeHtml(data.customerName);
+  const durationMinutes = deriveServiceDurationMinutes(data.service);
   const html = renderEmail({
     title: "Rezervace zrušena",
     subtitle: "Pokud chcete nový termín, ozvěte se nám.",
@@ -335,6 +382,7 @@ const cancellationConfirmation = (data: EmailData) => {
     - Služba: ${data.service}
     - Datum: ${data.date}
     - Čas: ${data.time}
+    - Délka: ${durationMinutes} min
     
     Budeme se těšit na vaši návštěvu příště!
     
