@@ -170,7 +170,7 @@ const Hero = () => {
         <div className="max-w-7xl mx-auto text-center relative z-10">
           {/* Main Heading - Largest (Golden Ratio Base) */}
           <h1 className="font-crimson font-extrabold italic text-6xl sm:text-7xl lg:text-8xl xl:text-9xl text-gray-900 mb-6 leading-tight animate-fade-in-up">
-            Zase to nerostlo?
+            Zase to urostlo?
           </h1>
 
           {/* Subheading - Medium (Base / 2.618) */}
