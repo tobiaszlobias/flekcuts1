@@ -470,9 +470,21 @@ const CompactDateTimePicker = ({
             Dostupné časy - {formatDate(selectedDate)}
           </h4>
 
-          {timeSlots.length > 0 ? (
+          {(() => {
+            const timeToMinutes = (t: string) => {
+              const [h, m = "0"] = t.split(":");
+              return Number(h) * 60 + Number(m);
+            };
+
+            const displayedTimes = (() => {
+              if (!selectedTime) return availableStartTimes;
+              if (availableStartTimes.includes(selectedTime)) return availableStartTimes;
+              return [selectedTime, ...availableStartTimes];
+            })().slice().sort((a, b) => timeToMinutes(a) - timeToMinutes(b));
+
+            return displayedTimes.length > 0 ? (
             <div className="grid grid-cols-4 gap-1.5">
-              {timeSlots.map((time) => {
+              {displayedTimes.map((time) => {
                 const isBooked = bookedTimes.includes(time);
                 const isWithin2Hours = !isDateTimeAvailable(selectedDate, time);
                 const isStartAvailable = availableStartTimes.includes(time);
@@ -509,12 +521,13 @@ const CompactDateTimePicker = ({
                 );
               })}
             </div>
-          ) : (
+            ) : (
             <div className="text-center text-gray-500 py-4">
               <Clock className="w-5 h-5 mx-auto mb-1 text-gray-300" />
-              <p className="text-xs">V tento den není otevřeno</p>
+              <p className="text-xs">Pro zvolenou službu nejsou dostupné časy</p>
             </div>
-          )}
+            );
+          })()}
         </div>
       )}
 
