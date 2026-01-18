@@ -3,14 +3,17 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
-import { useUser } from "@clerk/nextjs";
+import { SignInButton, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { Calendar, Clock, Scissors, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function UserAppointments() {
-  const { user } = useUser();
-  const appointments = useQuery(api.appointments.getMyAppointments);
+  const { user, isLoaded, isSignedIn } = useUser();
+  const appointments = useQuery(
+    api.appointments.getMyAppointments,
+    isLoaded && isSignedIn ? {} : "skip"
+  );
   const cancelAppointment = useMutation(api.appointments.cancelAppointment);
 
   // Add manual linking function as backup
@@ -42,6 +45,8 @@ export default function UserAppointments() {
   // Auto-attempt manual linking if user has no appointments but hasn't tried yet
   useEffect(() => {
     if (
+      isLoaded &&
+      isSignedIn &&
       user?.primaryEmailAddress?.emailAddress &&
       appointments?.length === 0 &&
       !hasTriedLinking &&
@@ -70,6 +75,50 @@ export default function UserAppointments() {
     const hoursUntil = (appointmentDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
     return hoursUntil >= 24;
   };
+
+  if (!isLoaded) {
+    return (
+      <div className="p-6 bg-white rounded-lg shadow-sm border">
+        <h2 className="text-xl font-semibold mb-4">Vaše objednávky</h2>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="p-4 border rounded-lg bg-gray-50 border-gray-200 animate-pulse"
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1 space-y-3">
+                  <div className="h-5 bg-gray-300 rounded w-1/3"></div>
+                  <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-2/3"></div>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <div className="h-6 bg-gray-300 rounded-full w-24"></div>
+                  <div className="h-8 bg-gray-300 rounded-full w-20"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return (
+      <div className="p-6 bg-white rounded-lg shadow-sm border">
+        <h2 className="text-xl font-semibold mb-2">Moje objednávky</h2>
+        <p className="text-gray-600 mb-4">
+          Pro zobrazení objednávek se prosím přihlaste.
+        </p>
+        <SignInButton mode="modal">
+          <Button className="font-montserrat bg-[#FF6B35] hover:bg-[#E5572C] text-white px-6 py-2 rounded-full text-sm transition-all duration-200">
+            Přihlásit se
+          </Button>
+        </SignInButton>
+      </div>
+    );
+  }
 
   if (appointments === undefined) {
     return (

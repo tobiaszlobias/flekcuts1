@@ -46,16 +46,9 @@ interface BookingForm {
   addWash: boolean;
 }
 
-interface FormErrors {
-  name?: string;
-  email?: string;
-  phone?: string;
-  date?: string;
-  time?: string;
-  service?: string;
-  addBeard?: string;
-  addWash?: string;
-}
+type BookingField = keyof BookingForm;
+type StringBookingField = Exclude<BookingField, "addBeard" | "addWash">;
+type FormErrors = Partial<Record<BookingField, string>>;
 
 // Simple phone validation - just check for minimum 9 digits
 const validatePhoneNumber = (phone: string): boolean => {
@@ -495,11 +488,15 @@ const CompactDateTimePicker = ({
                   }
                   disabled={!isSelectable}
                   className={`
-                    w-full aspect-square text-xs rounded transition-all duration-200 relative
-                    ${day.isSelected ? "bg-[#FF8C5A] text-white font-semibold shadow-md scale-105" : ""}
+                    w-full aspect-square text-xs rounded transition-all duration-200 relative ring-1 ring-inset
+                    ${day.isSelected ? "bg-[#FF8C5A] text-white font-semibold shadow-md scale-105 ring-[#FF8C5A]" : "ring-gray-100"}
                     ${day.isToday && !day.isSelected ? "bg-[#FFE5DC] text-[#FF6B35] font-semibold" : ""}
+                    ${day.isVacationFullDay && !day.isSelected && !day.isPast ? "bg-blue-50 text-blue-900 font-semibold ring-blue-200 cursor-not-allowed" : ""}
+                    ${day.isVacationPartial && !day.isSelected && !day.isPast ? "bg-blue-50/40 text-gray-900 ring-blue-100" : ""}
+                    ${isSelectable && !day.isSelected && !day.isToday && !day.isVacationPartial ? "bg-[#FFF9F6] ring-[#FFE5DC]" : ""}
+                    ${!isSelectable && !day.isSelected && !day.isToday && !day.isVacationFullDay ? "bg-gray-50 ring-gray-100" : ""}
                     ${isSelectable && !day.isSelected && !day.isToday ? "hover:bg-[#FFF9F6] hover:text-[#FF6B35] text-gray-900" : ""}
-                    ${!isSelectable ? "text-gray-300 cursor-not-allowed" : ""}
+                    ${!isSelectable && !day.isVacationFullDay ? "text-gray-300 cursor-not-allowed" : ""}
                   `}
                 >
                   <span className="relative z-10">{day.day}</span>
@@ -1020,7 +1017,7 @@ const Booking = () => {
     return `${numbers.slice(0, 3)} ${numbers.slice(3, 6)} ${numbers.slice(6, 9)}`;
   };
 
-  const handleInputChange = (field: keyof BookingForm, value: string) => {
+  const handleInputChange = (field: StringBookingField, value: string) => {
     setBookingForm((prev) => {
       const next = { ...prev, [field]: value } as BookingForm;
       if (field === "service") {

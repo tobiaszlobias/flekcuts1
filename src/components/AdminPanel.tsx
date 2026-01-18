@@ -53,6 +53,7 @@ export default function AdminPanel() {
   const [mode, setMode] = useState<"overview" | "manage">("overview");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [appointmentToDeleteId, setAppointmentToDeleteId] = useState<Id<"appointments"> | null>(null);
+  const [showVacationUi, setShowVacationUi] = useState(false);
   const [vacationForm, setVacationForm] = useState<{
     startDate: string;
     endDate: string;
@@ -284,7 +285,7 @@ export default function AdminPanel() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={() => setMode("overview")}
               className={`font-montserrat ${
@@ -306,6 +307,16 @@ export default function AdminPanel() {
               } px-4 py-2 rounded-full text-sm font-medium transition-colors`}
             >
               Upravit
+            </Button>
+            <Button
+              onClick={() => setShowVacationUi((v) => !v)}
+              className={`font-montserrat ${
+                showVacationUi
+                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                  : "bg-white border-2 border-blue-200 text-blue-800 hover:bg-blue-50"
+              } px-4 py-2 rounded-full text-sm font-medium transition-colors`}
+            >
+              Přidat dovolenou
             </Button>
           </div>
         </div>
@@ -346,7 +357,8 @@ export default function AdminPanel() {
         </div>
 
         {/* Vacations */}
-        <div className="rounded-2xl border border-blue-100 bg-white p-4 sm:p-5">
+        {showVacationUi && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="font-montserrat text-lg font-bold text-gray-900">
@@ -462,7 +474,7 @@ export default function AdminPanel() {
                 <Button
                   onClick={handleCreateVacation}
                   disabled={isSavingVacation}
-                  className="w-full font-montserrat bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2"
+                  className="w-full font-montserrat bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2 shadow-sm"
                 >
                   {isSavingVacation ? "Ukládám..." : "Přidat dovolenou"}
                 </Button>
@@ -486,7 +498,7 @@ export default function AdminPanel() {
                     return (
                       <div
                         key={v._id}
-                        className="rounded-xl border border-blue-100 bg-blue-50/60 p-3"
+                        className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
@@ -522,6 +534,7 @@ export default function AdminPanel() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Appointments List */}
         <div>
