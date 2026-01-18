@@ -433,13 +433,13 @@ const CompactDateTimePicker = ({
                     className={`
                       relative p-2 text-xs rounded border transition-all duration-200
                       ${
-                        isSelected && canSelect
-                          ? "bg-gray-200 text-gray-900 border-gray-400 font-semibold shadow-sm"
-                          : isSelected && !canSelect
-                            ? "bg-gray-300 text-gray-800 border-gray-500 font-semibold shadow-sm"
-                            : canSelect
-                              ? "border-[#e5ebe9] hover:border-[#FF6B35] hover:bg-white"
-                              : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                        isSelected
+                          ? "bg-[#FF8C5A] text-white border-[#FF8C5A] font-medium"
+                          : canSelect
+                            ? "border-[#e5ebe9] hover:border-[#FF6B35] hover:bg-white"
+                            : isBooked
+                              ? "border-gray-300 bg-gray-300 text-gray-600 cursor-not-allowed"
+                              : "border-gray-200 bg-gray-200 text-gray-500 cursor-not-allowed"
                       }
                     `}
                   >
