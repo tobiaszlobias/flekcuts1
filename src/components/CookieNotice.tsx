@@ -28,12 +28,12 @@ const CookieNotice = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 p-4 sm:p-6">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-[#FF6B35]/15 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] z-50 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           {/* Content */}
           <div className="flex items-start gap-3 flex-1">
-            <Cookie className="w-6 h-6 text-orange-500 mt-1 flex-shrink-0" />
+            <Cookie className="w-6 h-6 text-[#FF6B35] mt-1 flex-shrink-0" />
             <div className="text-sm">
               <h4 className="font-semibold text-gray-900 mb-1">
                 Informace o cookies
@@ -47,7 +47,7 @@ const CookieNotice = () => {
                   onClick={() => {
                     window.dispatchEvent(new CustomEvent("showPrivacyPolicy"));
                   }}
-                  className="text-[#3C493F] hover:text-[#3C493F] underline font-medium"
+                  className="text-[#FF6B35] hover:text-[#E5572C] underline font-medium"
                 >
                   zásadách ochrany osobních údajů
                 </button>
@@ -60,13 +60,13 @@ const CookieNotice = () => {
           <div className="flex items-center gap-3 flex-shrink-0">
             <button
               onClick={handleDecline}
-              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-white transition-colors"
             >
               Odmítnout
             </button>
             <button
               onClick={handleAccept}
-              className="px-4 py-2 text-sm bg-[#3C493F] text-white rounded-lg hover:bg-[#2d3730] transition-colors font-medium"
+              className="px-4 py-2 text-sm bg-[#FF6B35] text-white rounded-lg hover:bg-[#E5572C] transition-colors font-medium shadow-sm"
             >
               Přijmout
             </button>
