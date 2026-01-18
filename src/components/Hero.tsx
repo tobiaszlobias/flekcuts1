@@ -56,10 +56,11 @@ const Hero = () => {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - 80;
+      const targetPosition =
+        element.getBoundingClientRect().top + window.pageYOffset - 80;
       window.scrollTo({
         top: targetPosition,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
@@ -169,7 +170,7 @@ const Hero = () => {
         <div className="max-w-7xl mx-auto text-center relative z-10">
           {/* Main Heading - Largest (Golden Ratio Base) */}
           <h1 className="font-crimson font-extrabold italic text-6xl sm:text-7xl lg:text-8xl xl:text-9xl text-gray-900 mb-6 leading-tight animate-fade-in-up">
-            Zase to přerostlo?
+            Zase to nerostlo?
           </h1>
 
           {/* Subheading - Medium (Base / 2.618) */}
@@ -183,9 +184,7 @@ const Hero = () => {
               onClick={() => scrollToSection("objednat")}
               className="font-montserrat bg-[#FF6B35] text-white px-8 py-3 rounded-full hover:bg-[#FF6B35] transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 cursor-pointer relative overflow-hidden group text-xl sm:text-2xl min-w-[240px] sm:min-w-[280px]"
             >
-              <span className="relative z-10 font-semibold">
-                Objednat se
-              </span>
+              <span className="relative z-10 font-semibold">Objednat se</span>
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 group-hover:opacity-70 animate-shimmer z-[5]"></span>
             </button>
             <button
