@@ -8,6 +8,14 @@ const Services = () => {
   const [isSectionVisible, setIsSectionVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
+  type ServiceCard = {
+    name: string;
+    description: string;
+    price: number;
+    imageUrl?: string;
+    preselectServiceName?: string;
+  };
+
   // Ensure client-side rendering
   useEffect(() => {
     setIsClient(true);
@@ -40,41 +48,47 @@ const Services = () => {
     };
   }, []);
 
-  const featuredServices = [
+  const featuredServices: ServiceCard[] = [
     {
       name: "Fade",
       description: "Precizní přechody od nuly s dokonalým vyblednutím",
       price: 350,
       imageUrl: "/fade.jpg",
+      preselectServiceName: "Fade",
     },
     {
       name: "Klasický střih",
       description: "Elegantní střih s plynulými přechody do ztracena",
       price: 250,
       imageUrl: "/klasicky.jpg",
+      preselectServiceName: "Klasický střih",
     },
   ];
 
-  const otherServices = [
+  const otherServices: ServiceCard[] = [
     {
-      name: "Dětský střih",
+      name: "Dětský střih (klasický / fade)",
       description: "Speciální péče pro děti do 10 let v příjemném prostředí",
       price: 250,
+      preselectServiceName: "Dětský střih - klasický",
     },
     {
       name: "Vousy",
       description: "Profesionální úprava a konturování vousů břitvou",
       price: 150,
+      preselectServiceName: "Vousy",
     },
     {
       name: "Mytí vlasů",
       description: "Relaxační mytí s kvalitním šamponem a kondicionérem",
       price: 100,
+      preselectServiceName: "Mytí vlasů",
     },
     {
       name: "Kompletka",
       description: "Kompletní péče - střih, vousy, obočí a mytí vlasů",
       price: 500,
+      preselectServiceName: "Kompletka",
     },
   ];
 
@@ -248,7 +262,7 @@ const Services = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  handleServiceClick(service.name);
+                  handleServiceClick(service.preselectServiceName || service.name);
                 }}
               >
                 <div

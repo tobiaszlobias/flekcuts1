@@ -2,6 +2,28 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
+const SLOT_MINUTES = 15;
+
+const parseTimeToMinutes = (time: string): number => {
+  const [hoursStr, minutesStr = "0"] = time.split(":");
+  const hours = Number(hoursStr);
+  const minutes = Number(minutesStr);
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return NaN;
+  return hours * 60 + minutes;
+};
+
+const roundUpToSlotMinutes = (durationMinutes: number): number => {
+  if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) return SLOT_MINUTES;
+  return Math.ceil(durationMinutes / SLOT_MINUTES) * SLOT_MINUTES;
+};
+
+const overlaps = (
+  startA: number,
+  endA: number,
+  startB: number,
+  endB: number
+): boolean => startA < endB && startB < endA;
+
 // 🆕 NEW: Link anonymous appointments to authenticated user
 export const linkAnonymousAppointments = mutation({
   args: {
@@ -55,6 +77,7 @@ export const createAppointment = mutation({
     service: v.string(),
     date: v.string(),
     time: v.string(),
+    durationMinutes: v.optional(v.number()),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -63,16 +86,30 @@ export const createAppointment = mutation({
       throw new Error("Not authenticated");
     }
 
-    // Check for existing appointment at the same date and time
-    const existingAppointment = await ctx.db
-      .query("appointments")
-      .withIndex("by_date_time", (q) =>
-        q.eq("date", args.date).eq("time", args.time)
-      )
-      .first();
+    const newStart = parseTimeToMinutes(args.time);
+    if (!Number.isFinite(newStart)) {
+      throw new Error("Invalid time format.");
+    }
 
-    if (existingAppointment) {
-      throw new Error("An appointment already exists at this time.");
+    const newDuration = roundUpToSlotMinutes(args.durationMinutes ?? 30);
+    const newEnd = newStart + newDuration;
+
+    // Check for overlapping appointments on the same date (ignore cancelled)
+    const existingAppointments = await ctx.db
+      .query("appointments")
+      .withIndex("by_date", (q) => q.eq("date", args.date))
+      .filter((q) => q.neq(q.field("status"), "cancelled"))
+      .collect();
+
+    for (const existing of existingAppointments) {
+      const existingStart = parseTimeToMinutes(existing.time);
+      if (!Number.isFinite(existingStart)) continue;
+      const existingDuration = roundUpToSlotMinutes(existing.durationMinutes ?? 30);
+      const existingEnd = existingStart + existingDuration;
+
+      if (overlaps(newStart, newEnd, existingStart, existingEnd)) {
+        throw new Error("An appointment already exists at this time.");
+      }
     }
 
     // Create the appointment (your existing code)
@@ -83,6 +120,7 @@ export const createAppointment = mutation({
       service: args.service,
       date: args.date,
       time: args.time,
+      durationMinutes: newDuration,
       status: "pending",
       notes: args.notes,
     });
@@ -115,19 +153,34 @@ export const createAnonymousAppointment = mutation({
     service: v.string(),
     date: v.string(),
     time: v.string(),
+    durationMinutes: v.optional(v.number()),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Check for existing appointment at the same date and time
-    const existingAppointment = await ctx.db
-      .query("appointments")
-      .withIndex("by_date_time", (q) =>
-        q.eq("date", args.date).eq("time", args.time)
-      )
-      .first();
+    const newStart = parseTimeToMinutes(args.time);
+    if (!Number.isFinite(newStart)) {
+      throw new Error("Invalid time format.");
+    }
 
-    if (existingAppointment) {
-      throw new Error("An appointment already exists at this time.");
+    const newDuration = roundUpToSlotMinutes(args.durationMinutes ?? 30);
+    const newEnd = newStart + newDuration;
+
+    // Check for overlapping appointments on the same date (ignore cancelled)
+    const existingAppointments = await ctx.db
+      .query("appointments")
+      .withIndex("by_date", (q) => q.eq("date", args.date))
+      .filter((q) => q.neq(q.field("status"), "cancelled"))
+      .collect();
+
+    for (const existing of existingAppointments) {
+      const existingStart = parseTimeToMinutes(existing.time);
+      if (!Number.isFinite(existingStart)) continue;
+      const existingDuration = roundUpToSlotMinutes(existing.durationMinutes ?? 30);
+      const existingEnd = existingStart + existingDuration;
+
+      if (overlaps(newStart, newEnd, existingStart, existingEnd)) {
+        throw new Error("An appointment already exists at this time.");
+      }
     }
 
     // Create the appointment without requiring authentication
@@ -139,6 +192,7 @@ export const createAnonymousAppointment = mutation({
       service: args.service,
       date: args.date,
       time: args.time,
+      durationMinutes: newDuration,
       status: "pending",
       notes: args.notes,
     });
@@ -252,6 +306,7 @@ export const debugAllAppointments = query({
         service: a.service,
         date: a.date,
         time: a.time,
+        durationMinutes: a.durationMinutes,
         status: a.status,
       }))
     );

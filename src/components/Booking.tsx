@@ -4,7 +4,6 @@ import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Doc } from "../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock, CheckCircle, Phone, Mail, CalendarDays } from "lucide-react";
+import { getServiceOptionByName, SERVICE_OPTIONS } from "@/lib/services";
 
 interface BookingForm {
   name: string;
@@ -75,17 +75,7 @@ const BookingConfirmationModal = ({
   };
 
   const getServicePrice = (serviceName: string): number => {
-    const services = [
-      { name: "Fade", price: 350 },
-      { name: "Klasický střih", price: 250 },
-      { name: "Dětský střih - fade", price: 250 },
-      { name: "Dětský střih - do ztracena", price: 200 },
-      { name: "Vousy", price: 150 },
-      { name: "Mytí vlasů", price: 100 },
-      { name: "Kompletka", price: 500 },
-      { name: "Vlasy do ztracena + Vousy", price: 350 },
-    ];
-    return services.find((s) => s.name === serviceName)?.price || 0;
+    return getServiceOptionByName(serviceName)?.priceCzk || 0;
   };
 
   if (!isOpen) return null;
@@ -181,6 +171,34 @@ const BookingConfirmationModal = ({
       </div>
     </>
   );
+};
+
+const SLOT_MINUTES = 15;
+
+const timeStringToMinutes = (time: string): number => {
+  const [hoursStr, minutesStr = "0"] = time.split(":");
+  const hours = Number(hoursStr);
+  const minutes = Number(minutesStr);
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return NaN;
+  return hours * 60 + minutes;
+};
+
+const minutesToTimeString = (minutesFromMidnight: number): string => {
+  const hours = Math.floor(minutesFromMidnight / 60);
+  const minutes = minutesFromMidnight % 60;
+  return `${hours}:${String(minutes).padStart(2, "0")}`;
+};
+
+const generateSlots = (
+  startMinutes: number,
+  endMinutesExclusive: number,
+  stepMinutes: number
+): string[] => {
+  const slots: string[] = [];
+  for (let minutes = startMinutes; minutes < endMinutesExclusive; minutes += stepMinutes) {
+    slots.push(minutesToTimeString(minutes));
+  }
+  return slots;
 };
 
 const isDateTimeAvailable = (date: string, time: string): boolean => {
@@ -476,114 +494,105 @@ const Booking = () => {
     bookingForm.date ? { date: bookingForm.date } : "skip"
   );
 
-  const bookedTimes =
-    appointmentsForDate?.map((apt: Doc<"appointments">) => apt.time) || [];
+  const serviceOptions = SERVICE_OPTIONS.slice().sort((a, b) => {
+    const rank = (kind: string) =>
+      kind === "haircut" ? 1 : kind === "combo" ? 2 : kind === "package" ? 3 : 4;
+    const rankDiff = rank(a.kind) - rank(b.kind);
+    if (rankDiff !== 0) return rankDiff;
+    return a.name.localeCompare(b.name, "cs-CZ");
+  });
 
-  const services = [
-    { name: "Fade", price: 350 },
-    { name: "Klasický střih", price: 250 },
-    { name: "Dětský střih - fade", price: 250 },
-    { name: "Dětský střih - do ztracena", price: 200 },
-    { name: "Vousy", price: 150 },
-    { name: "Mytí vlasů", price: 100 },
-    { name: "Kompletka", price: 500 },
-    { name: "Vlasy do ztracena + Vousy", price: 350 },
-  ];
+  const selectedServiceOption = getServiceOptionByName(bookingForm.service);
+  const selectedServiceSlotCount = Math.max(
+    1,
+    Math.ceil(((selectedServiceOption?.durationMinutes ?? SLOT_MINUTES) as number) / SLOT_MINUTES)
+  );
 
-  const getTimeSlots = (selectedDate: string) => {
+  const getOpenSlotsForDate = (selectedDate: string): string[] => {
     if (!selectedDate) return [];
     const date = new Date(selectedDate + "T00:00:00");
     const dayOfWeek = date.getDay();
 
-    const timeSlots = {
+    // Working hours with a lunch break on Mon/Tue/Wed/Fri: 09:00-12:00, 13:00-17:00
+    // Thu: 13:00-21:00
+    const schedule: Record<number, Array<[number, number]>> = {
       1: [
-        "9:00",
-        "9:30",
-        "10:00",
-        "10:30",
-        "11:00",
-        "11:30",
-        "13:00",
-        "13:30",
-        "14:00",
-        "14:30",
-        "15:00",
-        "15:30",
-        "16:00",
-        "16:30",
+        [9 * 60, 12 * 60],
+        [13 * 60, 17 * 60],
       ],
       2: [
-        "9:00",
-        "9:30",
-        "10:00",
-        "10:30",
-        "11:00",
-        "11:30",
-        "13:00",
-        "13:30",
-        "14:00",
-        "14:30",
-        "15:00",
-        "15:30",
-        "16:00",
-        "16:30",
+        [9 * 60, 12 * 60],
+        [13 * 60, 17 * 60],
       ],
       3: [
-        "9:00",
-        "9:30",
-        "10:00",
-        "10:30",
-        "11:00",
-        "11:30",
-        "13:00",
-        "13:30",
-        "14:00",
-        "14:30",
-        "15:00",
-        "15:30",
-        "16:00",
-        "16:30",
+        [9 * 60, 12 * 60],
+        [13 * 60, 17 * 60],
       ],
-      4: [
-        "13:00",
-        "13:30",
-        "14:00",
-        "14:30",
-        "15:00",
-        "15:30",
-        "16:00",
-        "16:30",
-        "17:00",
-        "17:30",
-        "18:00",
-        "18:30",
-        "19:00",
-        "19:30",
-        "20:00",
-        "20:30",
-      ],
+      4: [[13 * 60, 21 * 60]],
       5: [
-        "9:00",
-        "9:30",
-        "10:00",
-        "10:30",
-        "11:00",
-        "11:30",
-        "13:00",
-        "13:30",
-        "14:00",
-        "14:30",
-        "15:00",
-        "15:30",
-        "16:00",
-        "16:30",
+        [9 * 60, 12 * 60],
+        [13 * 60, 17 * 60],
       ],
     };
 
-    return timeSlots[dayOfWeek as keyof typeof timeSlots] || [];
+    const periods = schedule[dayOfWeek as keyof typeof schedule] || [];
+    return periods.flatMap(([start, end]) => generateSlots(start, end, SLOT_MINUTES));
   };
 
-  const availableTimeSlots = getTimeSlots(bookingForm.date);
+  const openSlots = getOpenSlotsForDate(bookingForm.date);
+
+  const blockedSlotSet = new Set<string>();
+  for (const apt of appointmentsForDate || []) {
+    if (apt.status === "cancelled") continue;
+    const start = timeStringToMinutes(apt.time);
+    if (!Number.isFinite(start)) continue;
+    const durationMinutes = apt.durationMinutes ?? 30;
+    const slotCount = Math.max(1, Math.ceil(durationMinutes / SLOT_MINUTES));
+    for (let i = 0; i < slotCount; i++) {
+      blockedSlotSet.add(minutesToTimeString(start + i * SLOT_MINUTES));
+    }
+  }
+
+  const bookedTimes = Array.from(blockedSlotSet);
+
+  const availableTimeSlots = (() => {
+    if (!bookingForm.date) return [];
+    if (openSlots.length === 0) return [];
+
+    const openSlotMinutes = openSlots.map(timeStringToMinutes);
+    const availableStarts: string[] = [];
+
+    for (let i = 0; i <= openSlots.length - selectedServiceSlotCount; i++) {
+      let ok = true;
+      const startMinutes = openSlotMinutes[i];
+      if (!Number.isFinite(startMinutes)) continue;
+
+      for (let j = 0; j < selectedServiceSlotCount; j++) {
+        const expectedMinutes = startMinutes + j * SLOT_MINUTES;
+        if (openSlotMinutes[i + j] !== expectedMinutes) {
+          ok = false;
+          break;
+        }
+        if (blockedSlotSet.has(openSlots[i + j])) {
+          ok = false;
+          break;
+        }
+      }
+
+      if (ok) {
+        availableStarts.push(openSlots[i]);
+      }
+    }
+
+    return availableStarts;
+  })();
+
+  useEffect(() => {
+    if (bookingForm.time && !availableTimeSlots.includes(bookingForm.time)) {
+      handleInputChange("time", "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookingForm.service, bookingForm.date]);
 
   useEffect(() => {
     const handleServicePreSelection = (event: CustomEvent) => {
@@ -671,6 +680,7 @@ const Booking = () => {
           service: bookingForm.service,
           date: bookingForm.date,
           time: bookingForm.time,
+          durationMinutes: selectedServiceOption?.durationMinutes,
         });
       } else {
         await createAnonymousAppointment({
@@ -680,6 +690,7 @@ const Booking = () => {
           service: bookingForm.service,
           date: bookingForm.date,
           time: bookingForm.time,
+          durationMinutes: selectedServiceOption?.durationMinutes,
         });
       }
 
@@ -902,9 +913,9 @@ const Booking = () => {
                     <SelectValue placeholder="Vyberte službu" />
                   </SelectTrigger>
                   <SelectContent>
-                    {services.map((service, index) => (
-                      <SelectItem key={index} value={service.name}>
-                        {service.name} - {service.price} Kč
+                    {serviceOptions.map((service) => (
+                      <SelectItem key={service.id} value={service.name}>
+                        {service.name} - {service.priceCzk} Kč
                       </SelectItem>
                     ))}
                   </SelectContent>
