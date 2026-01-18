@@ -67,7 +67,7 @@ const Services = () => {
 
   const otherServices: ServiceCard[] = [
     {
-      name: "Dětský střih (klasický / fade)",
+      name: "Dětský střih",
       description: "Speciální péče pro děti do 10 let v příjemném prostředí",
       price: 250,
       preselectServiceName: "Dětský střih - klasický",
