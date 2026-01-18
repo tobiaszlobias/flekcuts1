@@ -9,7 +9,7 @@ const Footer = () => {
     { day: "Pondělí", hours: "9:00 - 11:45, 13:00 - 17:00" },
     { day: "Úterý", hours: "9:00 - 11:45, 13:00 - 17:00" },
     { day: "Středa", hours: "9:00 - 11:45, 13:00 - 17:00" },
-    { day: "Čtvrtek", hours: "13:00 - 21:00" },
+    { day: "Čtvrtek", hours: "13:00 - 19:30" },
     { day: "Pátek", hours: "9:00 - 11:45, 13:00 - 17:00" },
     { day: "Sobota", hours: "Zavřeno", isClosed: true },
     { day: "Neděle", hours: "Zavřeno", isClosed: true },
@@ -235,7 +235,7 @@ const CurrentStatus = () => {
           break;
 
         case 4: // Thursday
-          if (currentTime >= 1300 && currentTime <= 2100) {
+          if (currentTime >= 1300 && currentTime <= 1930) {
             isOpen = true;
             message = "Nyní otevřeno";
           } else if (currentTime < 1300) {

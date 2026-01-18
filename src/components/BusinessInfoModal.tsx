@@ -153,7 +153,7 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Čtvrtek:</span>
-                    <span>13:00-21:00</span>
+                    <span>13:00-19:30</span>
                   </div>
                 </div>
                 <div className="space-y-1">

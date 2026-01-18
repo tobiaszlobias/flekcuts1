@@ -554,8 +554,8 @@ const Booking = () => {
     const date = new Date(selectedDate + "T00:00:00");
     const dayOfWeek = date.getDay();
 
-    // Working hours with a lunch break on Mon/Tue/Wed/Fri: 09:00-12:00, 13:00-17:00
-    // Thu: 13:00-21:00
+    // Working hours with a lunch break on Mon/Tue/Wed/Fri: 09:00-11:45, 13:00-17:00
+    // Thu: 13:00-19:30
     const schedule: Record<number, Array<[number, number]>> = {
       1: [
         [9 * 60, 12 * 60],
@@ -569,7 +569,7 @@ const Booking = () => {
         [9 * 60, 12 * 60],
         [13 * 60, 17 * 60],
       ],
-      4: [[13 * 60, 21 * 60]],
+      4: [[13 * 60, 19 * 60 + 30]],
       5: [
         [9 * 60, 12 * 60],
         [13 * 60, 17 * 60],

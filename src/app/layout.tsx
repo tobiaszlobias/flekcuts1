@@ -164,7 +164,7 @@ export default function RootLayout({
                   "@type": "OpeningHoursSpecification",
                   dayOfWeek: "Thursday",
                   opens: "13:00",
-                  closes: "21:00",
+                  closes: "19:30",
                 },
               ],
               priceRange: "150-500 CZK",
