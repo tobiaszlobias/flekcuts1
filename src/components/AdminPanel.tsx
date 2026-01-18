@@ -17,7 +17,6 @@ import {
   XCircle,
   AlertCircle,
   Trash2,
-  Users,
   TrendingUp,
   Phone,
 } from "lucide-react";
@@ -27,16 +26,26 @@ const timeToMinutes = (time: string) => {
   return Number(hoursStr) * 60 + Number(minutesStr);
 };
 
+const getTodayInPrague = (): { date: string; yearMonth: string } => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Prague",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const get = (type: string) => parts.find((p) => p.type === type)?.value;
+  const year = get("year") || new Date().getFullYear().toString();
+  const month = get("month") || String(new Date().getMonth() + 1).padStart(2, "0");
+  const day = get("day") || String(new Date().getDate()).padStart(2, "0");
+  return { date: `${year}-${month}-${day}`, yearMonth: `${year}-${month}` };
+};
+
 export default function AdminPanel() {
   const appointments = useQuery(api.admin.getAllAppointments);
-  const stats = useQuery(api.admin.getAppointmentStats);
   const updateStatus = useMutation(api.admin.updateAppointmentStatus);
   const deleteAppointment = useMutation(api.admin.deleteAppointment);
 
   const [mode, setMode] = useState<"overview" | "manage">("overview");
-  const [filter, setFilter] = useState<
-    "all" | "pending" | "confirmed" | "cancelled"
-  >("all");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [appointmentToDeleteId, setAppointmentToDeleteId] = useState<Id<"appointments"> | null>(null);
 
@@ -77,7 +86,7 @@ export default function AdminPanel() {
     setShowConfirmDialog(false);
   };
 
-  if (appointments === undefined || stats === undefined) {
+  if (appointments === undefined) {
     return (
       <div className="min-h-screen bg-white p-4">
         <div className="max-w-7xl mx-auto space-y-6">
@@ -87,9 +96,9 @@ export default function AdminPanel() {
             <div className="h-4 bg-gray-300 rounded w-64"></div>
           </div>
 
-          {/* Statistics Cards Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {[1, 2, 3, 4, 5].map((i) => (
+          {/* Summary Cards Skeleton */}
+          <div className="grid grid-cols-2 gap-4">
+            {[1, 2].map((i) => (
               <Card key={i} className="animate-pulse">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <div className="h-4 bg-gray-300 rounded w-16"></div>
@@ -100,15 +109,6 @@ export default function AdminPanel() {
                 </CardContent>
               </Card>
             ))}
-          </div>
-
-          {/* Filters Skeleton */}
-          <div className="bg-white rounded-lg shadow-sm border p-4 animate-pulse">
-            <div className="flex flex-wrap gap-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-12 bg-gray-300 rounded-full w-32"></div>
-              ))}
-            </div>
           </div>
 
           {/* Appointments List Skeleton */}
@@ -144,11 +144,7 @@ export default function AdminPanel() {
     );
   }
 
-  const filteredAppointments = appointments.filter((appointment) => {
-    if (mode === "manage") return true;
-    if (filter === "all") return true;
-    return appointment.status === filter;
-  });
+  const filteredAppointments = appointments;
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -171,6 +167,10 @@ export default function AdminPanel() {
         return "bg-orange-50 border-orange-200";
     }
   };
+
+  const prague = getTodayInPrague();
+  const todayCount = appointments.filter((a) => a.date === prague.date).length;
+  const monthCount = appointments.filter((a) => a.date.startsWith(prague.yearMonth)).length;
 
   const sortedAppointments = filteredAppointments
     .slice()
@@ -199,9 +199,6 @@ export default function AdminPanel() {
             <h1 className="font-crimson italic text-4xl sm:text-5xl font-bold text-gray-900 mb-2">
               Admin Panel
             </h1>
-            <p className="font-montserrat text-lg text-gray-600">
-              Správa všech objednávek FlekCuts
-            </p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -218,7 +215,6 @@ export default function AdminPanel() {
             <Button
               onClick={() => {
                 setMode("manage");
-                setFilter("all");
               }}
               className={`font-montserrat ${
                 mode === "manage"
@@ -231,123 +227,53 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-12 h-12 bg-[#FF6B35]/10 rounded-lg flex items-center justify-center">
-                <Users className="h-6 w-6 text-[#FF6B35]" />
+        {/* Summary */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-blue-700" />
               </div>
+              <div className="font-montserrat text-xs text-blue-800/80">Dnes</div>
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">{stats.total}</div>
-            <div className="text-sm font-medium text-gray-600">Celkem</div>
+            <div className="mt-2 font-montserrat text-3xl font-bold text-blue-800">
+              {todayCount}
+            </div>
+            <div className="font-montserrat text-xs text-blue-800/70">
+              objednávek dnes
+            </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-orange-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <AlertCircle className="h-6 w-6 text-orange-600" />
+          <div className="rounded-xl border border-[#FF6B35]/25 bg-[#FF6B35]/10 p-4">
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 bg-white/70 rounded-lg flex items-center justify-center border border-[#FF6B35]/20">
+                <Calendar className="h-5 w-5 text-[#FF6B35]" />
+              </div>
+              <div className="font-montserrat text-xs text-[#FF6B35]/80">
+                Celkem za měsíc
               </div>
             </div>
-            <div className="text-3xl font-bold text-orange-600 mb-1">{stats.pending}</div>
-            <div className="text-sm font-medium text-gray-600">Čekající</div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-green-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-green-600" />
-              </div>
+            <div className="mt-2 font-montserrat text-3xl font-bold text-[#FF6B35]">
+              {monthCount}
             </div>
-            <div className="text-3xl font-bold text-green-600 mb-1">{stats.confirmed}</div>
-            <div className="text-sm font-medium text-gray-600">Potvrzené</div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                <XCircle className="h-6 w-6 text-gray-600" />
-              </div>
+            <div className="font-montserrat text-xs text-[#FF6B35]/70">
+              objednávek tento měsíc
             </div>
-            <div className="text-3xl font-bold text-gray-600 mb-1">{stats.cancelled}</div>
-            <div className="text-sm font-medium text-gray-600">Zrušené</div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-blue-200 p-6 hover:shadow-md transition-shadow col-span-2 md:col-span-1">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-blue-600 mb-1">{stats.today}</div>
-            <div className="text-sm font-medium text-gray-600">Dnes</div>
           </div>
         </div>
-
-        {/* Filters (Overview only) */}
-        {mode === "overview" && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="font-montserrat text-sm font-semibold text-gray-900 mb-4">
-              Filtrovat objednávky
-            </h3>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                onClick={() => setFilter("all")}
-                className={`font-montserrat ${
-                  filter === "all"
-                    ? "bg-[#FF6B35] hover:bg-[#E5572C] text-white shadow-sm"
-                    : "bg-white border-2 border-gray-300 text-gray-700 hover:border-[#FF6B35] hover:bg-gray-50"
-                } px-6 py-2.5 rounded-full text-sm font-medium transition-colors`}
-              >
-                Všechny ({stats.total})
-              </Button>
-              <Button
-                onClick={() => setFilter("pending")}
-                className={`font-montserrat ${
-                  filter === "pending"
-                    ? "bg-orange-600 hover:bg-orange-700 text-white shadow-sm"
-                    : "bg-white border-2 border-orange-300 text-orange-700 hover:border-orange-600 hover:bg-orange-50"
-                } px-6 py-2.5 rounded-full text-sm font-medium transition-colors`}
-              >
-                Čekající ({stats.pending})
-              </Button>
-              <Button
-                onClick={() => setFilter("confirmed")}
-                className={`font-montserrat ${
-                  filter === "confirmed"
-                    ? "bg-green-600 hover:bg-green-700 text-white shadow-sm"
-                    : "bg-white border-2 border-green-300 text-green-700 hover:border-green-600 hover:bg-green-50"
-                } px-6 py-2.5 rounded-full text-sm font-medium transition-colors`}
-              >
-                Potvrzené ({stats.confirmed})
-              </Button>
-              <Button
-                onClick={() => setFilter("cancelled")}
-                className={`font-montserrat ${
-                  filter === "cancelled"
-                    ? "bg-red-600 hover:bg-red-700 text-white shadow-sm"
-                    : "bg-white border-2 border-red-300 text-red-700 hover:border-red-600 hover:bg-red-50"
-                } px-6 py-2.5 rounded-full text-sm font-medium transition-colors`}
-              >
-                Zrušené ({stats.cancelled})
-              </Button>
-            </div>
-          </div>
-        )}
 
         {/* Appointments List */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-montserrat text-xl font-bold text-gray-900">
-              {filter === "all" && `Všechny objednávky (${filteredAppointments.length})`}
-              {filter === "pending" && `Čekající objednávky (${filteredAppointments.length})`}
-              {filter === "confirmed" && `Potvrzené objednávky (${filteredAppointments.length})`}
-              {filter === "cancelled" && `Zrušené objednávky (${filteredAppointments.length})`}
+              {mode === "overview"
+                ? `Přehled objednávek (${sortedAppointments.length})`
+                : `Upravit objednávky (${sortedAppointments.length})`}
             </h3>
           </div>
 
           <div className="space-y-4">
-            {filteredAppointments.length === 0 ? (
+            {sortedAppointments.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Calendar className="w-8 h-8 text-gray-400" />
@@ -381,7 +307,7 @@ export default function AdminPanel() {
                           key={appointment._id}
                           className={`rounded-xl border p-3 ${getCardChrome(appointment.status)}`}
                         >
-                          <div className="grid grid-cols-[72px_1fr] sm:grid-cols-[88px_1fr_220px] gap-3 items-center">
+                          <div className="grid grid-cols-[72px_1fr] sm:grid-cols-[88px_1fr_260px] gap-3 items-center">
                             <div className="rounded-lg bg-white/70 border border-white/60 px-3 py-2 text-center">
                               <div className="font-montserrat text-xl font-bold text-gray-900">
                                 {appointment.time}
@@ -414,9 +340,18 @@ export default function AdminPanel() {
                               </div>
                             </div>
 
-                            <div className="hidden sm:block text-right">
+                            <div className="hidden sm:flex justify-end gap-2">
+                              {appointment.status === "pending" && (
+                                <Button
+                                  onClick={() => handleStatusUpdate(appointment._id, "confirmed")}
+                                  className="font-montserrat bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <CheckCircle className="h-4 w-4" />
+                                  Potvrdit
+                                </Button>
+                              )}
                               <span
-                                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${
+                                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-2 text-xs font-medium ${
                                   appointment.status === "pending"
                                     ? "border-orange-200 bg-white text-orange-700"
                                     : appointment.status === "confirmed"
