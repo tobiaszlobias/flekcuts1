@@ -301,28 +301,51 @@ export default function AdminPanel() {
               filteredAppointments.map((appointment) => (
                 <div
                   key={appointment._id}
-                  className={`bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-all duration-200 ${
+                  className={`bg-white rounded-xl shadow-sm border p-4 hover:shadow-md transition-all duration-200 ${
                     appointment.status === "pending" ? "border-orange-200" :
                     appointment.status === "confirmed" ? "border-green-200" :
                     "border-gray-200"
                   }`}
                 >
-                  <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
-                    {/* Left side - Appointment Info */}
-                    <div className="flex-1 space-y-4">
-                      {/* Service and Status */}
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <h4 className="font-crimson italic text-2xl font-bold text-gray-900 mb-2">
+                  <div className="grid grid-cols-1 lg:grid-cols-[180px_1fr_auto] gap-4 items-start">
+                    {/* Date/Time */}
+                    <div className="rounded-lg bg-gray-50 border border-gray-200 p-3">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Calendar className="w-4 h-4" />
+                        <p className="font-montserrat text-xs font-medium">
+                          {new Date(appointment.date + "T00:00:00").toLocaleDateString("cs-CZ", {
+                            weekday: "long",
+                            day: "numeric",
+                            month: "long",
+                          })}
+                        </p>
+                      </div>
+                      <div className="mt-2 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-gray-500" />
+                        <p className="font-montserrat text-2xl font-bold text-gray-900">
+                          {appointment.time}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Details */}
+                    <div className="min-w-0">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h4 className="font-crimson italic text-xl font-bold text-gray-900 leading-snug">
                             {appointment.service}
                           </h4>
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(appointment.status)}
-                            <span className={`text-sm font-medium ${
-                              appointment.status === "confirmed" ? "text-green-700" :
-                              appointment.status === "cancelled" ? "text-gray-600" :
-                              "text-orange-700"
-                            }`}>
+                          <div className="mt-1 flex items-center gap-2">
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${
+                                appointment.status === "pending"
+                                  ? "border-orange-200 bg-orange-50 text-orange-700"
+                                  : appointment.status === "confirmed"
+                                    ? "border-green-200 bg-green-50 text-green-700"
+                                    : "border-gray-200 bg-gray-100 text-gray-700"
+                              }`}
+                            >
+                              {getStatusIcon(appointment.status)}
                               {appointment.status === "pending" && "Čeká na potvrzení"}
                               {appointment.status === "confirmed" && "Potvrzeno"}
                               {appointment.status === "cancelled" && "Zrušeno"}
@@ -331,75 +354,48 @@ export default function AdminPanel() {
                         </div>
                       </div>
 
-                      {/* Date and Time */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
-                          <Calendar className="w-5 h-5 text-gray-500" />
-                          <div>
-                            <p className="text-xs text-gray-500 font-medium">Datum</p>
-                            <p className="font-montserrat text-sm font-semibold text-gray-900">
-                              {new Date(appointment.date).toLocaleDateString("cs-CZ", {
-                                weekday: 'long',
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric'
-                              })}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
-                          <Clock className="w-5 h-5 text-gray-500" />
-                          <div>
-                            <p className="text-xs text-gray-500 font-medium">Čas</p>
-                            <p className="font-montserrat text-sm font-semibold text-gray-900">
-                              {appointment.time}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Customer Info */}
-                      <div className="bg-[#FFF9F6] rounded-lg p-4 space-y-2">
-                        <p className="text-xs text-gray-500 font-medium mb-2">Zákaznické údaje</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div className="flex items-center gap-2">
+                      <div className="mt-3 rounded-lg border border-orange-100 bg-[#FFF9F6] p-3">
+                        <p className="text-xs text-gray-500 font-medium mb-2">Zákazník</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
                             <User className="h-4 w-4 text-[#FF6B35]" />
-                            <span className="font-montserrat text-sm font-semibold text-gray-900">
+                            <span className="font-montserrat text-sm font-semibold text-gray-900 truncate">
                               {appointment.customerName}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
                             <Mail className="h-4 w-4 text-[#FF6B35]" />
-                            <span className="font-montserrat text-sm text-gray-700">
+                            <span className="font-montserrat text-sm text-gray-700 truncate">
                               {appointment.customerEmail}
                             </span>
                           </div>
                           {appointment.customerPhone && (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
                               <Phone className="h-4 w-4 text-[#FF6B35]" />
-                              <span className="font-montserrat text-sm text-gray-700">
+                              <span className="font-montserrat text-sm text-gray-700 truncate">
                                 {appointment.customerPhone}
                               </span>
                             </div>
                           )}
                         </div>
                         {appointment.notes && (
-                          <div className="mt-3 pt-3 border-t border-orange-100">
+                          <div className="mt-2 pt-2 border-t border-orange-100">
                             <p className="text-xs text-gray-500 font-medium mb-1">Poznámka</p>
-                            <p className="font-montserrat text-sm text-gray-700">{appointment.notes}</p>
+                            <p className="font-montserrat text-sm text-gray-700 leading-relaxed">
+                              {appointment.notes}
+                            </p>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    {/* Right side - Action Buttons */}
-                    <div className="flex lg:flex-col gap-2 flex-wrap lg:min-w-[160px]">
+                    {/* Actions */}
+                    <div className="flex lg:flex-col gap-2 lg:min-w-[150px]">
                       {appointment.status === "pending" && (
                         <>
                           <Button
                             onClick={() => handleStatusUpdate(appointment._id, "confirmed")}
-                            className="flex-1 lg:flex-none font-montserrat bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                            className="flex-1 lg:flex-none font-montserrat bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
                           >
                             <CheckCircle className="h-4 w-4" />
                             Potvrdit
@@ -407,7 +403,7 @@ export default function AdminPanel() {
                           <Button
                             onClick={() => handleStatusUpdate(appointment._id, "cancelled")}
                             variant="outline"
-                            className="flex-1 lg:flex-none font-montserrat border-2 border-red-600 text-red-600 hover:bg-red-50 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                            className="flex-1 lg:flex-none font-montserrat border-2 border-red-600 text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
                           >
                             <XCircle className="h-4 w-4" />
                             Odmítnout
@@ -419,7 +415,7 @@ export default function AdminPanel() {
                         <Button
                           onClick={() => handleStatusUpdate(appointment._id, "cancelled")}
                           variant="outline"
-                          className="flex-1 lg:flex-none font-montserrat border-2 border-red-600 text-red-600 hover:bg-red-50 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                          className="flex-1 lg:flex-none font-montserrat border-2 border-red-600 text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
                         >
                           <XCircle className="h-4 w-4" />
                           Zrušit
@@ -429,7 +425,7 @@ export default function AdminPanel() {
                       {appointment.status === "cancelled" && (
                         <Button
                           onClick={() => handleStatusUpdate(appointment._id, "confirmed")}
-                          className="flex-1 lg:flex-none font-montserrat bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                          className="flex-1 lg:flex-none font-montserrat bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
                         >
                           <CheckCircle className="h-4 w-4" />
                           Obnovit
@@ -439,7 +435,7 @@ export default function AdminPanel() {
                       <Button
                         onClick={() => handleDelete(appointment._id)}
                         variant="outline"
-                        className="flex-1 lg:flex-none font-montserrat border-2 border-gray-300 text-gray-700 hover:border-red-600 hover:text-red-600 hover:bg-red-50 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                        className="flex-1 lg:flex-none font-montserrat border-2 border-gray-300 text-gray-700 hover:border-red-600 hover:text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
                       >
                         <Trash2 className="h-4 w-4" />
                         Smazat
