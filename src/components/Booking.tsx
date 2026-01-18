@@ -18,7 +18,12 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock, CheckCircle, Phone, Mail, CalendarDays } from "lucide-react";
-import { getServiceOptionByName, SERVICE_OPTIONS } from "@/lib/services";
+import {
+  BOOKING_DROPDOWN_SERVICES,
+  deriveServiceFromName,
+  deriveServiceSelection,
+  getServiceOptionByName,
+} from "@/lib/services";
 
 interface BookingForm {
   name: string;
@@ -26,7 +31,9 @@ interface BookingForm {
   phone: string;
   date: string;
   time: string;
-  service: string;
+  service: string; // base service
+  addBeard: boolean;
+  addWash: boolean;
 }
 
 interface FormErrors {
@@ -75,7 +82,7 @@ const BookingConfirmationModal = ({
   };
 
   const getServicePrice = (serviceName: string): number => {
-    return getServiceOptionByName(serviceName)?.priceCzk || 0;
+    return deriveServiceFromName(serviceName).priceCzk || 0;
   };
 
   if (!isOpen) return null;
@@ -513,6 +520,8 @@ const Booking = () => {
     date: "",
     time: "",
     service: "",
+    addBeard: false,
+    addWash: false,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -535,18 +544,30 @@ const Booking = () => {
     bookingForm.date ? { date: bookingForm.date } : "skip"
   );
 
-  const serviceOptions = SERVICE_OPTIONS.slice().sort((a, b) => {
-    const rank = (kind: string) =>
-      kind === "haircut" ? 1 : kind === "combo" ? 2 : kind === "package" ? 3 : 4;
-    const rankDiff = rank(a.kind) - rank(b.kind);
-    if (rankDiff !== 0) return rankDiff;
-    return a.name.localeCompare(b.name, "cs-CZ");
+  const isDefined = <T,>(value: T | null | undefined): value is T =>
+    value !== null && value !== undefined;
+
+  const serviceOptions = [
+    "Fade",
+    "Klasický střih",
+    "Dětský střih - fade",
+    "Dětský střih - klasický",
+    "Vousy",
+    "Mytí vlasů",
+    "Kompletka",
+  ]
+    .map((name) => BOOKING_DROPDOWN_SERVICES.find((s) => s.name === name))
+    .filter(isDefined);
+
+  const derivedSelection = deriveServiceSelection({
+    baseName: bookingForm.service,
+    addBeard: bookingForm.addBeard,
+    addWash: bookingForm.addWash,
   });
 
-  const selectedServiceOption = getServiceOptionByName(bookingForm.service);
   const selectedServiceSlotCount = Math.max(
     1,
-    Math.ceil(((selectedServiceOption?.durationMinutes ?? SLOT_MINUTES) as number) / SLOT_MINUTES)
+    Math.ceil((derivedSelection.durationMinutes || SLOT_MINUTES) / SLOT_MINUTES)
   );
 
   const getOpenSlotsForDate = (selectedDate: string): string[] => {
@@ -558,20 +579,20 @@ const Booking = () => {
     // Thu: 13:00-19:30
     const schedule: Record<number, Array<[number, number]>> = {
       1: [
-        [9 * 60, 12 * 60],
+        [9 * 60, 11 * 60 + 45],
         [13 * 60, 17 * 60],
       ],
       2: [
-        [9 * 60, 12 * 60],
+        [9 * 60, 11 * 60 + 45],
         [13 * 60, 17 * 60],
       ],
       3: [
-        [9 * 60, 12 * 60],
+        [9 * 60, 11 * 60 + 45],
         [13 * 60, 17 * 60],
       ],
       4: [[13 * 60, 19 * 60 + 30]],
       5: [
-        [9 * 60, 12 * 60],
+        [9 * 60, 11 * 60 + 45],
         [13 * 60, 17 * 60],
       ],
     };
@@ -587,8 +608,7 @@ const Booking = () => {
     if (apt.status === "cancelled") continue;
     const start = timeStringToMinutes(apt.time);
     if (!Number.isFinite(start)) continue;
-    const durationMinutes =
-      getServiceOptionByName(apt.service)?.durationMinutes ?? 30;
+    const durationMinutes = deriveServiceFromName(apt.service).durationMinutes ?? 30;
     const slotCount = Math.max(1, Math.ceil(durationMinutes / SLOT_MINUTES));
     for (let i = 0; i < slotCount; i++) {
       blockedSlotSet.add(minutesToTimeString(start + i * SLOT_MINUTES));
@@ -731,11 +751,12 @@ const Booking = () => {
     setIsSubmitting(true);
 
     try {
+      const serviceNameToSave = derivedSelection.displayName || bookingForm.service;
       if (isSignedIn) {
         await createAppointment({
           customerName: bookingForm.name,
           customerEmail: bookingForm.email,
-          service: bookingForm.service,
+          service: serviceNameToSave,
           date: bookingForm.date,
           time: bookingForm.time,
         });
@@ -744,13 +765,13 @@ const Booking = () => {
           customerName: bookingForm.name,
           customerEmail: bookingForm.email,
           customerPhone: bookingForm.phone,
-          service: bookingForm.service,
+          service: serviceNameToSave,
           date: bookingForm.date,
           time: bookingForm.time,
         });
       }
 
-      setConfirmedBooking({ ...bookingForm });
+      setConfirmedBooking({ ...bookingForm, service: serviceNameToSave });
       setShowConfirmationModal(true);
 
       setBookingForm({
@@ -760,6 +781,8 @@ const Booking = () => {
         date: "",
         time: "",
         service: "",
+        addBeard: false,
+        addWash: false,
       });
       setAttemptedSubmit(false);
     } catch (error: unknown) {
@@ -789,10 +812,34 @@ const Booking = () => {
   };
 
   const handleInputChange = (field: keyof BookingForm, value: string) => {
-    setBookingForm((prev) => ({ ...prev, [field]: value }));
+    setBookingForm((prev) => {
+      const next = { ...prev, [field]: value } as BookingForm;
+      if (field === "service") {
+        const baseName = value;
+        const isKompletka = baseName === "Kompletka";
+        next.addBeard = isKompletka ? false : prev.addBeard && baseName !== "Vousy";
+        next.addWash = isKompletka ? false : prev.addWash && baseName !== "Mytí vlasů";
+      }
+      return next;
+    });
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
+  };
+
+  const setAddon = (addon: "beard" | "wash", enabled: boolean) => {
+    setBookingForm((prev) => {
+      const base = prev.service;
+      if (!base) return prev;
+      if (base === "Kompletka") return prev;
+      if (addon === "beard" && base === "Vousy") return prev;
+      if (addon === "wash" && base === "Mytí vlasů") return prev;
+      return {
+        ...prev,
+        addBeard: addon === "beard" ? enabled : prev.addBeard,
+        addWash: addon === "wash" ? enabled : prev.addWash,
+      };
+    });
   };
 
   const handlePhoneChange = (value: string) => {
@@ -977,6 +1024,60 @@ const Booking = () => {
                 {errors.service && (
                   <p className="text-[#FF6B35] text-sm mt-1">{errors.service}</p>
                 )}
+
+                <div className="mt-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-700 font-medium">Přidat</p>
+                    {!!bookingForm.service && bookingForm.service !== "Kompletka" && (
+                      <p className="text-xs text-gray-500">
+                        Celkem: {derivedSelection.priceCzk} Kč •{" "}
+                        {derivedSelection.durationMinutes} min
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setAddon("beard", !bookingForm.addBeard)}
+                      disabled={
+                        !bookingForm.service ||
+                        bookingForm.service === "Kompletka" ||
+                        bookingForm.service === "Vousy"
+                      }
+                      className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
+                        bookingForm.addBeard
+                          ? "border-[#FF6B35] bg-[#FF6B35]/10 text-[#FF6B35] font-medium"
+                          : "border-gray-300 text-gray-700 hover:border-[#FF6B35]"
+                      } disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed`}
+                    >
+                      Vousy (+150 Kč)
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setAddon("wash", !bookingForm.addWash)}
+                      disabled={
+                        !bookingForm.service ||
+                        bookingForm.service === "Kompletka" ||
+                        bookingForm.service === "Mytí vlasů"
+                      }
+                      className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
+                        bookingForm.addWash
+                          ? "border-[#FF6B35] bg-[#FF6B35]/10 text-[#FF6B35] font-medium"
+                          : "border-gray-300 text-gray-700 hover:border-[#FF6B35]"
+                      } disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed`}
+                    >
+                      Mytí vlasů (+100 Kč)
+                    </button>
+                  </div>
+
+                  {bookingForm.service === "Kompletka" && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      Kompletka už zahrnuje vousy i mytí vlasů.
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div>

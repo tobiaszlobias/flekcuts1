@@ -55,75 +55,16 @@ const PACKAGES: ServiceOption[] = [
   },
 ];
 
-const comboId = (haircutId: string, addonIds: string[]) =>
-  `${haircutId}__${addonIds.slice().sort().join("+")}`;
+export const SERVICE_OPTIONS: ServiceOption[] = [...HAIRCUTS, ...PACKAGES, ...ADDONS];
 
-const buildCombos = (): ServiceOption[] => {
-  const adultHaircuts = HAIRCUTS.filter((h) => !h.id.startsWith("kids-"));
-  const beard = ADDONS.find((a) => a.id === "beard")!;
-  const wash = ADDONS.find((a) => a.id === "wash")!;
-
-  const combos: ServiceOption[] = [];
-
-  for (const haircut of adultHaircuts) {
-    // haircut + vousy
-    {
-      const durationMinutes =
-        haircut.id === "fade" ? 65 : haircut.durationMinutes + beard.durationMinutes;
-      const id = comboId(haircut.id, [beard.id]);
-      combos.push({
-        id,
-        name: `${haircut.name} + Vousy`,
-        priceCzk: haircut.priceCzk + beard.priceCzk,
-        durationMinutes,
-        kind: "combo",
-        components: [haircut.id, beard.id],
-      });
-    }
-
-    // haircut + mytí
-    {
-      combos.push({
-        id: comboId(haircut.id, [wash.id]),
-        name: `${haircut.name} + Mytí vlasů`,
-        priceCzk: haircut.priceCzk + wash.priceCzk,
-        durationMinutes: haircut.durationMinutes + wash.durationMinutes,
-        kind: "combo",
-        components: [haircut.id, wash.id],
-      });
-    }
-
-    // haircut + vousy + mytí
-    {
-      const durationMinutes =
-        haircut.id === "fade"
-          ? 65 + wash.durationMinutes
-          : haircut.durationMinutes + beard.durationMinutes + wash.durationMinutes;
-
-      combos.push({
-        id: comboId(haircut.id, [beard.id, wash.id]),
-        name: `${haircut.name} + Vousy + Mytí vlasů`,
-        priceCzk: haircut.priceCzk + beard.priceCzk + wash.priceCzk,
-        durationMinutes,
-        kind: "combo",
-        components: [haircut.id, beard.id, wash.id],
-      });
-    }
-  }
-
-  return combos;
-};
-
-export const SERVICE_OPTIONS: ServiceOption[] = [
+export const BOOKING_DROPDOWN_SERVICES: ServiceOption[] = [
   ...HAIRCUTS,
-  ...PACKAGES,
   ...ADDONS,
-  ...buildCombos(),
+  ...PACKAGES,
 ];
 
 const NAME_ALIASES: Record<string, string> = {
   "Dětský střih - do ztracena": "Dětský střih - klasický",
-  "Vlasy do ztracena + Vousy": "Fade + Vousy",
 };
 
 export const getServiceOptionByName = (name: string): ServiceOption | undefined => {
@@ -132,4 +73,78 @@ export const getServiceOptionByName = (name: string): ServiceOption | undefined 
   const alias = NAME_ALIASES[name];
   if (!alias) return undefined;
   return SERVICE_OPTIONS.find((s) => s.name === alias);
+};
+
+const includesBeard = (serviceName: string) => serviceName.includes("+ Vousy");
+const includesWash = (serviceName: string) => serviceName.includes("+ Mytí vlasů");
+
+export const deriveServiceFromName = (
+  serviceName: string
+): { durationMinutes: number; priceCzk: number; baseName: string } => {
+  const normalized = serviceName.trim();
+
+  // Legacy naming (kept for existing bookings)
+  if (normalized === "Vlasy do ztracena + Vousy") {
+    return { baseName: "Fade", durationMinutes: 65, priceCzk: 350 + 150 };
+  }
+
+  const baseName = normalized.split("+")[0]?.trim() || normalized;
+  const base = getServiceOptionByName(baseName);
+  const beard = getServiceOptionByName("Vousy");
+  const wash = getServiceOptionByName("Mytí vlasů");
+
+  let durationMinutes = base?.durationMinutes ?? 30;
+  let priceCzk = base?.priceCzk ?? 0;
+
+  const beardSelected = baseName !== "Vousy" && includesBeard(normalized);
+  const washSelected = baseName !== "Mytí vlasů" && includesWash(normalized);
+
+  if (baseName === "Kompletka") {
+    return {
+      baseName: "Kompletka",
+      durationMinutes: base?.durationMinutes ?? 70,
+      priceCzk: base?.priceCzk ?? 500,
+    };
+  }
+
+  if (beardSelected) {
+    priceCzk += beard?.priceCzk ?? 0;
+    durationMinutes += beard?.durationMinutes ?? 15;
+    if (baseName === "Fade") {
+      // Special-case per your list: Fade + Vousy = 65 min.
+      durationMinutes = 65;
+    }
+  }
+
+  if (washSelected) {
+    priceCzk += wash?.priceCzk ?? 0;
+    durationMinutes += wash?.durationMinutes ?? 10;
+  }
+
+  return { baseName, durationMinutes, priceCzk };
+};
+
+export const deriveServiceSelection = (args: {
+  baseName: string;
+  addBeard: boolean;
+  addWash: boolean;
+}): { displayName: string; durationMinutes: number; priceCzk: number } => {
+  const baseName = args.baseName.trim();
+  if (!baseName) return { displayName: "", durationMinutes: 0, priceCzk: 0 };
+
+  if (baseName === "Kompletka") {
+    const base = getServiceOptionByName("Kompletka");
+    return {
+      displayName: "Kompletka",
+      durationMinutes: base?.durationMinutes ?? 70,
+      priceCzk: base?.priceCzk ?? 500,
+    };
+  }
+
+  let displayName = baseName;
+  if (args.addBeard && baseName !== "Vousy") displayName += " + Vousy";
+  if (args.addWash && baseName !== "Mytí vlasů") displayName += " + Mytí vlasů";
+
+  const derived = deriveServiceFromName(displayName);
+  return { displayName, durationMinutes: derived.durationMinutes, priceCzk: derived.priceCzk };
 };

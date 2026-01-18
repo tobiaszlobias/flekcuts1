@@ -76,13 +76,17 @@ const deriveServiceDurationMinutes = (serviceName: string): number => {
   // Legacy naming
   if (normalized === "Vlasy do ztracena + Vousy") return 65;
 
-  // Combos (generated on the frontend)
+  // Combos (built from base + add-ons)
   const hasBeard = normalized.includes("+ Vousy");
   const hasWash = normalized.includes("+ Mytí vlasů");
 
   let base: number | null = null;
   if (normalized.startsWith("Fade")) base = 45;
   if (normalized.startsWith("Klasický střih")) base = 30;
+  if (normalized.startsWith("Dětský střih - fade")) base = 45;
+  if (normalized.startsWith("Dětský střih - klasický")) base = 30;
+  if (normalized.startsWith("Vousy")) base = 15;
+  if (normalized.startsWith("Mytí vlasů")) base = 10;
 
   if (base === null) return 30;
 
