@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,21 @@ const BookingConfirmationModal = ({
   onClose: () => void;
   bookingDetails: BookingForm;
 }) => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen]);
+
   const formatDate = (dateString: string): string => {
     if (!dateString) return "";
     const date = new Date(dateString + "T00:00:00");
@@ -87,98 +103,97 @@ const BookingConfirmationModal = ({
     return deriveServiceFromName(serviceName).priceCzk || 0;
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !isMounted) return null;
 
-  return (
-    <>
+  return createPortal(
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
       <div
-        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-        onClick={onClose}
+        className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-auto"
+        onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className="bg-white rounded-lg shadow-xl max-w-lg w-full"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="border-b border-gray-200 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Objednávka potvrzena
-              </h2>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="px-6 py-5 space-y-4">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-green-900">
-                    Vaše objednávka byla úspěšně vytvořena
-                  </p>
-                  <p className="text-sm text-green-700 mt-1">
-                    Do 24 hodin vás budeme kontaktovat pro potvrzení termínu.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-y-3 gap-x-4">
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">Služba</p>
-                  <p className="text-sm font-medium text-gray-900 mt-1">{bookingDetails.service}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">Cena</p>
-                  <p className="text-sm font-medium text-gray-900 mt-1">{getServicePrice(bookingDetails.service)} Kč</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">Datum</p>
-                  <p className="text-sm font-medium text-gray-900 mt-1">{formatDate(bookingDetails.date)}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">Čas</p>
-                  <p className="text-sm font-medium text-gray-900 mt-1">{bookingDetails.time}</p>
-                </div>
-              </div>
-
-              <div className="border-t border-gray-200 pt-3 space-y-2">
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">Email</p>
-                  <p className="text-sm text-gray-900 mt-1">{bookingDetails.email}</p>
-                </div>
-                {bookingDetails.phone && (
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">Telefon</p>
-                    <p className="text-sm text-gray-900 mt-1">{formatPhoneDisplay(bookingDetails.phone)}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="border-t border-gray-200 px-6 py-4">
+        {/* Header */}
+        <div className="border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Objednávka potvrzena
+            </h2>
             <button
               onClick={onClose}
-              className="w-full bg-[#FF6B35] text-white px-4 py-2.5 rounded-lg font-medium hover:bg-[#E5572C] transition-colors"
+              className="text-gray-400 hover:text-gray-600 transition-colors"
             >
-              Zavřít
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
         </div>
+
+        {/* Content */}
+        <div className="px-6 py-5 space-y-4">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-green-900">
+                  Vaše objednávka byla úspěšně vytvořena
+                </p>
+                <p className="text-sm text-green-700 mt-1">
+                  Do 24 hodin vás budeme kontaktovat pro potvrzení termínu.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-y-3 gap-x-4">
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">Služba</p>
+                <p className="text-sm font-medium text-gray-900 mt-1">{bookingDetails.service}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">Cena</p>
+                <p className="text-sm font-medium text-gray-900 mt-1">{getServicePrice(bookingDetails.service)} Kč</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">Datum</p>
+                <p className="text-sm font-medium text-gray-900 mt-1">{formatDate(bookingDetails.date)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">Čas</p>
+                <p className="text-sm font-medium text-gray-900 mt-1">{bookingDetails.time}</p>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 pt-3 space-y-2">
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">Email</p>
+                <p className="text-sm text-gray-900 mt-1">{bookingDetails.email}</p>
+              </div>
+              {bookingDetails.phone && (
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Telefon</p>
+                  <p className="text-sm text-gray-900 mt-1">{formatPhoneDisplay(bookingDetails.phone)}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-gray-200 px-6 py-4">
+          <button
+            onClick={onClose}
+            className="w-full bg-[#FF6B35] text-white px-4 py-2.5 rounded-lg font-medium hover:bg-[#E5572C] transition-colors"
+          >
+            Zavřít
+          </button>
+        </div>
       </div>
-    </>
+    </div>,
+    document.body
   );
 };
 
@@ -535,6 +550,7 @@ const Booking = () => {
   );
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const fieldRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const createAppointment = useMutation(api.appointments.createAppointment);
   const createAnonymousAppointment = useMutation(
@@ -741,6 +757,27 @@ const Booking = () => {
     }
 
     setErrors(newErrors);
+
+    const firstErrorKey = (
+      ["name", "email", "phone", "service", "dateTime"] as const
+    ).find((key) => {
+      if (key === "dateTime") return !!newErrors.date || !!newErrors.time;
+      return !!(newErrors as Record<string, unknown>)[key];
+    });
+
+    if (firstErrorKey) {
+      const node = fieldRefs.current[firstErrorKey];
+      if (node) {
+        requestAnimationFrame(() => {
+          node.scrollIntoView({ behavior: "smooth", block: "center" });
+          const focusTarget = node.querySelector<HTMLElement>(
+            "input, button, [role='combobox']"
+          );
+          focusTarget?.focus?.();
+        });
+      }
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -928,7 +965,11 @@ const Booking = () => {
           <CardContent className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
+                <div
+                  ref={(el) => {
+                    fieldRefs.current["name"] = el;
+                  }}
+                >
                   <Label htmlFor="name" className="text-gray-700 font-medium">
                     Celé jméno{" "}
                     {attemptedSubmit && !bookingForm.name.trim() && (
@@ -948,7 +989,11 @@ const Booking = () => {
                   )}
                 </div>
 
-                <div>
+                <div
+                  ref={(el) => {
+                    fieldRefs.current["email"] = el;
+                  }}
+                >
                   <Label htmlFor="email" className="text-gray-700 font-medium">
                     Email{" "}
                     {attemptedSubmit &&
@@ -971,7 +1016,11 @@ const Booking = () => {
                 </div>
               </div>
 
-              <div>
+              <div
+                ref={(el) => {
+                  fieldRefs.current["phone"] = el;
+                }}
+              >
                 <Label htmlFor="phone" className="text-gray-700 font-medium">
                   Telefon{" "}
                   {attemptedSubmit &&
@@ -993,7 +1042,11 @@ const Booking = () => {
                 )}
               </div>
 
-              <div>
+              <div
+                ref={(el) => {
+                  fieldRefs.current["service"] = el;
+                }}
+              >
                 <Label htmlFor="service" className="text-gray-700 font-medium">
                   Služba{" "}
                   {attemptedSubmit && !bookingForm.service && (
@@ -1005,6 +1058,7 @@ const Booking = () => {
                   onValueChange={(value) => handleInputChange("service", value)}
                 >
                   <SelectTrigger
+                    id="service"
                     className={`mt-2 rounded-lg transition-all duration-300 ${
                       errors.service
                         ? "border-[#FF6B35]"
@@ -1082,7 +1136,11 @@ const Booking = () => {
                 </div>
               </div>
 
-              <div>
+              <div
+                ref={(el) => {
+                  fieldRefs.current["dateTime"] = el;
+                }}
+              >
                 <Label className="text-gray-700 font-medium">
                   Preferovaný termín{" "}
                   {attemptedSubmit &&
