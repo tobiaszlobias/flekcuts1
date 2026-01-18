@@ -438,8 +438,8 @@ const CompactDateTimePicker = ({
                           : canSelect
                             ? "border-[#e5ebe9] hover:border-[#FF6B35] hover:bg-white"
                             : isBooked
-                              ? "border-gray-300 bg-gray-300 text-gray-600 cursor-not-allowed"
-                              : "border-gray-200 bg-gray-200 text-gray-500 cursor-not-allowed"
+                              ? "border-gray-200 bg-gray-100 text-gray-600 cursor-not-allowed"
+                              : "border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
                       }
                     `}
                   >
