@@ -430,7 +430,7 @@ const CompactDateTimePicker = ({
                         isSelected && canSelect
                           ? "bg-[#FF8C5A] text-white border-[#FF8C5A] font-medium"
                           : isSelected && !canSelect
-                            ? "border-[#FF6B35] bg-[#FF6B35]/15 text-[#FF6B35] font-semibold ring-2 ring-[#FF6B35]/20"
+                            ? "border-[#FF6B35] bg-[#FF6B35] text-white font-bold shadow-md ring-4 ring-[#FF6B35]/35 scale-[1.03]"
                             : canSelect
                               ? "border-[#e5ebe9] hover:border-[#FF6B35] hover:bg-white"
                               : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
