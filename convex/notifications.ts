@@ -58,7 +58,7 @@ export const sendAppointmentConfirmation = action({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "FlekCuts <noreply@resend.dev>", // Use resend.dev for testing
+          from: FROM_EMAIL, // Use resend.dev for testing
           to: [appointment.customerEmail],
           subject: emailContent.subject,
           html: emailContent.html,
@@ -69,9 +69,14 @@ export const sendAppointmentConfirmation = action({
       const emailResult: ResendResponse = await response.json();
 
       if (!response.ok) {
-        console.error("❌ Email send failed. Status:", response.status, "Error:", emailResult.message || emailResult.name);
+        console.error(
+          "❌ Email send failed. Status:",
+          response.status,
+          "Error:",
+          emailResult.message || emailResult.name,
+        );
         throw new Error(
-          `Email sending failed: ${emailResult.message || emailResult.name || "Unknown error"}`
+          `Email sending failed: ${emailResult.message || emailResult.name || "Unknown error"}`,
         );
       }
 
@@ -111,7 +116,7 @@ export const sendAppointmentConfirmation = action({
     }
   },
 });
-
+const FROM_EMAIL = "FlekCuts <noreply@flekcuts.cz>";
 // Keep all your other functions exactly the same...
 export const sendAppointmentReminder = action({
   args: {
@@ -144,7 +149,7 @@ export const sendAppointmentReminder = action({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "FlekCuts <noreply@resend.dev>",
+          from: FROM_EMAIL,
           to: [appointment.customerEmail],
           subject: emailContent.subject,
           html: emailContent.html,
@@ -198,7 +203,7 @@ export const sendStatusUpdate = action({
     newStatus: v.union(
       v.literal("pending"),
       v.literal("confirmed"),
-      v.literal("cancelled")
+      v.literal("cancelled"),
     ),
   },
   handler: async (ctx, args): Promise<EmailResult> => {
@@ -244,7 +249,7 @@ export const sendStatusUpdate = action({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "FlekCuts <noreply@resend.dev>",
+          from: FROM_EMAIL,
           to: [appointment.customerEmail],
           subject: emailContent.subject,
           html: emailContent.html,
@@ -327,7 +332,7 @@ export const getEmailLogs = query({
     return await ctx.db
       .query("emailLogs")
       .withIndex("by_appointment", (q) =>
-        q.eq("appointmentId", args.appointmentId)
+        q.eq("appointmentId", args.appointmentId),
       )
       .order("desc")
       .collect();
@@ -350,7 +355,7 @@ export const getAppointmentsNeedingReminders = query({
     const tomorrowDate = tomorrow.toISOString().split("T")[0];
 
     const appointmentsForTomorrow = appointments.filter(
-      (apt) => apt.date === tomorrowDate
+      (apt) => apt.date === tomorrowDate,
     );
 
     // Check which ones haven't received reminder emails yet
@@ -360,7 +365,7 @@ export const getAppointmentsNeedingReminders = query({
       const emailLogs = await ctx.db
         .query("emailLogs")
         .withIndex("by_appointment", (q) =>
-          q.eq("appointmentId", appointment._id)
+          q.eq("appointmentId", appointment._id),
         )
         .filter((q) => q.eq(q.field("emailType"), "reminder"))
         .filter((q) => q.eq(q.field("status"), "sent"))
@@ -379,7 +384,7 @@ export const getAppointmentsNeedingReminders = query({
 export const sendDailyReminders = action({
   args: {},
   handler: async (
-    ctx
+    ctx,
   ): Promise<{
     totalChecked: number;
     successCount: number;
@@ -387,11 +392,11 @@ export const sendDailyReminders = action({
     message: string;
   }> => {
     const appointmentsNeedingReminders = await ctx.runQuery(
-      api.notifications.getAppointmentsNeedingReminders
+      api.notifications.getAppointmentsNeedingReminders,
     );
 
     console.log(
-      `Found ${appointmentsNeedingReminders.length} appointments needing reminders`
+      `Found ${appointmentsNeedingReminders.length} appointments needing reminders`,
     );
 
     let successCount = 0;
