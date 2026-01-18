@@ -268,7 +268,7 @@ const Services = () => {
                 <div
                   className="bg-white rounded-xl shadow-md transition-all duration-300 p-5 h-full group relative overflow-hidden active:scale-95 flex flex-col"
                 >
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-[#FF6B35]/15 rounded-full blur-2xl group-hover:w-32 group-hover:h-32 transition-all duration-500 -translate-y-10 translate-x-10"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-[#FF6B35]/25 rounded-full blur-2xl group-hover:w-32 group-hover:h-32 transition-all duration-500 -translate-y-10 translate-x-10"></div>
                   <h3 className="font-crimson italic text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                     {service.name}
                   </h3>
