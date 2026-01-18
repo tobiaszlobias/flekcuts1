@@ -179,9 +179,17 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
             </h3>
             <div className="bg-[#fafbfa] border border-[#e5ebe9] p-4 rounded-lg">
               <p className="text-gray-700">
-                <strong>Vaše osobní údaje NESDÍLÍME s třetími stranami</strong>,
-                kromě případů vyžadovaných zákonem nebo s vaším výslovným
-                souhlasem.
+                <strong>
+                  Vaše osobní údaje běžně nesdílíme s třetími stranami
+                </strong>
+                , s výjimkou případů vyžadovaných zákonem a nezbytných
+                technických služeb.
+              </p>
+              <p className="text-gray-700 mt-3">
+                Web využívá služby třetích stran (např. Google Maps), které
+                mohou při zobrazení zpracovávat technické údaje o zařízení a IP
+                adresu. Tyto služby jsou používány za účelem zobrazení mapy a
+                zajištění funkčnosti webu.
               </p>
             </div>
           </div>

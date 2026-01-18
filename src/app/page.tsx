@@ -12,7 +12,6 @@ import AdminPanel from "@/components/AdminPanel";
 import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 import TermsOfServiceModal from "../components/TermsOfServiceModal";
 import BusinessInfoModal from "../components/BusinessInfoModal";
-import CookieNotice from "../components/CookieNotice";
 
 export default function Home() {
   const [activeView, setActiveView] = useState<"home" | "dashboard" | "admin">(
@@ -254,9 +253,6 @@ export default function Home() {
         isOpen={showBusinessInfoModal}
         onClose={() => setShowBusinessInfoModal(false)}
       />
-
-      {/* Cookie Notice Banner */}
-      <CookieNotice />
     </main>
   );
 }
