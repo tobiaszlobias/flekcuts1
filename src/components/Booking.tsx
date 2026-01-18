@@ -681,7 +681,6 @@ const Booking = () => {
           service: bookingForm.service,
           date: bookingForm.date,
           time: bookingForm.time,
-          durationMinutes: selectedServiceOption?.durationMinutes,
         });
       } else {
         await createAnonymousAppointment({
@@ -691,7 +690,6 @@ const Booking = () => {
           service: bookingForm.service,
           date: bookingForm.date,
           time: bookingForm.time,
-          durationMinutes: selectedServiceOption?.durationMinutes,
         });
       }
 
@@ -709,15 +707,13 @@ const Booking = () => {
       setAttemptedSubmit(false);
     } catch (error: unknown) {
       console.error("Error creating booking:", error);
-      if (
-        error instanceof Error &&
-        error.message?.includes("An appointment already exists at this time.")
-      ) {
+      const message = error instanceof Error ? error.message : "";
+      if (message.includes("An appointment already exists at this time.")) {
         toast.error("Tento termín je již obsazen. Zvolte prosím jiný čas.");
+      } else if (message) {
+        toast.error(message);
       } else {
-        toast.error(
-          "Nepodařilo se odeslat objednávku. Zkuste to prosím znovu."
-        );
+        toast.error("Nepodařilo se odeslat objednávku. Zkuste to prosím znovu.");
       }
     } finally {
       setIsSubmitting(false);
