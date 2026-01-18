@@ -674,7 +674,6 @@ html {
 
 /* Clerk Auth Modal Buttons - Match Site Styling */
 .cl-formButtonPrimary,
-.cl-button,
 .cl-footerActionButton {
   position: relative !important;
   overflow: hidden !important;
