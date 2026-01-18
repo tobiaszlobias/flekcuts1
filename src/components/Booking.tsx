@@ -424,8 +424,14 @@ const CompactDateTimePicker = ({
                     type="button"
                     onClick={() => (canSelect ? onTimeSelect(time) : null)}
                     disabled={!canSelect}
+                    aria-pressed={isSelected}
+                    title={
+                      isSelected && !canSelect
+                        ? "Vybráno (už není dostupné pro zvolenou službu)"
+                        : undefined
+                    }
                     className={`
-                      p-2 text-xs rounded border transition-all duration-200
+                      relative p-2 text-xs rounded border transition-all duration-200
                       ${
                         isSelected && canSelect
                           ? "bg-[#FF8C5A] text-white border-[#FF8C5A] font-medium"
@@ -438,6 +444,11 @@ const CompactDateTimePicker = ({
                     `}
                   >
                     {time}
+                    {isSelected && (
+                      <span className="absolute -top-1 -right-1 rounded-full bg-black text-white text-[10px] leading-none px-1.5 py-1 shadow">
+                        ✓
+                      </span>
+                    )}
                   </button>
                 );
               })}
