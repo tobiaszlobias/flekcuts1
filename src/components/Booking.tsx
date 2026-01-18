@@ -43,6 +43,8 @@ interface FormErrors {
   date?: string;
   time?: string;
   service?: string;
+  addBeard?: string;
+  addWash?: string;
 }
 
 // Simple phone validation - just check for minimum 9 digits
