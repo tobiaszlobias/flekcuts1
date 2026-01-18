@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import type { Id } from "../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,8 +24,16 @@ import {
   BOOKING_DROPDOWN_SERVICES,
   deriveServiceFromName,
   deriveServiceSelection,
-  getServiceOptionByName,
 } from "@/lib/services";
+
+type Vacation = {
+  _id: Id<"vacations">;
+  startDate: string;
+  endDate: string;
+  startTime?: string;
+  endTime?: string;
+  note?: string;
+};
 
 interface BookingForm {
   name: string;
@@ -275,6 +284,40 @@ const isDateWithinNextMonth = (dateString: string): boolean => {
   return date >= todayStart && date <= maxDate;
 };
 
+const formatDateIso = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const dateInRange = (date: string, start: string, end: string) =>
+  date >= start && date <= end;
+
+const parseTimeToMinutesSafe = (time?: string): number | null => {
+  if (!time) return null;
+  const [hoursStr, minutesStr = "0"] = time.split(":");
+  const hours = Number(hoursStr);
+  const minutes = Number(minutesStr);
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return null;
+  return hours * 60 + minutes;
+};
+
+const getVacationIntervalsForDate = (vacations: Vacation[], date: string) => {
+  const relevant = vacations.filter((v) => dateInRange(date, v.startDate, v.endDate));
+  const intervals: Array<{ start: number; end: number; label: string }> = [];
+  for (const v of relevant) {
+    const start = parseTimeToMinutesSafe(v.startTime);
+    const end = parseTimeToMinutesSafe(v.endTime);
+    if (start === null || end === null) {
+      intervals.push({ start: 0, end: 24 * 60, label: v.note || "Dovolená" });
+    } else {
+      intervals.push({ start, end, label: v.note || "Dovolená" });
+    }
+  }
+  return intervals;
+};
+
 const CompactDateTimePicker = ({
   selectedDate,
   selectedTime,
@@ -283,6 +326,7 @@ const CompactDateTimePicker = ({
   timeSlots,
   availableStartTimes,
   bookedTimes,
+  vacations,
 }: {
   selectedDate: string;
   selectedTime: string;
@@ -291,6 +335,7 @@ const CompactDateTimePicker = ({
   timeSlots: string[];
   availableStartTimes: string[];
   bookedTimes: string[];
+  vacations: Vacation[];
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showTimeSlots, setShowTimeSlots] = useState(!!selectedDate);
@@ -329,6 +374,17 @@ const CompactDateTimePicker = ({
       const isToday = new Date().toDateString() === currentDate.toDateString();
       const isPast = currentDate < new Date(new Date().setHours(0, 0, 0, 0));
       const isTooFar = currentDate > maxDate;
+      const isVacationFullDay = vacations.some(
+        (v) =>
+          dateInRange(dateString, v.startDate, v.endDate) &&
+          (!v.startTime || !v.endTime)
+      );
+      const isVacationPartial = vacations.some(
+        (v) =>
+          dateInRange(dateString, v.startDate, v.endDate) &&
+          !!v.startTime &&
+          !!v.endTime
+      );
       const isWorking = dayOfWeek >= 1 && dayOfWeek <= 5;
       const isSelected = selectedDate === dateString;
 
@@ -339,6 +395,8 @@ const CompactDateTimePicker = ({
         isToday,
         isPast,
         isTooFar,
+        isVacationFullDay,
+        isVacationPartial,
         isWorking,
         isSelected,
       });
@@ -348,10 +406,15 @@ const CompactDateTimePicker = ({
   };
 
   const isDateSelectable = (
-    day: { isWorking: boolean; isPast: boolean; isTooFar: boolean } | null
+    day: {
+      isWorking: boolean;
+      isPast: boolean;
+      isTooFar: boolean;
+      isVacationFullDay: boolean;
+    } | null
   ): boolean => {
     if (!day) return false;
-    return day.isWorking && !day.isPast && !day.isTooFar;
+    return day.isWorking && !day.isPast && !day.isTooFar && !day.isVacationFullDay;
   };
 
   const handleDateClick = (dateString: string) => {
@@ -440,8 +503,14 @@ const CompactDateTimePicker = ({
                   `}
                 >
                   <span className="relative z-10">{day.day}</span>
-                  {day.isWorking && !day.isPast && (
+                  {day.isWorking &&
+                    !day.isPast &&
+                    !day.isVacationFullDay &&
+                    !day.isVacationPartial && (
                     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-[#FF6B35] rounded-full"></div>
+                  )}
+                  {(day.isVacationFullDay || day.isVacationPartial) && !day.isPast && (
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></div>
                   )}
                 </button>
               </div>
@@ -459,6 +528,10 @@ const CompactDateTimePicker = ({
               <div className="w-1.5 h-1.5 bg-gray-300 rounded-full"></div>
               <span>Zavřeno</span>
             </div>
+            <div className="flex items-center gap-1">
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+              <span>Dovolená</span>
+            </div>
           </div>
         </div>
       </div>
@@ -469,6 +542,23 @@ const CompactDateTimePicker = ({
             <Clock className="w-4 h-4 mr-2" />
             Dostupné časy - {formatDate(selectedDate)}
           </h4>
+
+          {(() => {
+            const vac = getVacationIntervalsForDate(vacations, selectedDate);
+            if (vac.length === 0) return null;
+            const isFullDay = vac.some((v) => v.start === 0 && v.end === 24 * 60);
+            const label = vac[0]?.label || "Dovolená";
+            return (
+              <div className="mb-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800">
+                <span className="font-medium">{label}</span>
+                {isFullDay ? (
+                  <span> — tento den je zavřeno</span>
+                ) : (
+                  <span> — část dne není dostupná</span>
+                )}
+              </div>
+            );
+          })()}
 
           {(() => {
             const timeToMinutes = (t: string) => {
@@ -582,6 +672,24 @@ const Booking = () => {
     bookingForm.date ? { date: bookingForm.date } : "skip"
   );
 
+  const bookingWindowStart = (() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  })();
+
+  const bookingWindowEnd = (() => {
+    const d = new Date(bookingWindowStart);
+    d.setMonth(d.getMonth() + 1);
+    return d;
+  })();
+
+  const vacations =
+    useQuery(api.vacations.getVacationsByRange, {
+      startDate: formatDateIso(bookingWindowStart),
+      endDate: formatDateIso(bookingWindowEnd),
+    }) || [];
+
   const isDefined = <T,>(value: T | null | undefined): value is T =>
     value !== null && value !== undefined;
 
@@ -673,6 +781,13 @@ const Booking = () => {
     })
     .filter((interval) => Number.isFinite(interval.start) && Number.isFinite(interval.end));
 
+  const vacationIntervals = bookingForm.date
+    ? getVacationIntervalsForDate(vacations, bookingForm.date).map((v) => ({
+        start: v.start,
+        end: v.end,
+      }))
+    : [];
+
   const bookedSlotSet = new Set<string>();
   for (const slot of openSlots) {
     const slotStart = timeStringToMinutes(slot);
@@ -681,7 +796,10 @@ const Booking = () => {
     const isBooked = existingIntervals.some((apt) =>
       overlapsMinutes(slotStart, slotEnd, apt.start, apt.end)
     );
-    if (isBooked) bookedSlotSet.add(slot);
+    const isVacation = vacationIntervals.some((v) =>
+      overlapsMinutes(slotStart, slotEnd, v.start, v.end)
+    );
+    if (isBooked || isVacation) bookedSlotSet.add(slot);
   }
 
   const bookedTimes = Array.from(bookedSlotSet);
@@ -706,6 +824,11 @@ const Booking = () => {
         overlapsMinutes(start, end, apt.start, apt.end)
       );
       if (overlapsExisting) return false;
+
+      const overlapsVacation = vacationIntervals.some((v) =>
+        overlapsMinutes(start, end, v.start, v.end)
+      );
+      if (overlapsVacation) return false;
 
       // Also require the first 15-min slot to be free (UI uses this for greying)
       if (bookedSlotSet.has(time)) return false;
@@ -1205,6 +1328,7 @@ const Booking = () => {
                     timeSlots={openSlots}
                     availableStartTimes={availableTimeSlots}
                     bookedTimes={bookedTimes}
+                    vacations={vacations}
                   />
                 </div>
 

@@ -30,6 +30,17 @@ export default defineSchema({
     // Add index for querying by date and time
     .index("by_date_time", ["date", "time"]),
 
+  vacations: defineTable({
+    startDate: v.string(), // YYYY-MM-DD
+    endDate: v.string(), // YYYY-MM-DD
+    startTime: v.optional(v.string()), // HH:MM (optional)
+    endTime: v.optional(v.string()), // HH:MM (optional)
+    note: v.optional(v.string()),
+    createdAt: v.string(), // ISO string
+  })
+    .index("by_startDate", ["startDate"])
+    .index("by_endDate", ["endDate"]),
+
   userRoles: defineTable({
     userId: v.string(),
     role: v.union(v.literal("user"), v.literal("admin")),

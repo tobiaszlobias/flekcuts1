@@ -8,6 +8,8 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Calendar,
   Clock,
@@ -44,10 +46,90 @@ export default function AdminPanel() {
   const appointments = useQuery(api.admin.getAllAppointments);
   const updateStatus = useMutation(api.admin.updateAppointmentStatus);
   const deleteAppointment = useMutation(api.admin.deleteAppointment);
+  const vacations = useQuery(api.admin.getAllVacations);
+  const createVacation = useMutation(api.admin.createVacation);
+  const deleteVacation = useMutation(api.admin.deleteVacation);
 
   const [mode, setMode] = useState<"overview" | "manage">("overview");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [appointmentToDeleteId, setAppointmentToDeleteId] = useState<Id<"appointments"> | null>(null);
+  const [vacationForm, setVacationForm] = useState<{
+    startDate: string;
+    endDate: string;
+    allDay: boolean;
+    startTime: string;
+    endTime: string;
+    note: string;
+  }>({
+    startDate: "",
+    endDate: "",
+    allDay: true,
+    startTime: "",
+    endTime: "",
+    note: "",
+  });
+  const [isSavingVacation, setIsSavingVacation] = useState(false);
+
+  const formatVacationDate = (date: string) =>
+    new Date(date + "T00:00:00").toLocaleDateString("cs-CZ", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+
+  const handleCreateVacation = async () => {
+    const startDate = vacationForm.startDate.trim();
+    const endDate = vacationForm.endDate.trim();
+    const note = vacationForm.note.trim();
+    const startTime = vacationForm.allDay ? "" : vacationForm.startTime.trim();
+    const endTime = vacationForm.allDay ? "" : vacationForm.endTime.trim();
+
+    if (!startDate || !endDate) {
+      toast.error("Vyplňte datum od a do");
+      return;
+    }
+
+    if (!vacationForm.allDay && (!startTime || !endTime)) {
+      toast.error("Vyplňte čas od i do (nebo zvolte celý den)");
+      return;
+    }
+
+    setIsSavingVacation(true);
+    try {
+      await createVacation({
+        startDate,
+        endDate,
+        startTime: startTime ? startTime : undefined,
+        endTime: endTime ? endTime : undefined,
+        note: note ? note : undefined,
+      });
+      toast.success("Dovolená byla přidána");
+      setVacationForm({
+        startDate: "",
+        endDate: "",
+        allDay: true,
+        startTime: "",
+        endTime: "",
+        note: "",
+      });
+    } catch (error) {
+      console.error("Failed to create vacation:", error);
+      toast.error("Nepodařilo se přidat dovolenou");
+    } finally {
+      setIsSavingVacation(false);
+    }
+  };
+
+  const handleDeleteVacation = async (vacationId: Id<"vacations">) => {
+    try {
+      await deleteVacation({ vacationId });
+      toast.success("Dovolená byla smazána");
+    } catch (error) {
+      console.error("Failed to delete vacation:", error);
+      toast.error("Nepodařilo se smazat dovolenou");
+    }
+  };
 
   const handleStatusUpdate = async (
     appointmentId: Id<"appointments">,
@@ -145,6 +227,7 @@ export default function AdminPanel() {
   }
 
   const filteredAppointments = appointments;
+  const vacationList = vacations || [];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -258,6 +341,184 @@ export default function AdminPanel() {
             </div>
             <div className="font-montserrat text-xs text-[#FF6B35]/70">
               objednávek tento měsíc
+            </div>
+          </div>
+        </div>
+
+        {/* Vacations */}
+        <div className="rounded-2xl border border-blue-100 bg-white p-4 sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="font-montserrat text-lg font-bold text-gray-900">
+                Dovolená
+              </h3>
+              <p className="font-montserrat text-sm text-gray-600">
+                Přidané dny se zobrazí v kalendáři (modře) a blokují rezervace.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-4">
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-gray-700">Datum od</Label>
+                  <Input
+                    type="date"
+                    value={vacationForm.startDate}
+                    onChange={(e) =>
+                      setVacationForm((prev) => ({
+                        ...prev,
+                        startDate: e.target.value,
+                      }))
+                    }
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label className="text-gray-700">Datum do</Label>
+                  <Input
+                    type="date"
+                    value={vacationForm.endDate}
+                    onChange={(e) =>
+                      setVacationForm((prev) => ({
+                        ...prev,
+                        endDate: e.target.value,
+                      }))
+                    }
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    id="vac-all-day"
+                    type="checkbox"
+                    checked={vacationForm.allDay}
+                    onChange={(e) =>
+                      setVacationForm((prev) => ({
+                        ...prev,
+                        allDay: e.target.checked,
+                        startTime: e.target.checked ? "" : prev.startTime,
+                        endTime: e.target.checked ? "" : prev.endTime,
+                      }))
+                    }
+                    className="h-4 w-4 accent-blue-600"
+                  />
+                  <Label htmlFor="vac-all-day" className="text-gray-700">
+                    Celý den
+                  </Label>
+                </div>
+              </div>
+
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-gray-700">Čas od</Label>
+                  <Input
+                    type="time"
+                    value={vacationForm.startTime}
+                    onChange={(e) =>
+                      setVacationForm((prev) => ({
+                        ...prev,
+                        startTime: e.target.value,
+                      }))
+                    }
+                    disabled={vacationForm.allDay}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label className="text-gray-700">Čas do</Label>
+                  <Input
+                    type="time"
+                    value={vacationForm.endTime}
+                    onChange={(e) =>
+                      setVacationForm((prev) => ({
+                        ...prev,
+                        endTime: e.target.value,
+                      }))
+                    }
+                    disabled={vacationForm.allDay}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-3">
+                <Label className="text-gray-700">Poznámka (volitelné)</Label>
+                <Input
+                  value={vacationForm.note}
+                  onChange={(e) =>
+                    setVacationForm((prev) => ({ ...prev, note: e.target.value }))
+                  }
+                  placeholder="Např. dovolená"
+                  className="mt-1"
+                />
+              </div>
+
+              <div className="mt-4">
+                <Button
+                  onClick={handleCreateVacation}
+                  disabled={isSavingVacation}
+                  className="w-full font-montserrat bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2"
+                >
+                  {isSavingVacation ? "Ukládám..." : "Přidat dovolenou"}
+                </Button>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              {vacations === undefined ? (
+                <div className="text-sm text-gray-500">Načítání…</div>
+              ) : vacationList.length === 0 ? (
+                <div className="text-sm text-gray-500">Zatím žádná dovolená</div>
+              ) : (
+                <div className="space-y-2">
+                  {vacationList.map((v) => {
+                    const dateLabel =
+                      v.startDate === v.endDate
+                        ? formatVacationDate(v.startDate)
+                        : `${formatVacationDate(v.startDate)} – ${formatVacationDate(v.endDate)}`;
+                    const timeLabel =
+                      v.startTime && v.endTime ? `${v.startTime}–${v.endTime}` : "celý den";
+                    return (
+                      <div
+                        key={v._id}
+                        className="rounded-xl border border-blue-100 bg-blue-50/60 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex h-2 w-2 rounded-full bg-blue-600" />
+                              <div className="font-montserrat text-sm font-semibold text-gray-900 truncate">
+                                {dateLabel}
+                              </div>
+                            </div>
+                            <div className="mt-1 flex items-center gap-2 text-xs text-gray-700">
+                              <Clock className="h-3.5 w-3.5 text-blue-700" />
+                              <span className="font-montserrat">{timeLabel}</span>
+                            </div>
+                            {v.note && (
+                              <div className="mt-1 font-montserrat text-xs text-gray-600">
+                                {v.note}
+                              </div>
+                            )}
+                          </div>
+                          <Button
+                            onClick={() => handleDeleteVacation(v._id)}
+                            variant="outline"
+                            className="border-2 border-gray-300 text-gray-700 hover:border-red-600 hover:text-red-600 hover:bg-white rounded-xl px-3 py-2"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </div>

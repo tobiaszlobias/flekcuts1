@@ -178,3 +178,57 @@ export const triggerDailyReminders = mutation({
     return { success: true, message: "Daily reminders triggered" };
   },
 });
+
+// ===============================
+// Vacations (admin only)
+// ===============================
+
+export const getAllVacations = query({
+  args: {},
+  handler: async (ctx) => {
+    await checkIsAdmin(ctx);
+    return await ctx.db.query("vacations").order("desc").collect();
+  },
+});
+
+export const createVacation = mutation({
+  args: {
+    startDate: v.string(),
+    endDate: v.string(),
+    startTime: v.optional(v.string()),
+    endTime: v.optional(v.string()),
+    note: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await checkIsAdmin(ctx);
+
+    if (args.endDate < args.startDate) {
+      throw new Error("Invalid vacation date range.");
+    }
+
+    if ((args.startTime && !args.endTime) || (!args.startTime && args.endTime)) {
+      throw new Error("Provide both startTime and endTime, or neither.");
+    }
+
+    if (args.startTime && args.endTime && args.endTime <= args.startTime) {
+      throw new Error("Invalid vacation time range.");
+    }
+
+    return await ctx.db.insert("vacations", {
+      startDate: args.startDate,
+      endDate: args.endDate,
+      startTime: args.startTime,
+      endTime: args.endTime,
+      note: args.note,
+      createdAt: new Date().toISOString(),
+    });
+  },
+});
+
+export const deleteVacation = mutation({
+  args: { vacationId: v.id("vacations") },
+  handler: async (ctx, args) => {
+    await checkIsAdmin(ctx);
+    await ctx.db.delete(args.vacationId);
+  },
+});

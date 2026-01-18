@@ -148,6 +148,31 @@ const overlaps = (
   endB: number
 ): boolean => startA < endB && startB < endA;
 
+const getVacationIntervalsForDate = async (
+  ctx: any,
+  date: string
+): Promise<Array<{ start: number; end: number }>> => {
+  const vacations = await ctx.db
+    .query("vacations")
+    .withIndex("by_startDate", (q: any) => q.lte("startDate", date))
+    .filter((q: any) => q.gte(q.field("endDate"), date))
+    .collect();
+
+  const intervals: Array<{ start: number; end: number }> = [];
+  for (const v of vacations) {
+    // Full-day vacation
+    if (!v.startTime || !v.endTime) {
+      intervals.push({ start: 0, end: 24 * 60 });
+      continue;
+    }
+    const start = parseTimeToMinutes(v.startTime);
+    const end = parseTimeToMinutes(v.endTime);
+    if (!Number.isFinite(start) || !Number.isFinite(end)) continue;
+    intervals.push({ start, end });
+  }
+  return intervals;
+};
+
 // 🆕 NEW: Link anonymous appointments to authenticated user
 export const linkAnonymousAppointments = mutation({
   args: {
@@ -236,6 +261,13 @@ export const createAppointment = mutation({
 
     if (!isWithinWorkingHours(args.date, newStart, newEnd)) {
       throw new Error("Selected time is outside working hours.");
+    }
+
+    const vacationIntervals = await getVacationIntervalsForDate(ctx, args.date);
+    if (
+      vacationIntervals.some((v) => overlaps(newStart, newEnd, v.start, v.end))
+    ) {
+      throw new Error("Selected time is during vacation.");
     }
 
     // Check for overlapping appointments on the same date (ignore cancelled)
@@ -327,6 +359,13 @@ export const createAnonymousAppointment = mutation({
 
     if (!isWithinWorkingHours(args.date, newStart, newEnd)) {
       throw new Error("Selected time is outside working hours.");
+    }
+
+    const vacationIntervals = await getVacationIntervalsForDate(ctx, args.date);
+    if (
+      vacationIntervals.some((v) => overlaps(newStart, newEnd, v.start, v.end))
+    ) {
+      throw new Error("Selected time is during vacation.");
     }
 
     // Check for overlapping appointments on the same date (ignore cancelled)
