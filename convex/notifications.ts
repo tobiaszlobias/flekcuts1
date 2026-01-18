@@ -23,12 +23,10 @@ export const sendAppointmentConfirmation = action({
   },
   handler: async (ctx, args): Promise<EmailResult> => {
     const apiKey = process.env.RESEND_API_KEY;
-
     if (!apiKey) {
       throw new Error("RESEND_API_KEY environment variable is not set");
     }
 
-    // Get appointment details
     const appointment = await ctx.runQuery(api.notifications.getById, {
       id: args.appointmentId,
     });
@@ -37,7 +35,10 @@ export const sendAppointmentConfirmation = action({
       throw new Error("Appointment not found");
     }
 
-    // Prepare email data
+    if (!appointment.customerEmail) {
+      throw new Error("Missing customerEmail on appointment");
+    }
+
     const emailData = {
       customerName: appointment.customerName,
       customerEmail: appointment.customerEmail,
@@ -46,76 +47,46 @@ export const sendAppointmentConfirmation = action({
       time: appointment.time,
     };
 
-    // Generate email content
     const emailContent = emailTemplates.appointmentConfirmation(emailData);
 
-    try {
-      // Send email via Resend
-      const response: Response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: FROM_EMAIL, // Use resend.dev for testing
-          to: [appointment.customerEmail],
-          subject: emailContent.subject,
-          html: emailContent.html,
-          text: emailContent.text,
-        }),
-      });
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: FROM_EMAIL,
+        to: [appointment.customerEmail],
+        subject: emailContent.subject,
+        html: emailContent.html,
+        text: emailContent.text,
+      }),
+    });
 
-      const emailResult: ResendResponse = await response.json();
+    const emailResult: ResendResponse = await response.json();
 
-      if (!response.ok) {
-        console.error(
-          "❌ Email send failed. Status:",
-          response.status,
-          "Error:",
-          emailResult.message || emailResult.name,
-        );
-        throw new Error(
-          `Email sending failed: ${emailResult.message || emailResult.name || "Unknown error"}`,
-        );
-      }
-
-      // Console logging for development (keep this!)
-      console.log("✅ REAL EMAIL SENT:");
-      console.log("To:", appointment.customerEmail);
-      console.log("Subject:", emailContent.subject);
-      console.log("Resend ID:", emailResult.id);
-      console.log("Template: confirmation");
-
-      // Log the email send
-      await ctx.runMutation(api.notifications.logEmailSent, {
-        appointmentId: args.appointmentId,
-        emailType: "confirmation",
-        recipientEmail: appointment.customerEmail,
-        status: "sent",
-      });
-
-      return {
-        success: true,
-        message: "Confirmation email sent",
-        emailId: emailResult.id,
-      };
-    } catch (error) {
-      console.error("Failed to send confirmation email:", error);
-
-      // Log the failure
-      await ctx.runMutation(api.notifications.logEmailSent, {
-        appointmentId: args.appointmentId,
-        emailType: "confirmation",
-        recipientEmail: appointment.customerEmail,
-        status: "failed",
-        errorMessage: error instanceof Error ? error.message : "Unknown error",
-      });
-
-      throw new Error("Failed to send confirmation email");
+    if (!response.ok) {
+      throw new Error(
+        emailResult.message || emailResult.name || "Email send failed",
+      );
     }
+
+    await ctx.runMutation(api.notifications.logEmailSent, {
+      appointmentId: args.appointmentId,
+      emailType: "confirmation",
+      recipientEmail: appointment.customerEmail,
+      status: "sent",
+    });
+
+    return {
+      success: true,
+      message: "Confirmation email sent",
+      emailId: emailResult.id,
+    };
   },
 });
+
 const FROM_EMAIL = "FlekCuts <noreply@flekcuts.cz>";
 // Keep all your other functions exactly the same...
 export const sendAppointmentReminder = action({
