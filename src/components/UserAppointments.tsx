@@ -231,7 +231,7 @@ export default function UserAppointments() {
       default:
         return {
           icon: AlertCircle,
-          label: "Čeká na potvrzení",
+          label: "Čeká",
           bgColor: "bg-orange-50",
           borderColor: "border-orange-200",
           textColor: "text-orange-700",
@@ -415,7 +415,7 @@ export default function UserAppointments() {
                             ) : (
                               <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                                 <p className="text-xs text-orange-700 font-medium">
-                                  Nelze zrušit objednávku méně než 24 hodin před termínem
+                                  Objednávku lze zrušit nejpozději 24 hodin před termínem.
                                 </p>
                               </div>
                             )}
@@ -435,7 +435,7 @@ export default function UserAppointments() {
                             ) : (
                               <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                                 <p className="text-xs text-orange-700 font-medium text-center">
-                                  Nelze zrušit méně než 24h před termínem
+                                  Objednávku lze zrušit nejpozději 24 hodin před termínem.
                                 </p>
                               </div>
                             )}
