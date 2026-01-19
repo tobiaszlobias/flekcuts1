@@ -554,15 +554,79 @@ export const cancelAppointment = mutation({
 export const cleanupOldAppointments = mutation({
   args: {},
   handler: async (ctx) => {
+    const retentionEnabled = process.env.RETENTION_ENABLED === "true";
+    const dryRun = process.env.RETENTION_DRY_RUN !== "false";
+    const maxDelete = (() => {
+      const raw = process.env.RETENTION_MAX_DELETE;
+      const parsed = raw ? Number(raw) : 10;
+      return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 10;
+    })();
+
+    if (!retentionEnabled) {
+      console.log("🧹 Retention cleanup skipped (RETENTION_ENABLED is not true).");
+      return;
+    }
+
     const cutoffMs = Date.now() - 24 * 60 * 60 * 1000;
+    const nowMs = Date.now();
 
     // Primary path: indexed cleanup (appointments with appointmentStartMs set)
     const toDelete = await ctx.db
       .query("appointments")
       .withIndex("by_startMs", (q) => q.lt("appointmentStartMs", cutoffMs))
-      .collect();
+      .take(maxDelete);
+
+    console.log("🧹 Retention cleanup candidates:", {
+      cutoffMs,
+      nowMs,
+      deleting: dryRun ? 0 : toDelete.length,
+      dryRun,
+      maxDelete,
+      minStartMs: toDelete.reduce<number | null>((min, apt) => {
+        const v = apt.appointmentStartMs;
+        if (!Number.isFinite(v)) return min;
+        return min === null ? (v as number) : Math.min(min, v as number);
+      }, null),
+      maxStartMs: toDelete.reduce<number | null>((max, apt) => {
+        const v = apt.appointmentStartMs;
+        if (!Number.isFinite(v)) return max;
+        return max === null ? (v as number) : Math.max(max, v as number);
+      }, null),
+    });
+
+    if (dryRun) {
+      console.log(
+        "🧹 Retention dry-run ids:",
+        toDelete.map((apt) => ({
+          id: apt._id,
+          appointmentStartMs: apt.appointmentStartMs,
+        }))
+      );
+      return;
+    }
 
     for (const apt of toDelete) {
+      const startMs = apt.appointmentStartMs;
+      if (!Number.isFinite(startMs)) {
+        console.warn("🧹 Skipping retention delete due to invalid appointmentStartMs:", apt._id);
+        continue;
+      }
+      if (startMs > nowMs) {
+        console.warn("🧹 Skipping retention delete for future appointmentStartMs:", {
+          id: apt._id,
+          startMs,
+          nowMs,
+        });
+        continue;
+      }
+      if (startMs >= cutoffMs) {
+        console.warn("🧹 Skipping retention delete due to startMs not past cutoff:", {
+          id: apt._id,
+          startMs,
+          cutoffMs,
+        });
+        continue;
+      }
       const logs = await ctx.db
         .query("emailLogs")
         .withIndex("by_appointment", (q) => q.eq("appointmentId", apt._id))
@@ -573,31 +637,162 @@ export const cleanupOldAppointments = mutation({
       await ctx.db.delete(apt._id);
     }
 
-    // Fallback: for older records without appointmentStartMs (best-effort)
-    const now = getNowInPrague();
-    const [y, m, d] = now.date.split("-").map(Number);
-    const cutoffDateUtc = new Date(Date.UTC(y, m - 1, d) - 2 * 24 * 60 * 60 * 1000);
-    const cutoffDateStr = cutoffDateUtc.toISOString().slice(0, 10);
-    const olderByDate = await ctx.db
-      .query("appointments")
-      .withIndex("by_date", (q) => q.lte("date", cutoffDateStr))
-      .collect();
+    // Safety: Do not delete legacy records without appointmentStartMs.
+    // Backfill appointmentStartMs first, then retention can delete via the index above.
+  },
+});
 
-    for (const apt of olderByDate) {
+export const backfillAppointmentStartMs = mutation({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("Not authenticated");
+    }
+
+    const userRole = await ctx.db
+      .query("userRoles")
+      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+      .first();
+
+    if (userRole?.role !== "admin") {
+      throw new Error("Admin access required");
+    }
+
+    const limit = (() => {
+      const raw = args.limit ?? 200;
+      const n = Number(raw);
+      return Number.isFinite(n) && n > 0 ? Math.min(500, Math.floor(n)) : 200;
+    })();
+
+    const legacy = await ctx.db
+      .query("appointments")
+      .order("desc")
+      .take(Math.min(1000, limit * 5));
+
+    let updated = 0;
+    for (const apt of legacy) {
+      if (updated >= limit) break;
       if (apt.appointmentStartMs !== undefined) continue;
       const startMs = pragueLocalToUtcMs(apt.date, apt.time);
       if (!Number.isFinite(startMs)) continue;
-      if (startMs >= cutoffMs) continue;
-
-      const logs = await ctx.db
-        .query("emailLogs")
-        .withIndex("by_appointment", (q) => q.eq("appointmentId", apt._id))
-        .collect();
-      for (const log of logs) {
-        await ctx.db.delete(log._id);
-      }
-      await ctx.db.delete(apt._id);
+      await ctx.db.patch(apt._id, { appointmentStartMs: startMs });
+      updated += 1;
     }
+
+    console.log("🧩 Backfilled appointmentStartMs:", { updated, limit });
+    return { updated, limit };
+  },
+});
+
+export const importReconstructedAppointments = mutation({
+  args: {
+    items: v.array(
+      v.object({
+        customerName: v.union(v.string(), v.null()),
+        customerEmail: v.union(v.string(), v.null()),
+        customerPhone: v.optional(v.union(v.string(), v.null())),
+        service: v.union(v.string(), v.null()),
+        date: v.union(v.string(), v.null()),
+        time: v.union(v.string(), v.null()),
+        notes: v.optional(v.union(v.string(), v.null())),
+        sourceResendId: v.union(v.string(), v.null()),
+        sourceTimestamp: v.union(v.string(), v.null()),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("Not authenticated");
+    }
+
+    const userRole = await ctx.db
+      .query("userRoles")
+      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+      .first();
+
+    if (userRole?.role !== "admin") {
+      throw new Error("Admin access required");
+    }
+
+    const results = {
+      inserted: 0,
+      skippedDuplicate: 0,
+      skippedInvalid: 0,
+      skippedConflict: 0,
+    };
+
+    for (const item of args.items) {
+      const customerName = typeof item.customerName === "string" ? item.customerName.trim() : "";
+      const customerEmail = typeof item.customerEmail === "string" ? item.customerEmail.trim() : "";
+      const service = typeof item.service === "string" ? item.service.trim() : "";
+      const date = typeof item.date === "string" ? item.date.trim() : "";
+      const time = typeof item.time === "string" ? item.time.trim() : "";
+      const customerPhone =
+        typeof item.customerPhone === "string" ? item.customerPhone.trim() : undefined;
+      const notes = typeof item.notes === "string" ? item.notes.trim() : undefined;
+      const sourceResendId =
+        typeof item.sourceResendId === "string" ? item.sourceResendId.trim() : "";
+      const sourceTimestamp =
+        typeof item.sourceTimestamp === "string" ? item.sourceTimestamp.trim() : "";
+
+      const hasCore = !!customerName && !!customerEmail && !!service && !!date && !!time;
+      if (!hasCore) {
+        results.skippedInvalid += 1;
+        continue;
+      }
+
+      const existingAtTime = await ctx.db
+        .query("appointments")
+        .withIndex("by_date_time", (q) => q.eq("date", date).eq("time", time))
+        .collect();
+
+      const duplicate = existingAtTime.some(
+        (a) =>
+          a.customerEmail === customerEmail &&
+          a.service === service &&
+          a.date === date &&
+          a.time === time
+      );
+      if (duplicate) {
+        results.skippedDuplicate += 1;
+        continue;
+      }
+
+      // Avoid importing into a time slot already taken by another appointment.
+      if (existingAtTime.length > 0) {
+        results.skippedConflict += 1;
+        continue;
+      }
+
+      const appointmentStartMs = pragueLocalToUtcMs(date, time);
+      const combinedNotes = [
+        notes,
+        sourceResendId ? `Recovered from Resend: ${sourceResendId}` : null,
+        sourceTimestamp ? `Source timestamp: ${sourceTimestamp}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      await ctx.db.insert("appointments", {
+        userId: "anonymous",
+        customerName,
+        customerEmail,
+        customerPhone: customerPhone ? customerPhone : undefined,
+        service,
+        date,
+        time,
+        appointmentStartMs: Number.isFinite(appointmentStartMs) ? appointmentStartMs : undefined,
+        status: "pending",
+        notes: combinedNotes ? combinedNotes : undefined,
+      });
+
+      results.inserted += 1;
+    }
+
+    console.log("🧩 Import reconstructed appointments:", results);
+    return results;
   },
 });
 

@@ -1,0 +1,332 @@
+[
+  {
+    "customerEmail": "svobodat08@gmail.com",
+    "customerName": "Tomáš",
+    "service": "Fade",
+    "date": "2026-02-02",
+    "time": "14:30",
+    "source": "resend",
+    "resendEmailId": "1efeb809-33ad-4dc0-8e28-25783606f42c",
+    "sentAt": "2026-01-19 14:02:37.217135+00"
+  },
+  {
+    "customerEmail": "mikulaspavlik23@gmail.com",
+    "customerName": "Mikuláš",
+    "service": "Fade",
+    "date": "2026-01-26",
+    "time": "13:45",
+    "source": "resend",
+    "resendEmailId": "685efdd5-3431-4eb3-a7af-970f4ecec4a4",
+    "sentAt": "2026-01-19 13:59:27.532469+00"
+  },
+  {
+    "customerEmail": "davidkaup3@gmail.com",
+    "customerName": "David",
+    "service": "Fade",
+    "date": "2026-01-30",
+    "time": "13:00",
+    "source": "resend",
+    "resendEmailId": "7ef4187b-6b9a-4a3c-bf5e-b6fbf9c4a393",
+    "sentAt": "2026-01-19 13:11:27.892919+00"
+  },
+  {
+    "customerEmail": "jakubmikmikulka@gmail.com",
+    "customerName": "Jakub",
+    "service": "Fade",
+    "date": "2026-01-26",
+    "time": "10:00",
+    "source": "resend",
+    "resendEmailId": "689b8d7c-c466-4903-b724-28a8184a71a5",
+    "sentAt": "2026-01-19 13:08:03.015012+00"
+  },
+  {
+    "customerEmail": "halirmatyas8@gmail.com",
+    "customerName": "Matyáš",
+    "service": "Fade",
+    "date": "2026-01-30",
+    "time": "10:30",
+    "source": "resend",
+    "resendEmailId": "fd0b4bc8-4519-4f48-a794-09ec56d57de5",
+    "sentAt": "2026-01-19 13:06:12.380443+00"
+  },
+  {
+    "customerEmail": "marekhofmann133@icloud.com",
+    "customerName": "Marek",
+    "service": "Fade + Vousy",
+    "date": "2026-01-30",
+    "time": "13:45",
+    "source": "resend",
+    "resendEmailId": "b261e322-b7d6-4129-9003-ea965ac80c4c",
+    "sentAt": "2026-01-19 13:03:42.070017+00"
+  },
+  {
+    "customerEmail": "mr.pepe264@gmail.com",
+    "customerName": "Antonio",
+    "service": "Fade",
+    "date": "2026-01-30",
+    "time": "15:00",
+    "source": "resend",
+    "resendEmailId": "1907f1ce-edea-4021-8ffa-6c6f50012136",
+    "sentAt": "2026-01-19 12:59:54.382393+00"
+  },
+  {
+    "customerEmail": "anderle.a@seznam.cz",
+    "customerName": "Adam",
+    "service": "Fade",
+    "date": "2026-01-30",
+    "time": "09:00",
+    "source": "resend",
+    "resendEmailId": "34dc3c29-b531-4bca-83c2-2b979f5479f3",
+    "sentAt": "2026-01-19 12:40:57.305346+00"
+  },
+  {
+    "customerEmail": "syranak0@gmail.com",
+    "customerName": "Michal",
+    "service": "Fade",
+    "date": "2026-01-29",
+    "time": "15:45",
+    "source": "resend",
+    "resendEmailId": "26d16334-4549-41c4-af5c-1a706fa52824",
+    "sentAt": "2026-01-19 12:19:04.485758+00"
+  },
+  {
+    "customerEmail": "ostarmichal@seznam.cz",
+    "customerName": "Ostarek",
+    "service": "Fade + Mytí vlasů",
+    "date": "2026-01-29",
+    "time": "14:45",
+    "source": "resend",
+    "resendEmailId": "f4b3fc27-8f11-41ec-bb53-6f98a2be9242",
+    "sentAt": "2026-01-19 12:13:07.810409+00"
+  },
+  {
+    "customerEmail": "suchanek.kuba@email.cz",
+    "customerName": "Jakub",
+    "service": "Kompletka",
+    "date": "2026-01-30",
+    "time": "15:45",
+    "source": "resend",
+    "resendEmailId": "3ec69b80-47a2-4368-ab26-328895c6750c",
+    "sentAt": "2026-01-19 12:06:58.685132+00"
+  },
+  {
+    "customerEmail": "simonekmatyass@gmail.com",
+    "customerName": "Matyas",
+    "service": "Fade",
+    "date": "2026-01-28",
+    "time": "16:15",
+    "source": "resend",
+    "resendEmailId": "dbb7055b-558b-4508-aca8-6beb904ee0ca",
+    "sentAt": "2026-01-19 11:48:57.659563+00"
+  },
+  {
+    "customerEmail": "mrsveger478@gmail.com",
+    "customerName": "Riša",
+    "service": "Fade",
+    "date": "2026-01-28",
+    "time": "15:30",
+    "source": "resend",
+    "resendEmailId": "4d5f90f0-9f95-4195-a386-3dc3fe738272",
+    "sentAt": "2026-01-19 11:40:12.715801+00"
+  },
+  {
+    "customerEmail": "muzikbruno@gmail.com",
+    "customerName": "Bruno",
+    "service": "Fade",
+    "date": "2026-01-27",
+    "time": "14:00",
+    "source": "resend",
+    "resendEmailId": "2e10fda4-0f32-498c-902a-fe20add0a7e2",
+    "sentAt": "2026-01-19 11:38:24.458023+00"
+  },
+  {
+    "customerEmail": "davidmlcak999@seznam.cz",
+    "customerName": "David",
+    "service": "Fade",
+    "date": "2026-02-13",
+    "time": "14:45",
+    "source": "resend",
+    "resendEmailId": "886fcfce-8b90-48d6-88e4-9906caa142a2",
+    "sentAt": "2026-01-19 11:37:24.283111+00"
+  },
+  {
+    "customerEmail": "stulrajterdavid@gmail.com",
+    "customerName": "David",
+    "service": "Fade",
+    "date": "2026-01-29",
+    "time": "18:45",
+    "source": "resend",
+    "resendEmailId": "a98136b1-cf8d-46d2-a7c7-71898d1654a6",
+    "sentAt": "2026-01-19 11:36:12.887292+00"
+  },
+  {
+    "customerEmail": "marpolis@email.cz",
+    "customerName": "Matěj",
+    "service": "Fade",
+    "date": "2026-01-27",
+    "time": "14:45",
+    "source": "resend",
+    "resendEmailId": "d761c93e-bd56-4d99-b3b5-f285f60212f2",
+    "sentAt": "2026-01-19 11:21:46.415441+00"
+  },
+  {
+    "customerEmail": "jonas.ploner1140@gmail.com",
+    "customerName": "Jonáš",
+    "service": "Fade",
+    "date": "2026-01-27",
+    "time": "16:00",
+    "source": "resend",
+    "resendEmailId": "7de79ec6-15b1-420b-b09b-bb5e92895d01",
+    "sentAt": "2026-01-19 11:15:40.938594+00"
+  },
+  {
+    "customerEmail": "tadeasek50@gmail.com",
+    "customerName": "Tadeáš",
+    "service": "Fade",
+    "date": "2026-01-29",
+    "time": "18:00",
+    "source": "resend",
+    "resendEmailId": "07bdf2d1-732e-44e8-acbb-906ec86faa53",
+    "sentAt": "2026-01-19 11:15:28.230247+00"
+  },
+  {
+    "customerEmail": "stepanjezek10@seznam.cz",
+    "customerName": "Štěpán",
+    "service": "Fade",
+    "date": "2026-01-28",
+    "time": "14:15",
+    "source": "resend",
+    "resendEmailId": "7a507e7a-090f-4106-94c3-f3975a5876c6",
+    "sentAt": "2026-01-19 11:08:24.857444+00"
+  },
+  {
+    "customerEmail": "adam.kroupa2006@email.cz",
+    "customerName": "Adam",
+    "service": "Fade",
+    "date": "2026-01-29",
+    "time": "13:00",
+    "source": "resend",
+    "resendEmailId": "4e21f5d0-c184-456f-a2be-5027550c6c20",
+    "sentAt": "2026-01-19 11:07:25.07279+00"
+  },
+  {
+    "customerEmail": "filip.vymazal@email.cz",
+    "customerName": "Filip",
+    "service": "Fade",
+    "date": "2026-01-26",
+    "time": "15:15",
+    "source": "resend",
+    "resendEmailId": "71535d7c-0ef8-478d-848b-10c921dbf727",
+    "sentAt": "2026-01-19 11:07:21.167895+00"
+  },
+  {
+    "customerEmail": "honzalanger22@email.cz",
+    "customerName": "Jan",
+    "service": "Klasický střih",
+    "date": "2026-01-26",
+    "time": "16:00",
+    "source": "resend",
+    "resendEmailId": "f40dea82-cc33-41a0-bf55-3ebb3cd100c3",
+    "sentAt": "2026-01-19 11:05:05.025861+00"
+  },
+  {
+    "customerEmail": "radekligac77@seznam.cz",
+    "customerName": "Radek",
+    "service": "Fade",
+    "date": "2026-02-05",
+    "time": "15:00",
+    "source": "resend",
+    "resendEmailId": "63a8d1e1-148e-4127-b2b1-27b376ca888a",
+    "sentAt": "2026-01-19 11:03:18.615993+00"
+  },
+  {
+    "customerEmail": "kdjdebehw@gmail.com",
+    "customerName": "Dominik",
+    "service": "Fade",
+    "date": "2026-01-26",
+    "time": "14:30",
+    "source": "resend",
+    "resendEmailId": "52caea41-0b35-4e4e-8286-9e54cd122306",
+    "sentAt": "2026-01-19 10:59:52.791863+00"
+  },
+  {
+    "customerEmail": "hanak.radim4@seznam.cz",
+    "customerName": "Radim",
+    "service": "Kompletka",
+    "date": "2026-01-29",
+    "time": "16:30",
+    "source": "resend",
+    "resendEmailId": "c35f7753-9929-4c09-9f91-94112bc2fc36",
+    "sentAt": "2026-01-19 10:57:16.634961+00"
+  },
+  {
+    "customerEmail": "jonatanjurikk@seznam.cz",
+    "customerName": "Jonáš",
+    "service": "Fade",
+    "date": "2026-01-29",
+    "time": "14:00",
+    "source": "resend",
+    "resendEmailId": "3b82ef22-b006-4c07-b1f9-989cfe0ddee8",
+    "sentAt": "2026-01-19 10:56:39.180757+00"
+  },
+  {
+    "customerEmail": "cd@cs.cs",
+    "customerName": "dwd",
+    "service": "Kompletka",
+    "date": "2026-01-19",
+    "time": "09:00",
+    "source": "resend",
+    "resendEmailId": "2cf5faf6-2b50-4160-8349-8601f6245d31",
+    "sentAt": "2026-01-18 22:05:38.299341+00"
+  },
+  {
+    "customerEmail": "cd@cs.cs",
+    "customerName": "dwd",
+    "service": "Kompletka",
+    "date": "2026-01-19",
+    "time": "09:00",
+    "source": "resend",
+    "resendEmailId": "f0c64668-c572-46a4-90ca-ea3581c2bf12",
+    "sentAt": "2026-01-18 21:23:11.804958+00"
+  },
+  {
+    "customerEmail": "cd@cs.cs",
+    "customerName": "dwd",
+    "service": "Kompletka",
+    "date": "2026-01-19",
+    "time": "09:00",
+    "source": "resend",
+    "resendEmailId": "09b07a02-97ba-4cae-864e-b8677452ce11",
+    "sentAt": "2026-01-18 21:22:55.038243+00"
+  },
+  {
+    "customerEmail": "chlapekt@gytool.cz",
+    "customerName": "cscs",
+    "service": "Vousy",
+    "date": "2026-01-21",
+    "time": "13:30",
+    "source": "resend",
+    "resendEmailId": "81a47ac0-70bc-435f-b257-d903c95073e7",
+    "sentAt": "2026-01-18 20:52:03.277342+00"
+  },
+  {
+    "customerEmail": "adam.bardzak@gmail.com",
+    "customerName": "Adam",
+    "service": "Klasický střih",
+    "date": "2025-08-15",
+    "time": "16:00",
+    "source": "resend",
+    "resendEmailId": "cba02190-ea83-4f74-850d-853c2676d80b",
+    "sentAt": "2026-01-18 20:51:55.107334+00"
+  },
+  {
+    "customerEmail": "stepaflekac1@seznam.cz",
+    "customerName": "Štěpán",
+    "service": "Fade",
+    "date": "2025-08-15",
+    "time": "10:00",
+    "source": "resend",
+    "resendEmailId": "38027c2b-c48e-4478-a678-0a81ddb93185",
+    "sentAt": "2026-01-18 20:51:52.079134+00"
+  }
+]
