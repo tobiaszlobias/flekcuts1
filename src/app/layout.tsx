@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NODE_ENV === "production"
       ? "https://flekcuts.cz" // Replace with your actual domain when you have one
-      : "http://localhost:3000"
+      : "http://localhost:3000",
   ),
   title: "FlekCuts - Moderní holictví v Bruntále | Fade, Střihy, Vousy",
   description:
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
       "Profesionální fade střihy, úprava vousů a péče o vlasy v Bruntále. Online objednávky 24/7.",
     images: [
       {
-        url: "/fade.jpg",
+        url: "/logo.jpg",
         width: 1600,
         height: 896,
         alt: "FlekCuts - Moderní holictví v Bruntále",
