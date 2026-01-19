@@ -39,6 +39,7 @@ interface BookingForm {
   name: string;
   email: string;
   phone: string;
+  notes: string;
   date: string;
   time: string;
   service: string; // base service
@@ -185,6 +186,14 @@ const BookingConfirmationModal = ({
                 <div>
                   <p className="text-xs text-gray-500 uppercase tracking-wider">Telefon</p>
                   <p className="text-sm text-gray-900 mt-1">{formatPhoneDisplay(bookingDetails.phone)}</p>
+                </div>
+              )}
+              {bookingDetails.notes?.trim() && (
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Poznámka</p>
+                  <p className="text-sm text-gray-900 mt-1 whitespace-pre-wrap">
+                    {bookingDetails.notes}
+                  </p>
                 </div>
               )}
             </div>
@@ -648,6 +657,7 @@ const Booking = () => {
     name: "",
     email: "",
     phone: "",
+    notes: "",
     date: "",
     time: "",
     service: "",
@@ -972,6 +982,7 @@ const Booking = () => {
           service: serviceNameToSave,
           date: bookingForm.date,
           time: bookingForm.time,
+          notes: bookingForm.notes.trim() ? bookingForm.notes.trim() : undefined,
         });
       } else {
         await createAnonymousAppointment({
@@ -981,6 +992,7 @@ const Booking = () => {
           service: serviceNameToSave,
           date: bookingForm.date,
           time: bookingForm.time,
+          notes: bookingForm.notes.trim() ? bookingForm.notes.trim() : undefined,
         });
       }
 
@@ -991,6 +1003,7 @@ const Booking = () => {
         name: "",
         email: "",
         phone: "",
+        notes: "",
         date: "",
         time: "",
         service: "",
@@ -1342,6 +1355,23 @@ const Booking = () => {
                 {errors.time && (
                   <p className="text-[#FF6B35] text-sm mt-1">{errors.time}</p>
                 )}
+              </div>
+
+              <div>
+                <Label className="text-gray-700 font-medium">Poznámka (volitelné)</Label>
+                <div className="mt-2">
+                  <textarea
+                    value={bookingForm.notes}
+                    onChange={(e) => handleInputChange("notes", e.target.value)}
+                    rows={3}
+                    maxLength={500}
+                    placeholder="Např. speciální požadavek, alergie, poznámka k účesu…"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] transition"
+                  />
+                  <div className="mt-1 text-xs text-gray-500">
+                    {bookingForm.notes.length}/500
+                  </div>
+                </div>
               </div>
 
               <Button
