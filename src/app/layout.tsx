@@ -6,8 +6,8 @@ import Navbar from "@/components/Navbar";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Analytics } from "@vercel/analytics/next";
+import AnalyticsGate from "@/components/AnalyticsGate";
+import ConsentBanner from "@/components/ConsentBanner";
 
 const crimson = Crimson_Text({
   weight: ["400", "600", "700"],
@@ -101,25 +101,7 @@ export default function RootLayout({
         <meta name="geo.position" content="49.9884;17.4647" />
         <meta name="ICBM" content="49.9884,17.4647" />
 
-        {/* Preload Google Maps resources */}
-        <link rel="dns-prefetch" href="https://www.google.com" />
-        <link rel="dns-prefetch" href="https://maps.googleapis.com" />
-        <link rel="dns-prefetch" href="https://maps.gstatic.com" />
-        <link
-          rel="preconnect"
-          href="https://www.google.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preconnect"
-          href="https://maps.googleapis.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preconnect"
-          href="https://maps.gstatic.com"
-          crossOrigin="anonymous"
-        />
+        {/* Note: third-party resources (e.g., Google Maps) are gated by user consent */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -262,8 +244,8 @@ export default function RootLayout({
             <Navbar />
             {children}
             <Toaster />
-            <SpeedInsights />
-            <Analytics />
+            <ConsentBanner />
+            <AnalyticsGate />
           </ConvexClientProvider>
         </ClerkProvider>
       </body>

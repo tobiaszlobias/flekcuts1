@@ -10,6 +10,57 @@ const parseTimeToMinutes = (time: string): number => {
   return hours * 60 + minutes;
 };
 
+const pragueLocalToUtcMs = (date: string, time: string): number => {
+  // Convert (YYYY-MM-DD, HH:MM) interpreted in Europe/Prague to UTC epoch ms.
+  // Uses an iterative Intl-based offset correction to handle DST.
+  const [yStr, mStr, dStr] = date.split("-");
+  const [hhStr, mmStr = "0"] = time.split(":");
+  const year = Number(yStr);
+  const month = Number(mStr);
+  const day = Number(dStr);
+  const hour = Number(hhStr);
+  const minute = Number(mmStr);
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(month) ||
+    !Number.isFinite(day) ||
+    !Number.isFinite(hour) ||
+    !Number.isFinite(minute)
+  ) {
+    return NaN;
+  }
+
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Prague",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const desiredMinutes = Date.UTC(year, month - 1, day, hour, minute) / 60000;
+  let utcMs = Date.UTC(year, month - 1, day, hour, minute);
+
+  for (let i = 0; i < 3; i++) {
+    const parts = fmt.formatToParts(new Date(utcMs));
+    const get = (type: string) => parts.find((p) => p.type === type)?.value;
+    const y = Number(get("year"));
+    const mo = Number(get("month"));
+    const da = Number(get("day"));
+    const ho = Number(get("hour"));
+    const mi = Number(get("minute"));
+    if (![y, mo, da, ho, mi].every(Number.isFinite)) break;
+    const gotMinutes = Date.UTC(y, mo - 1, da, ho, mi) / 60000;
+    const delta = desiredMinutes - gotMinutes;
+    if (delta === 0) break;
+    utcMs += delta * 60000;
+  }
+
+  return utcMs;
+};
+
 const getNowInPrague = (): { date: string; minutes: number } => {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Prague",
@@ -210,11 +261,28 @@ export const getMyAppointments = query({
       throw new Error("Not authenticated");
     }
 
-    return await ctx.db
+    const mine = await ctx.db
       .query("appointments")
       .withIndex("by_user", (q) => q.eq("userId", identity.subject))
       .order("desc")
       .collect();
+
+    const email = identity.email;
+    if (!email) return mine;
+
+    const anonymousByEmail = await ctx.db
+      .query("appointments")
+      .withIndex("by_email", (q) => q.eq("customerEmail", email))
+      .filter((q) => q.eq(q.field("userId"), "anonymous"))
+      .collect();
+
+    const merged = [...mine, ...anonymousByEmail];
+    merged.sort((a, b) => {
+      const aStart = a.appointmentStartMs ?? pragueLocalToUtcMs(a.date, a.time);
+      const bStart = b.appointmentStartMs ?? pragueLocalToUtcMs(b.date, b.time);
+      return (bStart || 0) - (aStart || 0);
+    });
+    return merged;
   },
 });
 
@@ -258,6 +326,7 @@ export const createAppointment = mutation({
     const derivedDuration = deriveServiceDurationMinutes(args.service);
     const newDuration = args.durationMinutes ?? derivedDuration;
     const newEnd = newStart + newDuration;
+    const appointmentStartMs = pragueLocalToUtcMs(args.date, args.time);
 
     if (!isWithinWorkingHours(args.date, newStart, newEnd)) {
       throw new Error("Selected time is outside working hours.");
@@ -297,6 +366,7 @@ export const createAppointment = mutation({
       service: args.service,
       date: args.date,
       time: args.time,
+      appointmentStartMs: Number.isFinite(appointmentStartMs) ? appointmentStartMs : undefined,
       status: "pending",
       notes: args.notes,
     });
@@ -356,6 +426,7 @@ export const createAnonymousAppointment = mutation({
     const derivedDuration = deriveServiceDurationMinutes(args.service);
     const newDuration = args.durationMinutes ?? derivedDuration;
     const newEnd = newStart + newDuration;
+    const appointmentStartMs = pragueLocalToUtcMs(args.date, args.time);
 
     if (!isWithinWorkingHours(args.date, newStart, newEnd)) {
       throw new Error("Selected time is outside working hours.");
@@ -396,6 +467,7 @@ export const createAnonymousAppointment = mutation({
       service: args.service,
       date: args.date,
       time: args.time,
+      appointmentStartMs: Number.isFinite(appointmentStartMs) ? appointmentStartMs : undefined,
       status: "pending",
       notes: args.notes,
     });
@@ -434,10 +506,33 @@ export const cancelAppointment = mutation({
       throw new Error("Not authenticated");
     }
 
+    const nowMs = Date.now();
+
     // Make sure user can only cancel their own appointments
     const appointment = await ctx.db.get(args.appointmentId);
-    if (!appointment || appointment.userId !== identity.subject) {
+    if (!appointment) {
       throw new Error("Appointment not found or unauthorized");
+    }
+
+    const isOwner =
+      appointment.userId === identity.subject ||
+      (appointment.userId === "anonymous" &&
+        !!identity.email &&
+        identity.email === appointment.customerEmail);
+
+    if (!isOwner) {
+      throw new Error("Appointment not found or unauthorized");
+    }
+
+    const startMs =
+      appointment.appointmentStartMs ?? pragueLocalToUtcMs(appointment.date, appointment.time);
+    if (!Number.isFinite(startMs)) {
+      throw new Error("Invalid appointment time.");
+    }
+
+    // Enforce online cancellation only up to 24 hours before appointment
+    if (startMs < nowMs + 24 * 60 * 60 * 1000) {
+      throw new Error("Online cancellation is only possible up to 24 hours before the appointment.");
     }
 
     // Update to cancelled status
@@ -452,6 +547,56 @@ export const cancelAppointment = mutation({
       console.log("✅ Cancellation email scheduled for:", args.appointmentId);
     } catch (error) {
       console.error("❌ Failed to schedule cancellation email:", error);
+    }
+  },
+});
+
+export const cleanupOldAppointments = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const cutoffMs = Date.now() - 24 * 60 * 60 * 1000;
+
+    // Primary path: indexed cleanup (appointments with appointmentStartMs set)
+    const toDelete = await ctx.db
+      .query("appointments")
+      .withIndex("by_startMs", (q) => q.lt("appointmentStartMs", cutoffMs))
+      .collect();
+
+    for (const apt of toDelete) {
+      const logs = await ctx.db
+        .query("emailLogs")
+        .withIndex("by_appointment", (q) => q.eq("appointmentId", apt._id))
+        .collect();
+      for (const log of logs) {
+        await ctx.db.delete(log._id);
+      }
+      await ctx.db.delete(apt._id);
+    }
+
+    // Fallback: for older records without appointmentStartMs (best-effort)
+    const now = getNowInPrague();
+    const [y, m, d] = now.date.split("-").map(Number);
+    const cutoffDateUtc = new Date(Date.UTC(y, m - 1, d) - 2 * 24 * 60 * 60 * 1000);
+    const cutoffDateStr = cutoffDateUtc.toISOString().slice(0, 10);
+    const olderByDate = await ctx.db
+      .query("appointments")
+      .withIndex("by_date", (q) => q.lte("date", cutoffDateStr))
+      .collect();
+
+    for (const apt of olderByDate) {
+      if (apt.appointmentStartMs !== undefined) continue;
+      const startMs = pragueLocalToUtcMs(apt.date, apt.time);
+      if (!Number.isFinite(startMs)) continue;
+      if (startMs >= cutoffMs) continue;
+
+      const logs = await ctx.db
+        .query("emailLogs")
+        .withIndex("by_appointment", (q) => q.eq("appointmentId", apt._id))
+        .collect();
+      for (const log of logs) {
+        await ctx.db.delete(log._id);
+      }
+      await ctx.db.delete(apt._id);
     }
   },
 });

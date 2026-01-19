@@ -12,6 +12,7 @@ export default defineSchema({
     service: v.string(),
     date: v.string(),
     time: v.string(),
+    appointmentStartMs: v.optional(v.number()), // UTC epoch ms for Prague local date+time
     status: v.union(
       v.literal("pending"),
       v.literal("confirmed"),
@@ -28,7 +29,9 @@ export default defineSchema({
     // Add index for querying by email (useful for anonymous bookings)
     .index("by_email", ["customerEmail"])
     // Add index for querying by date and time
-    .index("by_date_time", ["date", "time"]),
+    .index("by_date_time", ["date", "time"])
+    // For retention cleanup
+    .index("by_startMs", ["appointmentStartMs"]),
 
   vacations: defineTable({
     startDate: v.string(), // YYYY-MM-DD

@@ -91,9 +91,7 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({
                   Potvrzení objednávky:
                 </h4>
                 <p className="text-gray-700">
-                  Po odeslání online objednávky obdržíte automatické potvrzení.
-                  Definitivní potvrzení termínu obdržíte do 24 hodin telefonicky
-                  nebo e-mailem.
+                  Po odeslání online objednávky obdržíte potvrzení e-mailem.
                 </p>
               </div>
             </div>
@@ -148,8 +146,8 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({
                   ❌ Pozdní zrušení:
                 </h4>
                 <p className="text-[#3C493F]">
-                  Za zrušení termínu méně než 24 hodin před službou si
-                  vyhrazujeme právo účtovat 50% z ceny objednané služby.
+                  Online zrušení je možné nejpozději 24 hodin před termínem. Později
+                  nás prosím kontaktujte telefonicky.
                 </p>
               </div>
             </div>
@@ -233,10 +231,37 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({
             </div>
           </div>
 
+          {/* ADR */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              10. Mimosoudní řešení spotřebitelských sporů (ADR)
+            </h3>
+            <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
+              <p className="text-green-800 font-medium mb-2">
+                Česká obchodní inspekce (ČOI)
+              </p>
+              <p className="text-green-700 text-sm">
+                Štěpánská 15, 120 00 Praha 2
+                <br />
+                E-mail: adr@coi.cz
+                <br />
+                Web:{" "}
+                <a
+                  href="https://adr.coi.cz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  https://adr.coi.cz
+                </a>
+              </p>
+            </div>
+          </div>
+
           {/* Závěrečná ustanovení */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              10. Závěrečná ustanovení
+              11. Závěrečná ustanovení
             </h3>
             <div className="space-y-3">
               <p className="text-gray-700">

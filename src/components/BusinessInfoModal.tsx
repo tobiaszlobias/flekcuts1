@@ -196,31 +196,21 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({
                   Řešení sporů:
                 </p>
                 <p className="text-sm text-green-700">
-                  Česká obchodní inspekce - územní inspektorát pro
-                  Moravskoslezský kraj
+                  Česká obchodní inspekce (ČOI), Štěpánská 15, 120 00 Praha 2
+                  <br />
+                  E-mail: adr@coi.cz
+                  <br />
+                  Web:{" "}
+                  <a
+                    href="https://adr.coi.cz"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    https://adr.coi.cz
+                  </a>
                 </p>
               </div>
-            </div>
-          </div>
-
-          {/* Online řešení sporů */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Online řešení spotřebitelských sporů
-            </h3>
-            <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-              <p className="text-gray-700 text-sm">
-                Platforma pro online řešení spotřebitelských sporů EU je
-                dostupná na adrese:{" "}
-                <a
-                  href="https://ec.europa.eu/consumers/odr/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#3C493F] hover:underline"
-                >
-                  https://ec.europa.eu/consumers/odr/
-                </a>
-              </p>
             </div>
           </div>
 

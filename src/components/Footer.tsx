@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MapPin, Phone, Clock, ExternalLink } from "lucide-react";
+import { openConsentSettings, readConsent, writeConsent } from "@/lib/consent";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const [externalEnabled, setExternalEnabled] = useState(false);
   const openingHours = [
     { day: "Pondělí", hours: "9:00 - 11:45, 13:00 - 17:00" },
     { day: "Úterý", hours: "9:00 - 11:45, 13:00 - 17:00" },
@@ -23,6 +25,27 @@ const Footer = () => {
 
   const handlePhoneClick = () => {
     window.open("tel:+420778779938");
+  };
+
+  useEffect(() => {
+    const consent = readConsent();
+    setExternalEnabled(!!consent?.external);
+    const onUpdated = () => {
+      const next = readConsent();
+      setExternalEnabled(!!next?.external);
+    };
+    window.addEventListener("flekcuts:consentUpdated", onUpdated as EventListener);
+    return () =>
+      window.removeEventListener("flekcuts:consentUpdated", onUpdated as EventListener);
+  }, []);
+
+  const enableExternalMaps = () => {
+    const current = readConsent();
+    writeConsent({
+      analytics: current?.analytics ?? false,
+      external: true,
+    });
+    setExternalEnabled(true);
   };
 
   return (
@@ -123,24 +146,63 @@ const Footer = () => {
           <div className="relative rounded-lg overflow-hidden shadow-md border border-gray-200">
             {/* Map Container */}
             <div className="relative w-full h-64 md:h-72">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2578.5123456789!2d17.464722!3d49.988611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4713d9f5a5b4c8f1%3A0x1234567890abcdef!2sZ%C3%A1meck%C3%A9%20n%C3%A1m%C4%9Bst%C3%AD%2019%2C%20792%2001%20Brunt%C3%A1l!5e0!3m2!1scs!2scz!4v1234567890123&style=feature:poi|element:labels|visibility:off"
-                width="100%"
-                height="100%"
-                style={{ border: 0, filter: "hue-rotate(0deg) saturate(1.2)" }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="absolute inset-0"
-                title="FlekCuts Location"
-              ></iframe>
+              {externalEnabled ? (
+                <>
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2578.5123456789!2d17.464722!3d49.988611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4713d9f5a5b4c8f1%3A0x1234567890abcdef!2sZ%C3%A1meck%C3%A9%20n%C3%A1m%C4%9Bst%C3%AD%2019%2C%20792%2001%20Brunt%C3%A1l!5e0!3m2!1scs!2scz!4v1234567890123&style=feature:poi|element:labels|visibility:off"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0, filter: "hue-rotate(0deg) saturate(1.2)" }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="absolute inset-0"
+                    title="FlekCuts Location"
+                  ></iframe>
 
-              {/* Click overlay to prevent accidental map interactions */}
-              <div
-                className="absolute inset-0 cursor-pointer opacity-0 hover:opacity-0 transition-opacity"
-                onClick={handleDirectionsClick}
-                title="Klikněte pro otevření v mapách"
-              />
+                  {/* Click overlay to prevent accidental map interactions */}
+                  <div
+                    className="absolute inset-0 cursor-pointer opacity-0 hover:opacity-0 transition-opacity"
+                    onClick={handleDirectionsClick}
+                    title="Klikněte pro otevření v mapách"
+                  />
+                </>
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-[#FFF4EF] via-white to-[#FFF9F6] flex items-center justify-center p-6">
+                  <div className="max-w-md text-center">
+                    <div className="mx-auto w-12 h-12 rounded-full bg-[#FF6B35]/10 flex items-center justify-center mb-3">
+                      <MapPin className="w-6 h-6 text-[#FF6B35]" />
+                    </div>
+                    <p className="font-montserrat text-gray-700 text-sm leading-relaxed">
+                      Mapa je poskytována službou Google Maps. Po načtení může Google
+                      zpracovávat technické údaje o zařízení a IP adresu.
+                    </p>
+                    <div className="mt-4 flex flex-col sm:flex-row gap-2 justify-center">
+                      <button
+                        type="button"
+                        onClick={enableExternalMaps}
+                        className="px-4 py-2 text-sm bg-[#FF6B35] text-white rounded-lg hover:bg-[#E5572C] transition-colors font-medium"
+                      >
+                        Načíst mapu
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleDirectionsClick}
+                        className="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors"
+                      >
+                        Otevřít v Google Maps
+                      </button>
+                      <button
+                        type="button"
+                        onClick={openConsentSettings}
+                        className="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors"
+                      >
+                        Nastavení
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Overlay with address info */}
               <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm text-gray-800 p-3 rounded-lg border border-gray-200 shadow-md">
@@ -189,6 +251,13 @@ const Footer = () => {
                 className="font-montserrat text-gray-600 hover:text-[#FF6B35] transition-colors"
               >
                 Právní informace
+              </button>
+              <span className="text-gray-300">•</span>
+              <button
+                onClick={openConsentSettings}
+                className="font-montserrat text-gray-600 hover:text-[#FF6B35] transition-colors"
+              >
+                Nastavení cookies
               </button>
             </div>
           </div>

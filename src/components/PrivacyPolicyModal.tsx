@@ -67,8 +67,10 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
                 <ul className="list-disc list-inside text-gray-700 space-y-1 ml-4">
                   <li>Jméno a příjmení</li>
                   <li>E-mailová adresa</li>
+                  <li>Telefonní číslo (povinné)</li>
                   <li>Datum a čas objednávky</li>
                   <li>Vybraná služba</li>
+                  <li>Poznámka (volitelné)</li>
                 </ul>
               </div>
 
@@ -103,10 +105,16 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
               4. Právní základ zpracování
             </h3>
             <p className="text-gray-700">
-              Vaše osobní údaje zpracováváme na základě{" "}
-              <strong>vašeho souhlasu</strong> při zadávání objednávky a z
-              důvodu <strong>plnění smlouvy</strong> (poskytnutí objednané
-              služby).
+              Osobní údaje pro rezervaci termínu a související komunikaci
+              zpracováváme z důvodu <strong>plnění smlouvy</strong> a kroků před
+              uzavřením smlouvy (GDPR čl. 6 odst. 1 písm. b).
+            </p>
+            <p className="text-gray-700 mt-3">
+              Analytiku webu (Vercel Analytics + Speed Insights) a externí obsah
+              (Google Maps) používáme pouze na základě vašeho{" "}
+              <strong>souhlasu</strong> (GDPR čl. 6 odst. 1 písm. a), který lze
+              kdykoli změnit v{" "}
+              <span className="font-semibold">Nastavení cookies</span>.
             </p>
           </div>
 
@@ -118,14 +126,8 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
             <div className="bg-white p-4 rounded-lg">
               <ul className="list-disc list-inside text-gray-700 space-y-2">
                 <li>
-                  <strong>Aktivní objednávky:</strong> Do splnění služby
-                </li>
-                <li>
-                  <strong>Dokončené objednávky:</strong> 3 roky (pro účetní a
-                  daňové účely)
-                </li>
-                <li>
-                  <strong>Zrušené objednávky:</strong> 1 rok
+                  <strong>Objednávky a související e-mailové záznamy:</strong>{" "}
+                  jsou automaticky mazány 1 den po termínu objednávky.
                 </li>
               </ul>
             </div>
@@ -188,11 +190,28 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
                 technických služeb.
               </p>
               <p className="text-gray-700 mt-3">
-                Web využívá služby třetích stran (např. Google Maps), které
-                mohou při zobrazení zpracovávat technické údaje o zařízení a IP
-                adresu. Tyto služby jsou používány za účelem zobrazení mapy a
-                zajištění funkčnosti webu.
+                Mezi používané technické služby patří:
               </p>
+              <ul className="list-disc list-inside text-gray-700 space-y-1 ml-4 mt-2">
+                <li>
+                  <strong>Clerk</strong> (přihlášení a správa účtů)
+                </li>
+                <li>
+                  <strong>Convex</strong> (backend a databáze pro objednávky)
+                </li>
+                <li>
+                  <strong>Resend</strong> (odeslání potvrzovacích e-mailů)
+                </li>
+                <li>
+                  <strong>Vercel</strong> (hosting a provoz webu)
+                </li>
+                <li>
+                  <strong>Vercel Analytics + Speed Insights</strong> (analytika výkonu) – pouze po souhlasu
+                </li>
+                <li>
+                  <strong>Google Maps</strong> (externí obsah/mapa) – pouze po souhlasu
+                </li>
+              </ul>
             </div>
           </div>
 
@@ -202,10 +221,11 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
               9. Cookies a sledování
             </h3>
             <p className="text-gray-700">
-              Naše webová stránka používá pouze{" "}
-              <strong>technické cookies</strong> nezbytné pro její správné
-              fungování (přihlašování, formuláře). Nepoužíváme marketingové,
-              analytické nebo sledovací cookies.
+              Web používá nezbytné cookies pro přihlášení a správné fungování.
+              Volitelně (po souhlasu) používáme analytiku (Vercel Analytics +
+              Speed Insights) a externí obsah (Google Maps). Souhlas můžete
+              kdykoli změnit nebo odvolat v{" "}
+              <span className="font-semibold">Nastavení cookies</span>.
             </p>
           </div>
 
