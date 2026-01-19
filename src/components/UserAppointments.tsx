@@ -41,20 +41,19 @@ export default function UserAppointments() {
   );
   const cancelAppointment = useMutation(api.appointments.cancelAppointment);
 
-  // Add manual linking function as backup
-  const manualLinkAppointments = useMutation(
-    api.appointments.manualLinkAppointments
-  );
+  // Manual linking function as backup
+  const linkAnonymousAppointments = useMutation(api.appointments.linkAnonymousAppointments);
   const [isLinking, setIsLinking] = useState(false);
   const [hasTriedLinking, setHasTriedLinking] = useState(false);
 
   // Manual linking function as a backup
   const handleManualLink = async () => {
-    if (!user?.primaryEmailAddress?.emailAddress || isLinking) return;
+    if (!user?.id || !user?.primaryEmailAddress?.emailAddress || isLinking) return;
 
     setIsLinking(true);
     try {
-      const result = await manualLinkAppointments({
+      const result = await linkAnonymousAppointments({
+        userId: user.id,
         email: user.primaryEmailAddress.emailAddress,
       });
       console.log("Manual linking result:", result);
