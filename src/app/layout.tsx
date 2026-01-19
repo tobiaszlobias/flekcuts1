@@ -66,7 +66,7 @@ export const metadata: Metadata = {
       "Profesionální fade střihy, úprava vousů a péče o vlasy v Bruntále. Online objednávky 24/7.",
     images: [
       {
-        url: "/logo.jpg",
+        url: "/logo.png",
         width: 1600,
         height: 896,
         alt: "FlekCuts - Moderní holictví v Bruntále",
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     title: "FlekCuts - Moderní holictví v Bruntále",
     description:
       "Profesionální fade střihy, úprava vousů a péče o vlasy v Bruntále. Online objednávky 24/7.",
-    images: ["/fade.jpg"],
+    images: ["/logo.png"],
   },
   other: {
     "business:contact_data:locality": "Bruntál",
