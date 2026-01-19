@@ -337,13 +337,10 @@ export default function UserAppointments() {
             </h2>
             <div className="space-y-4">
               {upcomingAppointments.map((appointment) => {
-                const config = getStatusConfig(appointment.status);
-                const StatusIcon = config.icon;
-
                 return (
                   <div
                     key={appointment._id}
-                    className={`bg-white rounded-xl shadow-sm border ${config.borderColor} p-6 hover:shadow-md transition-shadow duration-200`}
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
                   >
                     <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
                       {/* Left side - Appointment info */}
@@ -355,12 +352,6 @@ export default function UserAppointments() {
                               <h3 className="font-crimson italic text-2xl font-bold text-gray-900">
                                 {appointment.service}
                               </h3>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <StatusIcon className={`w-4 h-4 ${config.textColor}`} />
-                              <span className={`text-sm font-medium ${config.textColor}`}>
-                                {config.label}
-                              </span>
                             </div>
                           </div>
                         </div>
@@ -477,12 +468,14 @@ export default function UserAppointments() {
                                 {appointment.service}
                               </h3>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <StatusIcon className={`w-4 h-4 ${config.textColor}`} />
-                              <span className={`text-sm font-medium ${config.textColor}`}>
-                                {config.label}
-                              </span>
-                            </div>
+                            {appointment.status === "cancelled" && (
+                              <div className="inline-flex items-center gap-2 rounded-full bg-red-50 border border-red-200 px-3 py-1">
+                                <StatusIcon className="w-4 h-4 text-red-600" />
+                                <span className="text-sm font-medium text-red-700">
+                                  Zrušeno
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
 

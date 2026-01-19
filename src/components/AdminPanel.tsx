@@ -593,20 +593,19 @@ export default function AdminPanel() {
                                 <span className="font-montserrat text-sm font-semibold text-gray-900 truncate">
                                   {appointment.service}
                                 </span>
-                                <span
-                                  className={`hidden sm:inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${
-                                    appointment.status === "pending"
-                                      ? "border-orange-200 bg-white text-orange-700"
-                                      : appointment.status === "confirmed"
+                                {appointment.status !== "pending" && (
+                                  <span
+                                    className={`hidden sm:inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${
+                                      appointment.status === "confirmed"
                                         ? "border-green-200 bg-white text-green-700"
                                         : "border-red-200 bg-white text-red-700"
-                                  }`}
-                                >
-                                  {getStatusIcon(appointment.status)}
-                                  {appointment.status === "pending" && "Čeká"}
-                                  {appointment.status === "confirmed" && "OK"}
-                                  {appointment.status === "cancelled" && "Zrušeno"}
-                                </span>
+                                    }`}
+                                  >
+                                    {getStatusIcon(appointment.status)}
+                                    {appointment.status === "confirmed" && "OK"}
+                                    {appointment.status === "cancelled" && "Zrušeno"}
+                                  </span>
+                                )}
                               </div>
                               <div className="mt-1 text-xs text-gray-600 truncate">
                                 {appointment.customerName} • {appointment.customerEmail}
@@ -621,23 +620,22 @@ export default function AdminPanel() {
                                   className="font-montserrat bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2"
                                 >
                                   <CheckCircle className="h-4 w-4" />
-                                  Potvrdit
+                                  Hotovo
                                 </Button>
                               )}
-                              <span
-                                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-2 text-xs font-medium ${
-                                  appointment.status === "pending"
-                                    ? "border-orange-200 bg-white text-orange-700"
-                                    : appointment.status === "confirmed"
+                              {appointment.status !== "pending" && (
+                                <span
+                                  className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-2 text-xs font-medium ${
+                                    appointment.status === "confirmed"
                                       ? "border-green-200 bg-white text-green-700"
                                       : "border-red-200 bg-white text-red-700"
-                                }`}
-                              >
-                                {getStatusIcon(appointment.status)}
-                                {appointment.status === "pending" && "Čeká na potvrzení"}
-                                {appointment.status === "confirmed" && "Potvrzeno"}
-                                {appointment.status === "cancelled" && "Zrušeno"}
-                              </span>
+                                  }`}
+                                >
+                                  {getStatusIcon(appointment.status)}
+                                  {appointment.status === "confirmed" && "Potvrzeno"}
+                                  {appointment.status === "cancelled" && "Zrušeno"}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -676,20 +674,19 @@ export default function AdminPanel() {
                                   {appointment.service}
                                 </h4>
                                 <div className="mt-1 flex items-center gap-2">
-                                  <span
-                                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium bg-white ${
-                                      appointment.status === "pending"
-                                        ? "border-orange-200 text-orange-700"
-                                        : appointment.status === "confirmed"
+                                  {appointment.status !== "pending" && (
+                                    <span
+                                      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium bg-white ${
+                                        appointment.status === "confirmed"
                                           ? "border-green-200 text-green-700"
                                           : "border-red-200 text-red-700"
-                                    }`}
-                                  >
-                                    {getStatusIcon(appointment.status)}
-                                    {appointment.status === "pending" && "Čeká na potvrzení"}
-                                    {appointment.status === "confirmed" && "Potvrzeno"}
-                                    {appointment.status === "cancelled" && "Zrušeno"}
-                                  </span>
+                                      }`}
+                                    >
+                                      {getStatusIcon(appointment.status)}
+                                      {appointment.status === "confirmed" && "Potvrzeno"}
+                                      {appointment.status === "cancelled" && "Zrušeno"}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -737,7 +734,7 @@ export default function AdminPanel() {
                                   className="flex-1 lg:flex-none font-montserrat bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
                                 >
                                   <CheckCircle className="h-4 w-4" />
-                                  Potvrdit
+                                  Hotovo
                                 </Button>
                                 <Button
                                   onClick={() => handleStatusUpdate(appointment._id, "cancelled")}
