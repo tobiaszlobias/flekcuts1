@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as admin from "../admin.js";
 import type * as appointments from "../appointments.js";
+import type * as crons from "../crons.js";
 import type * as emails from "../emails.js";
 import type * as http from "../http.js";
 import type * as notifications from "../notifications.js";
@@ -33,6 +34,7 @@ import type * as vacations from "../vacations.js";
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   appointments: typeof appointments;
+  crons: typeof crons;
   emails: typeof emails;
   http: typeof http;
   notifications: typeof notifications;

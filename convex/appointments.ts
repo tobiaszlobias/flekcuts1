@@ -2,31 +2,29 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
+/* =========================
+   HELPERS
+========================= */
+
 const parseTimeToMinutes = (time: string): number => {
-  const [hoursStr, minutesStr = "0"] = time.split(":");
-  const hours = Number(hoursStr);
-  const minutes = Number(minutesStr);
-  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return NaN;
-  return hours * 60 + minutes;
+  const [h, m = "0"] = time.split(":");
+  const hh = Number(h);
+  const mm = Number(m);
+  if (!Number.isFinite(hh) || !Number.isFinite(mm)) return NaN;
+  return hh * 60 + mm;
 };
 
 const pragueLocalToUtcMs = (date: string, time: string): number => {
-  // Convert (YYYY-MM-DD, HH:MM) interpreted in Europe/Prague to UTC epoch ms.
-  // Uses an iterative Intl-based offset correction to handle DST.
-  const [yStr, mStr, dStr] = date.split("-");
+  const [yStr, moStr, dStr] = date.split("-");
   const [hhStr, mmStr = "0"] = time.split(":");
-  const year = Number(yStr);
-  const month = Number(mStr);
-  const day = Number(dStr);
-  const hour = Number(hhStr);
-  const minute = Number(mmStr);
-  if (
-    !Number.isFinite(year) ||
-    !Number.isFinite(month) ||
-    !Number.isFinite(day) ||
-    !Number.isFinite(hour) ||
-    !Number.isFinite(minute)
-  ) {
+
+  const y = Number(yStr);
+  const mo = Number(moStr);
+  const d = Number(dStr);
+  const h = Number(hhStr);
+  const mi = Number(mmStr);
+
+  if (![y, mo, d, h, mi].every(Number.isFinite)) {
     return NaN;
   }
 
@@ -40,20 +38,25 @@ const pragueLocalToUtcMs = (date: string, time: string): number => {
     hour12: false,
   });
 
-  const desiredMinutes = Date.UTC(year, month - 1, day, hour, minute) / 60000;
-  let utcMs = Date.UTC(year, month - 1, day, hour, minute);
+  let utcMs = Date.UTC(y, mo - 1, d, h, mi);
+  const desiredMinutes = utcMs / 60000;
 
   for (let i = 0; i < 3; i++) {
     const parts = fmt.formatToParts(new Date(utcMs));
-    const get = (type: string) => parts.find((p) => p.type === type)?.value;
-    const y = Number(get("year"));
-    const mo = Number(get("month"));
-    const da = Number(get("day"));
-    const ho = Number(get("hour"));
-    const mi = Number(get("minute"));
-    if (![y, mo, da, ho, mi].every(Number.isFinite)) break;
-    const gotMinutes = Date.UTC(y, mo - 1, da, ho, mi) / 60000;
+    const get = (type: string) =>
+      Number(parts.find((p) => p.type === type)?.value);
+
+    const yy = get("year");
+    const mm = get("month");
+    const dd = get("day");
+    const hh = get("hour");
+    const mi2 = get("minute");
+
+    if (![yy, mm, dd, hh, mi2].every(Number.isFinite)) break;
+
+    const gotMinutes = Date.UTC(yy, mm - 1, dd, hh, mi2) / 60000;
     const delta = desiredMinutes - gotMinutes;
+
     if (delta === 0) break;
     utcMs += delta * 60000;
   }
@@ -61,882 +64,122 @@ const pragueLocalToUtcMs = (date: string, time: string): number => {
   return utcMs;
 };
 
-const getNowInPrague = (): { date: string; minutes: number } => {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Prague",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).formatToParts(new Date());
-
-  const get = (type: string) => parts.find((p) => p.type === type)?.value;
-  const year = get("year");
-  const month = get("month");
-  const day = get("day");
-  const hour = get("hour");
-  const minute = get("minute");
-
-  if (!year || !month || !day || !hour || !minute) {
-    const fallback = new Date();
-    const date = fallback.toISOString().slice(0, 10);
-    return { date, minutes: fallback.getHours() * 60 + fallback.getMinutes() };
-  }
-
-  return {
-    date: `${year}-${month}-${day}`,
-    minutes: Number(hour) * 60 + Number(minute),
-  };
-};
-
-const isDateWithinNextMonth = (dateString: string): boolean => {
-  const date = new Date(dateString + "T00:00:00");
-  if (Number.isNaN(date.getTime())) return false;
-
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-
-  const maxDate = new Date(todayStart);
-  maxDate.setMonth(maxDate.getMonth() + 1);
-
-  return date >= todayStart && date <= maxDate;
-};
-
-const getWeekdayIndexInPrague = (dateString: string): number => {
-  const date = new Date(dateString + "T12:00:00Z");
-  if (Number.isNaN(date.getTime())) return -1;
-  const weekday = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Europe/Prague",
-    weekday: "short",
-  }).format(date);
-  const map: Record<string, number> = {
-    Sun: 0,
-    Mon: 1,
-    Tue: 2,
-    Wed: 3,
-    Thu: 4,
-    Fri: 5,
-    Sat: 6,
-  };
-  return map[weekday] ?? -1;
-};
-
-const getWorkingPeriodsForWeekday = (weekdayIndex: number): Array<[number, number]> => {
-  // Minutes from midnight, Europe/Prague local business hours:
-  // Mon/Tue/Wed/Fri: 09:00–11:45 and 13:00–17:00
-  // Thu: 13:00–19:30
-  // Sat/Sun: closed
-  switch (weekdayIndex) {
-    case 1:
-    case 2:
-    case 3:
-    case 5:
-      return [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ];
-    case 4:
-      return [[13 * 60, 19 * 60 + 30]];
-    default:
-      return [];
-  }
-};
-
-const isWithinWorkingHours = (dateString: string, startMinutes: number, endMinutes: number) => {
-  const weekday = getWeekdayIndexInPrague(dateString);
-  const periods = getWorkingPeriodsForWeekday(weekday);
-  return periods.some(([pStart, pEnd]) => startMinutes >= pStart && endMinutes <= pEnd);
-};
-
-const deriveServiceDurationMinutes = (serviceName: string): number => {
-  const normalized = serviceName.trim();
-
-  // Base services
-  if (normalized === "Fade") return 45;
-  if (normalized === "Klasický střih") return 30;
-  if (normalized === "Dětský střih - fade") return 45;
-  if (normalized === "Dětský střih - klasický") return 30;
-  if (normalized === "Dětský střih - do ztracena") return 30;
-  if (normalized === "Vousy") return 15;
-  if (normalized === "Mytí vlasů") return 10;
-  if (normalized === "Kompletka") return 70;
-
-  // Legacy naming
-  if (normalized === "Vlasy do ztracena + Vousy") return 65;
-
-  // Combos (built from base + add-ons)
-  const hasBeard = normalized.includes("+ Vousy");
-  const hasWash = normalized.includes("+ Mytí vlasů");
-
-  let base: number | null = null;
-  if (normalized.startsWith("Fade")) base = 45;
-  if (normalized.startsWith("Klasický střih")) base = 30;
-  if (normalized.startsWith("Dětský střih - fade")) base = 45;
-  if (normalized.startsWith("Dětský střih - klasický")) base = 30;
-  if (normalized.startsWith("Vousy")) base = 15;
-  if (normalized.startsWith("Mytí vlasů")) base = 10;
-
-  if (base === null) return 30;
-
-  if (normalized.startsWith("Fade") && hasBeard) {
-    // Special-case duration per your list: Fade + Vousy = 65 min (not 60).
-    base = 65;
-  } else if (hasBeard) {
-    base += 15;
-  }
-
-  if (hasWash) base += 10;
-
-  return base;
-};
-
-const overlaps = (
-  startA: number,
-  endA: number,
-  startB: number,
-  endB: number
-): boolean => startA < endB && startB < endA;
-
-const getVacationIntervalsForDate = async (
-  ctx: any,
-  date: string
-): Promise<Array<{ start: number; end: number }>> => {
-  const vacations = await ctx.db
-    .query("vacations")
-    .withIndex("by_startDate", (q: any) => q.lte("startDate", date))
-    .filter((q: any) => q.gte(q.field("endDate"), date))
-    .collect();
-
-  const intervals: Array<{ start: number; end: number }> = [];
-  for (const v of vacations) {
-    // Full-day vacation
-    if (!v.startTime || !v.endTime) {
-      intervals.push({ start: 0, end: 24 * 60 });
-      continue;
-    }
-    const start = parseTimeToMinutes(v.startTime);
-    const end = parseTimeToMinutes(v.endTime);
-    if (!Number.isFinite(start) || !Number.isFinite(end)) continue;
-    intervals.push({ start, end });
-  }
-  return intervals;
-};
-
-// 🆕 NEW: Link anonymous appointments to authenticated user
-export const linkAnonymousAppointments = mutation({
-  args: {
-    userId: v.string(),
-    email: v.string(),
-  },
-  handler: async (ctx, { userId, email }) => {
-    // Find all anonymous appointments with this email
-    const anonymousAppointments = await ctx.db
-      .query("appointments")
-      .withIndex("by_email", (q) => q.eq("customerEmail", email))
-      .filter((q) => q.eq(q.field("userId"), "anonymous"))
-      .collect();
-
-    // Link them to the authenticated user
-    for (const appointment of anonymousAppointments) {
-      await ctx.db.patch(appointment._id, {
-        userId: userId,
-      });
-    }
-
-    console.log(
-      `✅ Linked ${anonymousAppointments.length} anonymous appointments to user ${userId}`
-    );
-    return anonymousAppointments.length;
-  },
-});
-
-// Get all appointments for the current user
-export const getMyAppointments = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
-
-    const mine = await ctx.db
-      .query("appointments")
-      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
-      .order("desc")
-      .collect();
-
-    const email = identity.email;
-    if (!email) return mine;
-
-    const anonymousByEmail = await ctx.db
-      .query("appointments")
-      .withIndex("by_email", (q) => q.eq("customerEmail", email))
-      .filter((q) => q.eq(q.field("userId"), "anonymous"))
-      .collect();
-
-    const merged = [...mine, ...anonymousByEmail];
-    merged.sort((a, b) => {
-      const aStart = a.appointmentStartMs ?? pragueLocalToUtcMs(a.date, a.time);
-      const bStart = b.appointmentStartMs ?? pragueLocalToUtcMs(b.date, b.time);
-      return (bStart || 0) - (aStart || 0);
-    });
-    return merged;
-  },
-});
-
-// Create a new appointment - 🆕 NOW WITH AUTO-EMAIL!
-export const createAppointment = mutation({
-  args: {
-    customerName: v.string(),
-    customerEmail: v.string(),
-    service: v.string(),
-    date: v.string(),
-    time: v.string(),
-    durationMinutes: v.optional(v.number()),
-    notes: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
-
-    if (!isDateWithinNextMonth(args.date)) {
-      throw new Error("Appointments can only be booked up to 1 month in advance.");
-    }
-
-    const newStart = parseTimeToMinutes(args.time);
-    if (!Number.isFinite(newStart)) {
-      throw new Error("Invalid time format.");
-    }
-
-    const now = getNowInPrague();
-    if (args.date < now.date) {
-      throw new Error("Appointments must be in the future.");
-    }
-    if (args.date === now.date && newStart < now.minutes + 1) {
-      throw new Error("Appointments must be in the future.");
-    }
-    if (args.date === now.date && newStart < now.minutes + 120) {
-      throw new Error("Appointments must be booked at least 2 hours in advance.");
-    }
-
-    const derivedDuration = deriveServiceDurationMinutes(args.service);
-    const newDuration = args.durationMinutes ?? derivedDuration;
-    const newEnd = newStart + newDuration;
-    const appointmentStartMs = pragueLocalToUtcMs(args.date, args.time);
-
-    if (!isWithinWorkingHours(args.date, newStart, newEnd)) {
-      throw new Error("Selected time is outside working hours.");
-    }
-
-    const vacationIntervals = await getVacationIntervalsForDate(ctx, args.date);
-    if (
-      vacationIntervals.some((v) => overlaps(newStart, newEnd, v.start, v.end))
-    ) {
-      throw new Error("Selected time is during vacation.");
-    }
-
-    // Check for overlapping appointments on the same date (ignore cancelled)
-    const existingAppointments = await ctx.db
-      .query("appointments")
-      .withIndex("by_date", (q) => q.eq("date", args.date))
-      .filter((q) => q.neq(q.field("status"), "cancelled"))
-      .collect();
-
-    for (const existing of existingAppointments) {
-      const existingStart = parseTimeToMinutes(existing.time);
-      if (!Number.isFinite(existingStart)) continue;
-      const existingDerived = deriveServiceDurationMinutes(existing.service);
-      const existingDuration = existingDerived;
-      const existingEnd = existingStart + existingDuration;
-
-      if (overlaps(newStart, newEnd, existingStart, existingEnd)) {
-        throw new Error("An appointment already exists at this time.");
-      }
-    }
-
-    // Create the appointment (your existing code)
-    const appointmentId = await ctx.db.insert("appointments", {
-      userId: identity.subject,
-      customerName: args.customerName,
-      customerEmail: args.customerEmail,
-      service: args.service,
-      date: args.date,
-      time: args.time,
-      appointmentStartMs: Number.isFinite(appointmentStartMs) ? appointmentStartMs : undefined,
-      status: "pending",
-      notes: args.notes,
-    });
-
-    // 🆕 NEW: Auto-send confirmation email
-    try {
-      await ctx.scheduler.runAfter(
-        0,
-        api.notifications.sendAppointmentConfirmation,
-        {
-          appointmentId,
-        }
-      );
-      console.log("✅ Confirmation email scheduled for:", appointmentId);
-    } catch (error) {
-      console.error("❌ Failed to schedule confirmation email:", error);
-      // Don't throw - appointment creation should succeed even if email fails
-    }
-
-    return appointmentId;
-  },
-});
-
-// 🆕 NEW: Create anonymous appointment (not linked to any user)
-export const createAnonymousAppointment = mutation({
-  args: {
-    customerName: v.string(),
-    customerEmail: v.string(),
-    customerPhone: v.string(),
-    service: v.string(),
-    date: v.string(),
-    time: v.string(),
-    durationMinutes: v.optional(v.number()),
-    notes: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    if (!isDateWithinNextMonth(args.date)) {
-      throw new Error("Appointments can only be booked up to 1 month in advance.");
-    }
-
-    const newStart = parseTimeToMinutes(args.time);
-    if (!Number.isFinite(newStart)) {
-      throw new Error("Invalid time format.");
-    }
-
-    const now = getNowInPrague();
-    if (args.date < now.date) {
-      throw new Error("Appointments must be in the future.");
-    }
-    if (args.date === now.date && newStart < now.minutes + 1) {
-      throw new Error("Appointments must be in the future.");
-    }
-    if (args.date === now.date && newStart < now.minutes + 120) {
-      throw new Error("Appointments must be booked at least 2 hours in advance.");
-    }
-
-    const derivedDuration = deriveServiceDurationMinutes(args.service);
-    const newDuration = args.durationMinutes ?? derivedDuration;
-    const newEnd = newStart + newDuration;
-    const appointmentStartMs = pragueLocalToUtcMs(args.date, args.time);
-
-    if (!isWithinWorkingHours(args.date, newStart, newEnd)) {
-      throw new Error("Selected time is outside working hours.");
-    }
-
-    const vacationIntervals = await getVacationIntervalsForDate(ctx, args.date);
-    if (
-      vacationIntervals.some((v) => overlaps(newStart, newEnd, v.start, v.end))
-    ) {
-      throw new Error("Selected time is during vacation.");
-    }
-
-    // Check for overlapping appointments on the same date (ignore cancelled)
-    const existingAppointments = await ctx.db
-      .query("appointments")
-      .withIndex("by_date", (q) => q.eq("date", args.date))
-      .filter((q) => q.neq(q.field("status"), "cancelled"))
-      .collect();
-
-    for (const existing of existingAppointments) {
-      const existingStart = parseTimeToMinutes(existing.time);
-      if (!Number.isFinite(existingStart)) continue;
-      const existingDerived = deriveServiceDurationMinutes(existing.service);
-      const existingDuration = existingDerived;
-      const existingEnd = existingStart + existingDuration;
-
-      if (overlaps(newStart, newEnd, existingStart, existingEnd)) {
-        throw new Error("An appointment already exists at this time.");
-      }
-    }
-
-    // Create the appointment without requiring authentication
-    const appointmentId = await ctx.db.insert("appointments", {
-      userId: "anonymous", // Use a special marker for anonymous appointments
-      customerName: args.customerName,
-      customerEmail: args.customerEmail,
-      customerPhone: args.customerPhone,
-      service: args.service,
-      date: args.date,
-      time: args.time,
-      appointmentStartMs: Number.isFinite(appointmentStartMs) ? appointmentStartMs : undefined,
-      status: "pending",
-      notes: args.notes,
-    });
-
-    // 🆕 AUTO-SEND confirmation email for anonymous bookings too
-    try {
-      await ctx.scheduler.runAfter(
-        0,
-        api.notifications.sendAppointmentConfirmation,
-        {
-          appointmentId,
-        }
-      );
-      console.log(
-        "✅ Anonymous confirmation email scheduled for:",
-        appointmentId
-      );
-    } catch (error) {
-      console.error(
-        "❌ Failed to schedule anonymous confirmation email:",
-        error
-      );
-      // Don't throw - appointment creation should succeed even if email fails
-    }
-
-    return appointmentId;
-  },
-});
-
-// Cancel an appointment - 🆕 NOW WITH AUTO-EMAIL!
-export const cancelAppointment = mutation({
-  args: { appointmentId: v.id("appointments") },
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
-
-    const nowMs = Date.now();
-
-    // Make sure user can only cancel their own appointments
-    const appointment = await ctx.db.get(args.appointmentId);
-    if (!appointment) {
-      throw new Error("Appointment not found or unauthorized");
-    }
-
-    const isOwner =
-      appointment.userId === identity.subject ||
-      (appointment.userId === "anonymous" &&
-        !!identity.email &&
-        identity.email === appointment.customerEmail);
-
-    if (!isOwner) {
-      throw new Error("Appointment not found or unauthorized");
-    }
-
-    const startMs =
-      appointment.appointmentStartMs ?? pragueLocalToUtcMs(appointment.date, appointment.time);
-    if (!Number.isFinite(startMs)) {
-      throw new Error("Invalid appointment time.");
-    }
-
-    // Enforce online cancellation only up to 24 hours before appointment
-    if (startMs < nowMs + 24 * 60 * 60 * 1000) {
-      throw new Error("Online cancellation is only possible up to 24 hours before the appointment.");
-    }
-
-    // Update to cancelled status
-    await ctx.db.patch(args.appointmentId, { status: "cancelled" });
-
-    // 🆕 NEW: Auto-send cancellation email
-    try {
-      await ctx.scheduler.runAfter(0, api.notifications.sendStatusUpdate, {
-        appointmentId: args.appointmentId,
-        newStatus: "cancelled",
-      });
-      console.log("✅ Cancellation email scheduled for:", args.appointmentId);
-    } catch (error) {
-      console.error("❌ Failed to schedule cancellation email:", error);
-    }
-  },
-});
+const overlaps = (a1: number, a2: number, b1: number, b2: number) =>
+  a1 < b2 && b1 < a2;
+
+/* =========================
+   RETENTION (SAFE)
+========================= */
 
 export const cleanupOldAppointments = mutation({
   args: {},
   handler: async (ctx) => {
     const retentionEnabled = process.env.RETENTION_ENABLED === "true";
     const dryRun = process.env.RETENTION_DRY_RUN !== "false";
+
     const maxDelete = (() => {
       const raw = process.env.RETENTION_MAX_DELETE;
-      const parsed = raw ? Number(raw) : 10;
-      return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 10;
+      const n = raw ? Number(raw) : 10;
+      return Number.isFinite(n) && n > 0 ? Math.floor(n) : 10;
     })();
 
     if (!retentionEnabled) {
-      console.log("🧹 Retention cleanup skipped (RETENTION_ENABLED is not true).");
+      console.log("🧹 Retention skipped (RETENTION_ENABLED != true)");
       return;
     }
 
-    const cutoffMs = Date.now() - 24 * 60 * 60 * 1000;
     const nowMs = Date.now();
+    const cutoffMs = nowMs - 24 * 60 * 60 * 1000;
 
-    // Primary path: indexed cleanup (appointments with appointmentStartMs set)
-    const toDelete = await ctx.db
+    const candidates = await ctx.db
       .query("appointments")
       .withIndex("by_startMs", (q) => q.lt("appointmentStartMs", cutoffMs))
       .take(maxDelete);
 
-    console.log("🧹 Retention cleanup candidates:", {
-      cutoffMs,
-      nowMs,
-      deleting: dryRun ? 0 : toDelete.length,
+    console.log("🧹 Retention candidates:", {
       dryRun,
       maxDelete,
-      minStartMs: toDelete.reduce<number | null>((min, apt) => {
-        const v = apt.appointmentStartMs;
-        if (!Number.isFinite(v)) return min;
-        return min === null ? (v as number) : Math.min(min, v as number);
-      }, null),
-      maxStartMs: toDelete.reduce<number | null>((max, apt) => {
-        const v = apt.appointmentStartMs;
-        if (!Number.isFinite(v)) return max;
-        return max === null ? (v as number) : Math.max(max, v as number);
-      }, null),
+      count: candidates.length,
     });
 
     if (dryRun) {
       console.log(
-        "🧹 Retention dry-run ids:",
-        toDelete.map((apt) => ({
-          id: apt._id,
-          appointmentStartMs: apt.appointmentStartMs,
-        }))
+        "🧹 DRY-RUN ids:",
+        candidates.map((a) => ({
+          id: a._id,
+          appointmentStartMs: a.appointmentStartMs,
+        })),
       );
       return;
     }
 
-    for (const apt of toDelete) {
+    for (const apt of candidates) {
       const startMs = apt.appointmentStartMs;
-      if (!Number.isFinite(startMs)) {
-        console.warn("🧹 Skipping retention delete due to invalid appointmentStartMs:", apt._id);
+
+      if (typeof startMs !== "number" || !Number.isFinite(startMs)) {
+        console.warn("🧹 Skip invalid startMs", apt._id);
         continue;
       }
+
       if (startMs > nowMs) {
-        console.warn("🧹 Skipping retention delete for future appointmentStartMs:", {
-          id: apt._id,
-          startMs,
-          nowMs,
-        });
+        console.warn("🧹 Skip future appointment", apt._id);
         continue;
       }
+
       if (startMs >= cutoffMs) {
-        console.warn("🧹 Skipping retention delete due to startMs not past cutoff:", {
-          id: apt._id,
-          startMs,
-          cutoffMs,
-        });
+        console.warn("🧹 Skip not past cutoff", apt._id);
         continue;
       }
+
       const logs = await ctx.db
         .query("emailLogs")
         .withIndex("by_appointment", (q) => q.eq("appointmentId", apt._id))
         .collect();
+
       for (const log of logs) {
         await ctx.db.delete(log._id);
       }
+
       await ctx.db.delete(apt._id);
     }
-
-    // Safety: Do not delete legacy records without appointmentStartMs.
-    // Backfill appointmentStartMs first, then retention can delete via the index above.
   },
 });
 
+/* =========================
+   BACKFILL
+========================= */
+
 export const backfillAppointmentStartMs = mutation({
   args: { limit: v.optional(v.number()) },
-  handler: async (ctx, args) => {
+  handler: async (ctx, { limit = 200 }) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
+    if (!identity) throw new Error("Not authenticated");
 
-    const userRole = await ctx.db
+    const role = await ctx.db
       .query("userRoles")
       .withIndex("by_user", (q) => q.eq("userId", identity.subject))
       .first();
 
-    if (userRole?.role !== "admin") {
-      throw new Error("Admin access required");
-    }
+    if (role?.role !== "admin") throw new Error("Admin only");
 
-    const limit = (() => {
-      const raw = args.limit ?? 200;
-      const n = Number(raw);
-      return Number.isFinite(n) && n > 0 ? Math.min(500, Math.floor(n)) : 200;
-    })();
-
-    const legacy = await ctx.db
+    const rows = await ctx.db
       .query("appointments")
       .order("desc")
       .take(Math.min(1000, limit * 5));
 
     let updated = 0;
-    for (const apt of legacy) {
+    for (const a of rows) {
       if (updated >= limit) break;
-      if (apt.appointmentStartMs !== undefined) continue;
-      const startMs = pragueLocalToUtcMs(apt.date, apt.time);
-      if (!Number.isFinite(startMs)) continue;
-      await ctx.db.patch(apt._id, { appointmentStartMs: startMs });
-      updated += 1;
+      if (a.appointmentStartMs !== undefined) continue;
+
+      const ms = pragueLocalToUtcMs(a.date, a.time);
+      if (!Number.isFinite(ms)) continue;
+
+      await ctx.db.patch(a._id, { appointmentStartMs: ms });
+      updated++;
     }
 
-    console.log("🧩 Backfilled appointmentStartMs:", { updated, limit });
-    return { updated, limit };
-  },
-});
-
-export const importReconstructedAppointments = mutation({
-  args: {
-    items: v.array(
-      v.object({
-        customerName: v.union(v.string(), v.null()),
-        customerEmail: v.union(v.string(), v.null()),
-        customerPhone: v.optional(v.union(v.string(), v.null())),
-        service: v.union(v.string(), v.null()),
-        date: v.union(v.string(), v.null()),
-        time: v.union(v.string(), v.null()),
-        notes: v.optional(v.union(v.string(), v.null())),
-        sourceResendId: v.union(v.string(), v.null()),
-        sourceTimestamp: v.union(v.string(), v.null()),
-      })
-    ),
-  },
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
-
-    const userRole = await ctx.db
-      .query("userRoles")
-      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
-      .first();
-
-    if (userRole?.role !== "admin") {
-      throw new Error("Admin access required");
-    }
-
-    const results = {
-      inserted: 0,
-      skippedDuplicate: 0,
-      skippedInvalid: 0,
-      skippedConflict: 0,
-    };
-
-    for (const item of args.items) {
-      const customerName = typeof item.customerName === "string" ? item.customerName.trim() : "";
-      const customerEmail = typeof item.customerEmail === "string" ? item.customerEmail.trim() : "";
-      const service = typeof item.service === "string" ? item.service.trim() : "";
-      const date = typeof item.date === "string" ? item.date.trim() : "";
-      const time = typeof item.time === "string" ? item.time.trim() : "";
-      const customerPhone =
-        typeof item.customerPhone === "string" ? item.customerPhone.trim() : undefined;
-      const notes = typeof item.notes === "string" ? item.notes.trim() : undefined;
-      const sourceResendId =
-        typeof item.sourceResendId === "string" ? item.sourceResendId.trim() : "";
-      const sourceTimestamp =
-        typeof item.sourceTimestamp === "string" ? item.sourceTimestamp.trim() : "";
-
-      const hasCore = !!customerName && !!customerEmail && !!service && !!date && !!time;
-      if (!hasCore) {
-        results.skippedInvalid += 1;
-        continue;
-      }
-
-      const existingAtTime = await ctx.db
-        .query("appointments")
-        .withIndex("by_date_time", (q) => q.eq("date", date).eq("time", time))
-        .collect();
-
-      const duplicate = existingAtTime.some(
-        (a) =>
-          a.customerEmail === customerEmail &&
-          a.service === service &&
-          a.date === date &&
-          a.time === time
-      );
-      if (duplicate) {
-        results.skippedDuplicate += 1;
-        continue;
-      }
-
-      // Avoid importing into a time slot already taken by another appointment.
-      if (existingAtTime.length > 0) {
-        results.skippedConflict += 1;
-        continue;
-      }
-
-      const appointmentStartMs = pragueLocalToUtcMs(date, time);
-      const combinedNotes = [
-        notes,
-        sourceResendId ? `Recovered from Resend: ${sourceResendId}` : null,
-        sourceTimestamp ? `Source timestamp: ${sourceTimestamp}` : null,
-      ]
-        .filter(Boolean)
-        .join("\n");
-
-      await ctx.db.insert("appointments", {
-        userId: "anonymous",
-        customerName,
-        customerEmail,
-        customerPhone: customerPhone ? customerPhone : undefined,
-        service,
-        date,
-        time,
-        appointmentStartMs: Number.isFinite(appointmentStartMs) ? appointmentStartMs : undefined,
-        status: "pending",
-        notes: combinedNotes ? combinedNotes : undefined,
-      });
-
-      results.inserted += 1;
-    }
-
-    console.log("🧩 Import reconstructed appointments:", results);
-    return results;
-  },
-});
-
-// 🆕 BONUS: Get all appointments (admin only) - including anonymous ones
-export const getAllAppointments = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
-
-    // Check if user is admin
-    const userRole = await ctx.db
-      .query("userRoles")
-      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
-      .first();
-
-    if (userRole?.role !== "admin") {
-      throw new Error("Admin access required");
-    }
-
-    return await ctx.db.query("appointments").order("desc").collect();
-  },
-});
-
-// Get all appointments for a given date
-export const getAppointmentsByDate = query({
-  args: { date: v.string() },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("appointments")
-      .withIndex("by_date", (q) => q.eq("date", args.date))
-      .collect();
-  },
-});
-
-// ===============================
-// 🐛 DEBUG FUNCTIONS
-// ===============================
-
-// Debug: Check all appointments in database
-export const debugAllAppointments = query({
-  args: {},
-  handler: async (ctx) => {
-    const allAppointments = await ctx.db.query("appointments").collect();
-    console.log(
-      "🔍 ALL APPOINTMENTS IN DATABASE:",
-      allAppointments.map((a) => ({
-        id: a._id,
-        userId: a.userId,
-        customerName: a.customerName,
-        customerEmail: a.customerEmail,
-        service: a.service,
-        date: a.date,
-        time: a.time,
-        status: a.status,
-      }))
-    );
-    return allAppointments;
-  },
-});
-
-// Debug: Check all users in database
-export const debugAllUsers = query({
-  args: {},
-  handler: async (ctx) => {
-    const allUsers = await ctx.db.query("users").collect();
-    console.log("🔍 ALL USERS IN DATABASE:", allUsers);
-    return allUsers;
-  },
-});
-
-// Debug: Check appointments for specific email
-export const debugAppointmentsByEmail = query({
-  args: { email: v.string() },
-  handler: async (ctx, args) => {
-    const appointments = await ctx.db
-      .query("appointments")
-      .withIndex("by_email", (q) => q.eq("customerEmail", args.email))
-      .collect();
-
-    console.log(
-      `🔍 APPOINTMENTS FOR EMAIL ${args.email}:`,
-      appointments.map((a) => ({
-        id: a._id,
-        userId: a.userId,
-        customerName: a.customerName,
-        service: a.service,
-        date: a.date,
-        time: a.time,
-        status: a.status,
-      }))
-    );
-
-    return appointments;
-  },
-});
-
-// Debug: Get current user ID
-export const debugCurrentUser = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    console.log("🔍 CURRENT USER IDENTITY:", identity);
-    return identity;
-  },
-});
-
-// Manual function to link appointments (for testing)
-export const manualLinkAppointments = mutation({
-  args: {
-    email: v.string(),
-    userId: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    const targetUserId = args.userId || identity?.subject;
-
-    if (!targetUserId) {
-      throw new Error("No user ID provided and not authenticated");
-    }
-
-    console.log(
-      `🔗 MANUAL LINKING: Looking for appointments with email ${args.email} to link to user ${targetUserId}`
-    );
-
-    // Find anonymous appointments
-    const anonymousAppointments = await ctx.db
-      .query("appointments")
-      .withIndex("by_email", (q) => q.eq("customerEmail", args.email))
-      .filter((q) => q.eq(q.field("userId"), "anonymous"))
-      .collect();
-
-    console.log(
-      `📊 Found ${anonymousAppointments.length} anonymous appointments`
-    );
-
-    // Link them
-    for (const appointment of anonymousAppointments) {
-      await ctx.db.patch(appointment._id, { userId: targetUserId });
-      console.log(`✅ Linked appointment ${appointment._id}`);
-    }
-
-    return `Linked ${anonymousAppointments.length} appointments`;
+    console.log("🧩 Backfill done:", updated);
+    return { updated };
   },
 });
