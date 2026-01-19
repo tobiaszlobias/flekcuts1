@@ -222,7 +222,7 @@ const appointmentConfirmation = (data: EmailData) => {
           </div>
         </div>
         <p style="margin:12px 0 0 0; color:${BRAND.muted}; font-size:13px;">
-          Přihlaste se stejným e‑mailem a své objednávky najdete v sekci <strong>Moje objednávky</strong> na <strong>flekcuts.cz</strong>, kde je můžete i zrušit.
+          Pro zobrazení, úpravu nebo zrušení objednávky se přihlaste stejným e‑mailem. Najdete ji v sekci <strong>Moje objednávky</strong> na <strong>flekcuts.cz</strong>.
         </p>
         <p style="margin:12px 0 0 0;">Těšíme se na vaši návštěvu.</p>
         <p style="margin:12px 0 0 0; color:${BRAND.muted}; font-size:13px;">
@@ -246,6 +246,8 @@ const appointmentConfirmation = (data: EmailData) => {
     - Délka: ${durationMinutes} min
 
     Objednávku lze zrušit nejpozději 24 hodin před termínem.
+
+    Pro zobrazení, úpravu nebo zrušení objednávky se přihlaste stejným e‑mailem. Najdete ji v sekci Moje objednávky na flekcuts.cz.
     
     Těšíme se na vaši návštěvu!
     

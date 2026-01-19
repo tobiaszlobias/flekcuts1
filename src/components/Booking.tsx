@@ -106,6 +106,10 @@ const BookingConfirmationModal = ({
     return deriveServiceFromName(serviceName).priceCzk || 0;
   };
 
+  const getServiceDurationMinutes = (serviceName: string): number => {
+    return deriveServiceFromName(serviceName).durationMinutes || 0;
+  };
+
   if (!isOpen || !isMounted) return null;
 
   return createPortal(
@@ -147,9 +151,10 @@ const BookingConfirmationModal = ({
                   Potvrzení jsme poslali na <span className="font-semibold">{bookingDetails.email}</span>.
                 </p>
                 <p className="text-sm text-green-700 mt-2">
-                  Přihlaste se stejným e‑mailem a své objednávky najdete v sekci{" "}
+                  Pro zobrazení, úpravu nebo zrušení objednávky se přihlaste stejným
+                  e‑mailem. Najdete ji v sekci{" "}
                   <span className="font-semibold">Moje objednávky</span> na{" "}
-                  <span className="font-semibold">flekcuts.cz</span>, kde je můžete i zrušit.
+                  <span className="font-semibold">flekcuts.cz</span>.
                 </p>
               </div>
             </div>
@@ -179,6 +184,12 @@ const BookingConfirmationModal = ({
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">Čas</p>
                 <p className="text-sm font-medium text-gray-900 mt-1">{bookingDetails.time}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">Délka</p>
+                <p className="text-sm font-medium text-gray-900 mt-1">
+                  {getServiceDurationMinutes(bookingDetails.service)} min
+                </p>
               </div>
             </div>
 
