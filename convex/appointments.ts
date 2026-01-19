@@ -561,7 +561,7 @@ export const cleanupOldAppointments = mutation({
 
     for (const apt of candidates) {
       const startMs = apt.appointmentStartMs;
-      if (!Number.isFinite(startMs)) {
+      if (typeof startMs !== "number" || !Number.isFinite(startMs)) {
         console.warn("🧹 Skipping retention delete due to invalid appointmentStartMs:", apt._id);
         continue;
       }
