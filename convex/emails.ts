@@ -216,6 +216,11 @@ const appointmentConfirmation = (data: EmailData) => {
         <p style="margin:0 0 10px 0;">Dobrý den <strong>${safeName}</strong>,</p>
         <p style="margin:0 0 12px 0;">děkujeme za rezervaci. Níže najdete její detaily.</p>
         ${renderReservationDetails(data)}
+        <div style="margin:12px 0 0 0; padding:12px 14px; border-radius:12px; background:rgba(255,107,53,0.06); border:1px solid rgba(255,107,53,0.18);">
+          <div style="font-size:13px; color:${BRAND.text};">
+            Objednávku lze zrušit nejpozději <strong>24 hodin</strong> před termínem.
+          </div>
+        </div>
         <p style="margin:12px 0 0 0;">Těšíme se na vaši návštěvu.</p>
         <p style="margin:12px 0 0 0; color:${BRAND.muted}; font-size:13px;">
           Potřebujete termín změnit? Ozvěte se nám telefonicky.
@@ -236,6 +241,8 @@ const appointmentConfirmation = (data: EmailData) => {
     - Datum: ${data.date}
     - Čas: ${data.time}
     - Délka: ${durationMinutes} min
+
+    Objednávku lze zrušit nejpozději 24 hodin před termínem.
     
     Těšíme se na vaši návštěvu!
     
@@ -261,6 +268,9 @@ const appointmentReminder = (data: EmailData) => {
         <p style="margin:0 0 10px 0;">Dobrý den <strong>${safeName}</strong>,</p>
         <p style="margin:0 0 12px 0;">připomínáme vám zítřejší rezervaci.</p>
         ${renderReservationDetails(data)}
+        <p style="margin:12px 0 0 0; color:${BRAND.muted}; font-size:13px;">
+          Objednávku lze zrušit nejpozději 24 hodin před termínem.
+        </p>
         <p style="margin:12px 0 0 0;">Pokud nemůžete dorazit, dejte nám prosím vědět co nejdříve.</p>
       </div>
     `,

@@ -149,6 +149,13 @@ const BookingConfirmationModal = ({
             </div>
           </div>
 
+          <div className="bg-[#FFF9F6] border border-[#FF6B35]/20 rounded-lg p-4">
+            <p className="text-sm text-gray-800">
+              Objednávku lze zrušit nejpozději{" "}
+              <span className="font-semibold">24 hodin</span> před termínem.
+            </p>
+          </div>
+
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-y-3 gap-x-4">
               <div>
