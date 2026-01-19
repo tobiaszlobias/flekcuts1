@@ -209,7 +209,7 @@ const appointmentConfirmation = (data: EmailData) => {
   const durationMinutes = deriveServiceDurationMinutes(data.service);
   const html = renderEmail({
     title: "Rezervace přijata",
-    subtitle: "Do 24 hodin vás budeme kontaktovat pro potvrzení.",
+    subtitle: "Potvrzení rezervace a další informace uvnitř.",
     preheader: "Rezervace přijata – děkujeme! Detaily uvnitř.",
     contentHtml: `
       <div class="email-text" style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:${BRAND.text}; font-size:15px; line-height:1.7;">
@@ -221,6 +221,9 @@ const appointmentConfirmation = (data: EmailData) => {
             Objednávku lze zrušit nejpozději <strong>24 hodin</strong> před termínem.
           </div>
         </div>
+        <p style="margin:12px 0 0 0; color:${BRAND.muted}; font-size:13px;">
+          Přihlaste se stejným e‑mailem a své objednávky najdete v sekci <strong>Moje objednávky</strong> na <strong>flekcuts.cz</strong>, kde je můžete i zrušit.
+        </p>
         <p style="margin:12px 0 0 0;">Těšíme se na vaši návštěvu.</p>
         <p style="margin:12px 0 0 0; color:${BRAND.muted}; font-size:13px;">
           Potřebujete termín změnit? Ozvěte se nám telefonicky.

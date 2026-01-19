@@ -146,6 +146,11 @@ const BookingConfirmationModal = ({
                 <p className="text-sm text-green-700 mt-1">
                   Potvrzení jsme poslali na <span className="font-semibold">{bookingDetails.email}</span>.
                 </p>
+                <p className="text-sm text-green-700 mt-2">
+                  Přihlaste se stejným e‑mailem a své objednávky najdete v sekci{" "}
+                  <span className="font-semibold">Moje objednávky</span> na{" "}
+                  <span className="font-semibold">flekcuts.cz</span>, kde je můžete i zrušit.
+                </p>
               </div>
             </div>
           </div>
