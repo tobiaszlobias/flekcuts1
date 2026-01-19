@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
+import { ClerkLoaded, ClerkLoading, SignedIn, SignedOut } from "@clerk/nextjs";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
 import Gallery from "@/components/Gallery";
@@ -85,7 +85,7 @@ export default function Home() {
 
   return (
     <main>
-      <AuthLoading>
+      <ClerkLoading>
         {/* Skeleton Loading Screen */}
         <div className="min-h-screen bg-white">
           {/* Navbar Skeleton */}
@@ -205,38 +205,36 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </AuthLoading>
+      </ClerkLoading>
 
-      <Authenticated>
-        {activeView === "dashboard" ? (
-          /* Dashboard View - Only for authenticated users */
-          <div className="min-h-screen bg-white">
-            <div className="p-4 space-y-6">
-              <UserAppointments />
+      <ClerkLoaded>
+        <SignedIn>
+          {activeView === "dashboard" ? (
+            <div className="min-h-screen bg-white">
+              <div className="p-4 space-y-6">
+                <UserAppointments />
+              </div>
+              <Booking /> <Footer />
             </div>
-            <Booking /> <Footer />
-          </div>
-        ) : activeView === "admin" ? (
-          /* Admin View */
-          <AdminPanel />
-        ) : (
-          /* Home View - Same as unauthenticated but with auth context */
-          <>
-            <Hero />
-            <Services />
-            <Gallery />
-            <Booking /> <Footer />
-          </>
-        )}
-      </Authenticated>
+          ) : activeView === "admin" ? (
+            <AdminPanel />
+          ) : (
+            <>
+              <Hero />
+              <Services />
+              <Gallery />
+              <Booking /> <Footer />
+            </>
+          )}
+        </SignedIn>
 
-      <Unauthenticated>
-        {/* Show full site including booking form for unauthenticated users */}
-        <Hero />
-        <Services />
-        <Gallery />
-        <Booking /> <Footer />
-      </Unauthenticated>
+        <SignedOut>
+          <Hero />
+          <Services />
+          <Gallery />
+          <Booking /> <Footer />
+        </SignedOut>
+      </ClerkLoaded>
 
       {/* All Legal Modals */}
       <PrivacyPolicyModal

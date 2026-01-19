@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { SignInButton, useUser } from "@clerk/nextjs";
@@ -10,9 +10,11 @@ import { Button } from "@/components/ui/button";
 
 export default function UserAppointments() {
   const { user, isLoaded, isSignedIn } = useUser();
+  const { isAuthenticated: isConvexAuthenticated, isLoading: isConvexLoading } =
+    useConvexAuth();
   const appointments = useQuery(
     api.appointments.getMyAppointments,
-    isLoaded && isSignedIn ? {} : "skip"
+    isLoaded && isSignedIn && isConvexAuthenticated ? {} : "skip"
   );
   const cancelAppointment = useMutation(api.appointments.cancelAppointment);
 
@@ -76,7 +78,7 @@ export default function UserAppointments() {
     return hoursUntil >= 24;
   };
 
-  if (!isLoaded) {
+  if (!isLoaded || isConvexLoading) {
     return (
       <div className="p-6 bg-white rounded-lg shadow-sm border">
         <h2 className="text-xl font-semibold mb-4">Vaše objednávky</h2>
@@ -116,6 +118,18 @@ export default function UserAppointments() {
             Přihlásit se
           </Button>
         </SignInButton>
+      </div>
+    );
+  }
+
+  if (!isConvexAuthenticated) {
+    return (
+      <div className="p-6 bg-white rounded-lg shadow-sm border">
+        <h2 className="text-xl font-semibold mb-2">Moje objednávky</h2>
+        <p className="text-gray-600">
+          Načítám přihlášení… Pokud to trvá déle než pár sekund, zkuste obnovit
+          stránku.
+        </p>
       </div>
     );
   }
