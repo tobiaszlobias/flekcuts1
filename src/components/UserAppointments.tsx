@@ -8,6 +8,29 @@ import { useEffect, useState } from "react";
 import { Calendar, Clock, Scissors, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+const parseAppointmentDateTime = (date: string, time: string): Date | null => {
+  // date: YYYY-MM-DD, time: H:MM or HH:MM
+  const [yearStr, monthStr, dayStr] = date.split("-");
+  const [hourStrRaw, minuteStrRaw = "0"] = time.split(":");
+  const year = Number(yearStr);
+  const month = Number(monthStr);
+  const day = Number(dayStr);
+  const hour = Number(hourStrRaw);
+  const minute = Number(minuteStrRaw);
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(month) ||
+    !Number.isFinite(day) ||
+    !Number.isFinite(hour) ||
+    !Number.isFinite(minute)
+  ) {
+    return null;
+  }
+  // Use local time constructor to avoid ISO parsing edge cases like "T9:00"
+  const dt = new Date(year, month - 1, day, hour, minute, 0, 0);
+  return Number.isNaN(dt.getTime()) ? null : dt;
+};
+
 export default function UserAppointments() {
   const { user, isLoaded, isSignedIn } = useUser();
   const { isAuthenticated: isConvexAuthenticated, isLoading: isConvexLoading } =
@@ -72,7 +95,8 @@ export default function UserAppointments() {
 
   // Check if appointment can be cancelled (24 hours before)
   const canCancelAppointment = (date: string, time: string): boolean => {
-    const appointmentDateTime = new Date(date + 'T' + time);
+    const appointmentDateTime = parseAppointmentDateTime(date, time);
+    if (!appointmentDateTime) return false;
     const now = new Date();
     const hoursUntil = (appointmentDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
     return hoursUntil >= 24;
@@ -165,14 +189,24 @@ export default function UserAppointments() {
   // Separate upcoming and past appointments
   const now = new Date();
   const upcomingAppointments = appointments?.filter(apt => {
-    const aptDate = new Date(apt.date + 'T' + apt.time);
+    const aptDate = parseAppointmentDateTime(apt.date, apt.time);
+    if (!aptDate) return false;
     return aptDate >= now && apt.status !== "cancelled";
-  }).sort((a, b) => new Date(a.date + 'T' + a.time).getTime() - new Date(b.date + 'T' + b.time).getTime()) || [];
+  }).sort((a, b) => {
+    const aDt = parseAppointmentDateTime(a.date, a.time);
+    const bDt = parseAppointmentDateTime(b.date, b.time);
+    return (aDt?.getTime() ?? 0) - (bDt?.getTime() ?? 0);
+  }) || [];
 
   const pastAppointments = appointments?.filter(apt => {
-    const aptDate = new Date(apt.date + 'T' + apt.time);
+    const aptDate = parseAppointmentDateTime(apt.date, apt.time);
+    if (!aptDate) return true;
     return aptDate < now || apt.status === "cancelled";
-  }).sort((a, b) => new Date(b.date + 'T' + b.time).getTime() - new Date(a.date + 'T' + a.time).getTime()) || [];
+  }).sort((a, b) => {
+    const aDt = parseAppointmentDateTime(a.date, a.time);
+    const bDt = parseAppointmentDateTime(b.date, b.time);
+    return (bDt?.getTime() ?? 0) - (aDt?.getTime() ?? 0);
+  }) || [];
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -283,6 +317,16 @@ export default function UserAppointments() {
             Celkem {appointments.length} {appointments.length === 1 ? 'objednávka' : appointments.length < 5 ? 'objednávky' : 'objednávek'}
           </p>
         </div>
+
+        {appointments.length > 0 &&
+          upcomingAppointments.length === 0 &&
+          pastAppointments.length === 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <p className="font-montserrat text-gray-700">
+                Objednávky se nepodařilo zobrazit (neplatný formát data/času).
+              </p>
+            </div>
+          )}
 
         {/* Upcoming Appointments */}
         {upcomingAppointments.length > 0 && (
