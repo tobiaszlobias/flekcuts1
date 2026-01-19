@@ -144,7 +144,7 @@ const BookingConfirmationModal = ({
                   Vaše objednávka byla úspěšně vytvořena
                 </p>
                 <p className="text-sm text-green-700 mt-1">
-                  Do 24 hodin vás budeme kontaktovat pro potvrzení termínu.
+                  Potvrzení jsme poslali na <span className="font-semibold">{bookingDetails.email}</span>.
                 </p>
               </div>
             </div>
