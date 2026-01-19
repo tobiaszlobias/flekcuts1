@@ -25,6 +25,7 @@ import {
   deriveServiceFromName,
   deriveServiceSelection,
 } from "@/lib/services";
+import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 
 type Vacation = {
   _id: Id<"vacations">;
@@ -82,14 +83,7 @@ const BookingConfirmationModal = ({
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   const formatDate = (dateString: string): string => {
     if (!dateString) return "";
@@ -511,40 +505,46 @@ const CompactDateTimePicker = ({
 
             const isSelectable = isDateSelectable(day);
 
-            return (
-              <div key={day.dateString} className="relative">
-                <button
-                  type="button"
-                  onClick={() =>
-                    isSelectable ? handleDateClick(day.dateString) : null
-                  }
-                  disabled={!isSelectable}
-                  className={`
-                    w-full aspect-square text-xs rounded transition-all duration-200 relative ring-1 ring-inset
-                    ${day.isSelected ? "bg-[#FF8C5A] text-white font-semibold shadow-md scale-105 ring-[#FF8C5A]" : "ring-gray-100"}
-                    ${day.isToday && !day.isSelected ? "bg-[#FFE5DC] text-[#FF6B35] font-semibold" : ""}
-                    ${day.isVacationFullDay && !day.isSelected && !day.isPast ? "bg-blue-50 text-blue-900 font-semibold ring-blue-200 cursor-not-allowed" : ""}
-                    ${day.isVacationPartial && !day.isSelected && !day.isPast ? "bg-blue-50/40 text-gray-900 ring-blue-100" : ""}
-                    ${isSelectable && !day.isSelected && !day.isToday && !day.isVacationPartial ? "bg-[#FFF9F6] ring-[#FFE5DC]" : ""}
-                    ${!isSelectable && !day.isSelected && !day.isToday && !day.isVacationFullDay ? "bg-gray-50 ring-gray-100" : ""}
-                    ${isSelectable && !day.isSelected && !day.isToday ? "hover:bg-[#FFF9F6] hover:text-[#FF6B35] text-gray-900" : ""}
-                    ${!isSelectable && !day.isVacationFullDay ? "text-gray-300 cursor-not-allowed" : ""}
-                  `}
-                >
-                  <span className="relative z-10">{day.day}</span>
-                  {day.isWorking &&
-                    !day.isPast &&
-                    !day.isVacationFullDay &&
-                    !day.isVacationPartial && (
-                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-[#FF6B35] rounded-full"></div>
-                  )}
-                  {(day.isVacationFullDay || day.isVacationPartial) && !day.isPast && (
-                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></div>
-                  )}
-                </button>
-              </div>
-            );
-          })}
+	            return (
+	              <div key={day.dateString} className="relative">
+	                <button
+	                  type="button"
+	                  onClick={() =>
+	                    isSelectable ? handleDateClick(day.dateString) : null
+	                  }
+	                  disabled={!isSelectable}
+	                  className={`
+	                    w-full aspect-square text-xs rounded transition-all duration-200 relative ring-1 ring-inset
+	                    ${
+                        day.isSelected
+                          ? "bg-[#FF8C5A] text-white font-semibold shadow-md scale-105 ring-[#FF8C5A]"
+                          : day.isVacationFullDay && !day.isPast
+                            ? "bg-blue-100 text-blue-900 font-semibold ring-blue-200 cursor-not-allowed"
+                            : day.isVacationPartial && !day.isPast
+                              ? "bg-blue-50 text-gray-900 ring-blue-200"
+                              : isSelectable
+                                ? "bg-[#FFF0E8] text-gray-900 ring-[#FFD3C2] hover:bg-[#FFE6DA] hover:text-[#FF6B35]"
+                                : "bg-gray-50 text-gray-300 ring-gray-100 cursor-not-allowed"
+                      }
+	                    ${day.isToday && !day.isSelected && isSelectable ? "shadow-[inset_0_0_0_2px_rgba(255,107,53,0.35)]" : ""}
+	                  `}
+	                >
+	                  <span className="relative z-10">{day.day}</span>
+	                  {!day.isSelected &&
+	                    isSelectable &&
+	                    !day.isVacationFullDay &&
+	                    !day.isVacationPartial && (
+	                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-[#FF6B35] rounded-full"></div>
+	                    )}
+	                  {!day.isSelected &&
+	                    (day.isVacationFullDay || day.isVacationPartial) &&
+	                    !day.isPast && (
+	                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full"></div>
+	                    )}
+	                </button>
+	              </div>
+	            );
+	          })}
         </div>
 
         <div className="mt-2 pt-2 border-t border-gray-100">

@@ -58,17 +58,13 @@ const renderEmail = (args: {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
     <meta name="x-apple-disable-message-reformatting">
     <title>${escapeHtml(args.title)}</title>
     <style>
       /* Some clients support this, but layout is primarily inline-styled */
       a { color: ${BRAND.primary}; }
-      @media (prefers-color-scheme: dark) {
-        .email-bg { background: #0B0F14 !important; }
-        .email-card { background: #111827 !important; border-color: #1F2937 !important; }
-        .email-text { color: #F9FAFB !important; }
-        .email-muted { color: #9CA3AF !important; }
-      }
     </style>
   </head>
   <body class="email-bg" style="margin:0; padding:0; background:${BRAND.background};">
@@ -76,7 +72,7 @@ const renderEmail = (args: {
       ${preheader}
     </div>
 
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse; background:${BRAND.background};">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" bgcolor="${BRAND.background}" style="border-collapse:collapse; background:${BRAND.background};">
       <tr>
         <td align="center" style="padding:24px 12px;">
           <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%; max-width:600px;">
@@ -91,7 +87,7 @@ const renderEmail = (args: {
             </tr>
 
             <tr>
-              <td class="email-card" style="background:${BRAND.surface}; border:1px solid ${BRAND.border}; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(17,24,39,0.08);">
+              <td class="email-card" bgcolor="${BRAND.surface}" style="background:${BRAND.surface}; border:1px solid ${BRAND.border}; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(17,24,39,0.08);">
                 <div style="background:linear-gradient(90deg, ${accent} 0%, ${BRAND.primaryDark} 100%); padding:22px 20px;">
                   <div class="email-text" style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:#fff;">
                     <div style="font-size:20px; font-weight:800; line-height:1.2;">${escapeHtml(
@@ -179,7 +175,7 @@ const renderReservationDetails = (data: EmailData): string => {
   const time = escapeHtml(data.time);
   const durationMinutes = deriveServiceDurationMinutes(data.service);
   return `
-    <div style="margin:16px 0; padding:14px 14px; border-radius:12px; background:rgba(255,107,53,0.08); border:1px solid rgba(255,107,53,0.22);">
+    <div style="margin:16px 0; padding:14px 14px; border-radius:12px; background:#FFF0E8; border:1px solid #FFD3C2;">
       <div style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:${BRAND.text}; font-weight:700; font-size:13px; letter-spacing:0.4px; text-transform:uppercase;">
         Detaily rezervace
       </div>
@@ -216,7 +212,7 @@ const appointmentConfirmation = (data: EmailData) => {
         <p style="margin:0 0 10px 0;">Dobrý den <strong>${safeName}</strong>,</p>
         <p style="margin:0 0 12px 0;">děkujeme za rezervaci. Níže najdete její detaily.</p>
         ${renderReservationDetails(data)}
-        <div style="margin:12px 0 0 0; padding:12px 14px; border-radius:12px; background:rgba(255,107,53,0.06); border:1px solid rgba(255,107,53,0.18);">
+        <div style="margin:12px 0 0 0; padding:12px 14px; border-radius:12px; background:#FFF4EF; border:1px solid #FFD3C2;">
           <div style="font-size:13px; color:${BRAND.text};">
             Objednávku lze zrušit nejpozději <strong>24 hodin</strong> před termínem.
           </div>

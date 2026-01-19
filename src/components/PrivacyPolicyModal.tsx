@@ -2,6 +2,7 @@
 
 import React from "react";
 import { X } from "lucide-react";
+import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 
 interface PrivacyPolicyModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  useBodyScrollLock(isOpen);
   if (!isOpen) return null;
 
   return (

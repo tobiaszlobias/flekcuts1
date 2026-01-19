@@ -2,6 +2,7 @@
 
 import React from "react";
 import { X } from "lucide-react";
+import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 
 interface TermsOfServiceModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  useBodyScrollLock(isOpen);
   if (!isOpen) return null;
 
   return (

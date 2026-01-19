@@ -2,6 +2,7 @@
 
 import React from "react";
 import { X, MapPin, Phone, Mail, Building, FileText } from "lucide-react";
+import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 
 interface BusinessInfoModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  useBodyScrollLock(isOpen);
   if (!isOpen) return null;
 
   return (
