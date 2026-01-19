@@ -53,7 +53,7 @@ const Services = () => {
       name: "Fade",
       description: "Precizní přechody od nuly s dokonalým vyblednutím",
       price: 350,
-      imageUrl: "/fade.jpg",
+      imageUrl: "/fade.png",
       preselectServiceName: "Fade",
     },
     {
