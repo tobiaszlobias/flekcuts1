@@ -14,19 +14,23 @@ const STORAGE_KEY = "flekcuts-consent-v1";
 
 const isBrowser = () => typeof window !== "undefined";
 
+let memoryConsent: ConsentState | null = null;
+
 export const readConsent = (): ConsentState | null => {
   if (!isBrowser()) return null;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
+    if (!raw) return memoryConsent;
     const parsed = JSON.parse(raw) as Partial<ConsentState>;
     if (parsed.version !== 1) return null;
     if (typeof parsed.analytics !== "boolean") return null;
     if (typeof parsed.external !== "boolean") return null;
     if (typeof parsed.updatedAt !== "string") return null;
-    return parsed as ConsentState;
+    const normalized = parsed as ConsentState;
+    memoryConsent = normalized;
+    return normalized;
   } catch {
-    return null;
+    return memoryConsent;
   }
 };
 
@@ -37,7 +41,12 @@ export const writeConsent = (categories: ConsentCategories): ConsentState => {
     external: !!categories.external,
     updatedAt: new Date().toISOString(),
   };
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  memoryConsent = next;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    // If storage is unavailable (blocked/quota), still allow dismissing the banner for this session.
+  }
   window.dispatchEvent(new CustomEvent("flekcuts:consentUpdated", { detail: next }));
   return next;
 };
@@ -48,4 +57,3 @@ export const openConsentSettings = () => {
 };
 
 export const CONSENT_STORAGE_KEY = STORAGE_KEY;
-
