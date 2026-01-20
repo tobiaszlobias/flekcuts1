@@ -6,7 +6,7 @@ Deletion only runs when all of these are true:
 - `RETENTION_ENABLED === "true"`
 - `RETENTION_DRY_RUN === "false"` (dry-run is default)
 - Only rows with a valid numeric `appointmentStartMs` are eligible
-- Only rows with `appointmentStartMs < (now - 24h)` are eligible
+- Only rows with `appointmentStartMs < (now - 90 days)` are eligible
 - **Future appointments are never deleted**
 - Deletions are capped by `RETENTION_MAX_DELETE` (default `10`)
 
@@ -26,4 +26,3 @@ Deletion only runs when all of these are true:
 Retention cleanup will **not** delete rows missing `appointmentStartMs`.
 
 Use the admin-only mutation `appointments:backfillAppointmentStartMs` in small batches until legacy rows are filled.
-

@@ -184,9 +184,8 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
             </h3>
             <div className="space-y-3 text-gray-700">
               <p>
-                Rezervace a související záznamy uchováváme po dobu nezbytnou pro evidenci rezervací,
-                komunikaci k termínu a řešení změn/storen a případných reklamací či sporů; poté jsou
-                odstraněny nebo anonymizovány.
+                Rezervace a související záznamy uchováváme po dobu{" "}
+                <strong>90 dnů od data termínu</strong>; poté jsou odstraněny nebo anonymizovány.
               </p>
               <p>
                 Technické a bezpečnostní logy uchováváme po dobu nezbytně nutnou k zajištění provozu

@@ -557,7 +557,8 @@ export const cleanupOldAppointments = internalMutation({
     }
 
     const nowMs = Date.now();
-    const cutoffMs = nowMs - 24 * 60 * 60 * 1000;
+    const retentionDays = 90;
+    const cutoffMs = nowMs - retentionDays * 24 * 60 * 60 * 1000;
 
     const candidates = await ctx.db
       .query("appointments")
@@ -565,6 +566,7 @@ export const cleanupOldAppointments = internalMutation({
       .take(maxDelete);
 
     console.log("🧹 Retention cleanup candidates:", {
+      retentionDays,
       cutoffMs,
       nowMs,
       deleting: dryRun ? 0 : candidates.length,
