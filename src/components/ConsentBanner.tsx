@@ -12,9 +12,10 @@ type Draft = {
 const ConsentBanner = () => {
   const [consent, setConsent] = useState(() => readConsent());
   const [showSettings, setShowSettings] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
 
   const hasChoice = !!consent;
-  const showBanner = !hasChoice && !showSettings;
+  const showBanner = !hasChoice && !showSettings && !dismissed;
 
   const initialDraft: Draft = useMemo(
     () => ({
@@ -47,19 +48,28 @@ const ConsentBanner = () => {
   }, []);
 
   const acceptAll = () => {
-    setConsent(writeConsent({ analytics: true, external: true }));
-    setShowSettings(false);
+    setDismissed(true);
+    try {
+      setConsent(writeConsent({ analytics: true, external: true }));
+    } finally {
+      setShowSettings(false);
+    }
   };
 
   const rejectAll = () => {
-    setConsent(writeConsent({ analytics: false, external: false }));
-    setShowSettings(false);
+    setDismissed(true);
+    try {
+      setConsent(writeConsent({ analytics: false, external: false }));
+    } finally {
+      setShowSettings(false);
+    }
   };
 
   const openSettings = () => setShowSettings(true);
   const closeSettings = () => {
     // If the user closes settings without a stored choice yet, treat it as reject-all.
     if (!consent) {
+      setDismissed(true);
       setConsent(writeConsent({ analytics: false, external: false }));
     }
     setShowSettings(false);
@@ -82,7 +92,7 @@ const ConsentBanner = () => {
   return (
     <>
       {showBanner && (
-        <div className="fixed inset-x-0 bottom-0 z-[9999] pointer-events-auto border-t border-gray-200 bg-white/95 backdrop-blur">
+        <div className="fixed inset-x-0 bottom-0 z-[2147483647] pointer-events-auto border-t border-gray-200 bg-white/95 backdrop-blur">
           <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
             <div className="text-sm text-gray-700">
               <div className="font-montserrat font-semibold text-gray-900">
@@ -122,7 +132,7 @@ const ConsentBanner = () => {
 
       {showSettings && (
         <div
-          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[2147483646] flex items-center justify-center bg-black/50 p-4"
           role="dialog"
           aria-modal="true"
           onClick={closeSettings}
