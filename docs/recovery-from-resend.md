@@ -40,7 +40,10 @@ In Convex Dashboard (DEV deployment):
 
 ```json
 {
-  "items": [ /* paste a chunk from reconstructed-appointments.json */ ]
+  "items": [ /* paste a chunk from reconstructed-appointments.json */ ],
+  "dryRun": true,
+  "maxInsert": 200,
+  "confirmToken": "<<< set RECOVERY_IMPORT_CONFIRM_TOKEN and paste it here >>>"
 }
 ```
 
@@ -50,6 +53,7 @@ Notes:
   - skip invalid items (missing email/date/time/service/name),
   - skip duplicates (same `customerEmail` + `date` + `time` + `service`),
   - create appointments as `userId="anonymous"` and `status="pending"`.
+- First run with `dryRun: true` and verify the summary; only then set `dryRun: false`.
 
 ## 4) Verify
 
@@ -57,4 +61,3 @@ In Convex Dashboard (DEV):
 - Data → `appointments`: confirm rows exist and spot-check fields.
 
 If DEV looks correct, repeat the import steps on the PROD deployment.
-

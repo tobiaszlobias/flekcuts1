@@ -1,6 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { internal } from "./_generated/api";
 
 // Helper function to check if user is admin
 const checkIsAdmin = async (ctx: any) => {
@@ -51,7 +51,7 @@ export const updateAppointmentStatus = mutation({
 
     // 🆕 NEW: Auto-send status update email
     try {
-      await ctx.scheduler.runAfter(0, api.notifications.sendStatusUpdate, {
+      await ctx.scheduler.runAfter(0, internal.notifications.sendStatusUpdate, {
         appointmentId: args.appointmentId,
         newStatus: args.status,
       });
@@ -69,6 +69,13 @@ export const deleteAppointment = mutation({
   handler: async (ctx, args) => {
     await checkIsAdmin(ctx);
 
+    const logs = await ctx.db
+      .query("emailLogs")
+      .withIndex("by_appointment", (q: any) => q.eq("appointmentId", args.appointmentId))
+      .collect();
+    for (const log of logs) {
+      await ctx.db.delete(log._id);
+    }
     await ctx.db.delete(args.appointmentId);
   },
 });
@@ -141,7 +148,7 @@ export const manualSendConfirmation = mutation({
     // Schedule the email
     await ctx.scheduler.runAfter(
       0,
-      api.notifications.sendAppointmentConfirmation,
+      internal.notifications.sendAppointmentConfirmation,
       {
         appointmentId: args.appointmentId,
       }
@@ -159,7 +166,7 @@ export const manualSendReminder = mutation({
     await checkIsAdmin(ctx);
 
     // Schedule the email
-    await ctx.scheduler.runAfter(0, api.notifications.sendAppointmentReminder, {
+    await ctx.scheduler.runAfter(0, internal.notifications.sendAppointmentReminder, {
       appointmentId: args.appointmentId,
     });
 
@@ -173,7 +180,7 @@ export const triggerDailyReminders = mutation({
     await checkIsAdmin(ctx);
 
     // Manually trigger daily reminders
-    await ctx.scheduler.runAfter(0, api.notifications.sendDailyReminders, {});
+    await ctx.scheduler.runAfter(0, internal.notifications.sendDailyReminders, {});
 
     return { success: true, message: "Daily reminders triggered" };
   },

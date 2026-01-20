@@ -42,7 +42,7 @@ export default function UserAppointments() {
   const cancelAppointment = useMutation(api.appointments.cancelAppointment);
 
   // Manual linking function as backup
-  const linkAnonymousAppointments = useMutation(api.appointments.linkAnonymousAppointments);
+  const linkMyAnonymousAppointments = useMutation(api.appointments.linkMyAnonymousAppointments);
   const [isLinking, setIsLinking] = useState(false);
   const [hasTriedLinking, setHasTriedLinking] = useState(false);
 
@@ -52,10 +52,7 @@ export default function UserAppointments() {
 
     setIsLinking(true);
     try {
-      const result = await linkAnonymousAppointments({
-        userId: user.id,
-        email: user.primaryEmailAddress.emailAddress,
-      });
+      const result = await linkMyAnonymousAppointments({});
       console.log("Manual linking result:", result);
       // Force refetch by not doing anything - the query will automatically refetch
     } catch (error) {

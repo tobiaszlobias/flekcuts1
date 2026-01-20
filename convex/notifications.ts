@@ -1,6 +1,10 @@
-import { mutation, query, action } from "./_generated/server";
+import {
+  internalAction,
+  internalMutation,
+  internalQuery,
+} from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { internal } from "./_generated/api";
 import { emailTemplates } from "./emails";
 
 // Types for email responses
@@ -17,7 +21,7 @@ interface EmailResult {
 }
 
 // Send appointment confirmation email
-export const sendAppointmentConfirmation = action({
+export const sendAppointmentConfirmation = internalAction({
   args: {
     appointmentId: v.id("appointments"),
   },
@@ -27,7 +31,7 @@ export const sendAppointmentConfirmation = action({
       throw new Error("RESEND_API_KEY environment variable is not set");
     }
 
-    const appointment = await ctx.runQuery(api.notifications.getById, {
+    const appointment = await ctx.runQuery(internal.notifications.getById, {
       id: args.appointmentId,
     });
 
@@ -72,7 +76,7 @@ export const sendAppointmentConfirmation = action({
       );
     }
 
-    await ctx.runMutation(api.notifications.logEmailSent, {
+    await ctx.runMutation(internal.notifications.logEmailSent, {
       appointmentId: args.appointmentId,
       emailType: "confirmation",
       recipientEmail: appointment.customerEmail,
@@ -88,13 +92,12 @@ export const sendAppointmentConfirmation = action({
 });
 
 const FROM_EMAIL = "FlekCuts <noreply@flekcuts.cz>";
-// Keep all your other functions exactly the same...
-export const sendAppointmentReminder = action({
+export const sendAppointmentReminder = internalAction({
   args: {
     appointmentId: v.id("appointments"),
   },
   handler: async (ctx, args): Promise<EmailResult> => {
-    const appointment = await ctx.runQuery(api.notifications.getById, {
+    const appointment = await ctx.runQuery(internal.notifications.getById, {
       id: args.appointmentId,
     });
 
@@ -134,12 +137,12 @@ export const sendAppointmentReminder = action({
         throw new Error(`Email sending failed: ${emailResult.message}`);
       }
 
-      console.log("✅ REMINDER EMAIL SENT:");
-      console.log("To:", appointment.customerEmail);
-      console.log("Subject:", emailContent.subject);
-      console.log("Resend ID:", emailResult.id);
+      console.log("✅ Reminder email sent", {
+        appointmentId: args.appointmentId,
+        resendId: emailResult.id,
+      });
 
-      await ctx.runMutation(api.notifications.logEmailSent, {
+      await ctx.runMutation(internal.notifications.logEmailSent, {
         appointmentId: args.appointmentId,
         emailType: "reminder",
         recipientEmail: appointment.customerEmail,
@@ -154,7 +157,7 @@ export const sendAppointmentReminder = action({
     } catch (error) {
       console.error("Failed to send reminder email:", error);
 
-      await ctx.runMutation(api.notifications.logEmailSent, {
+      await ctx.runMutation(internal.notifications.logEmailSent, {
         appointmentId: args.appointmentId,
         emailType: "reminder",
         recipientEmail: appointment.customerEmail,
@@ -168,7 +171,7 @@ export const sendAppointmentReminder = action({
 });
 
 // Rest of your functions remain the same...
-export const sendStatusUpdate = action({
+export const sendStatusUpdate = internalAction({
   args: {
     appointmentId: v.id("appointments"),
     newStatus: v.union(
@@ -178,7 +181,7 @@ export const sendStatusUpdate = action({
     ),
   },
   handler: async (ctx, args): Promise<EmailResult> => {
-    const appointment = await ctx.runQuery(api.notifications.getById, {
+    const appointment = await ctx.runQuery(internal.notifications.getById, {
       id: args.appointmentId,
     });
 
@@ -234,12 +237,12 @@ export const sendStatusUpdate = action({
         throw new Error(`Email sending failed: ${emailResult.message}`);
       }
 
-      console.log("✅ STATUS UPDATE EMAIL SENT:");
-      console.log("To:", appointment.customerEmail);
-      console.log("Subject:", emailContent.subject);
-      console.log("Resend ID:", emailResult.id);
+      console.log("✅ Status update email sent", {
+        appointmentId: args.appointmentId,
+        resendId: emailResult.id,
+      });
 
-      await ctx.runMutation(api.notifications.logEmailSent, {
+      await ctx.runMutation(internal.notifications.logEmailSent, {
         appointmentId: args.appointmentId,
         emailType: "status_update",
         recipientEmail: appointment.customerEmail,
@@ -254,7 +257,7 @@ export const sendStatusUpdate = action({
     } catch (error) {
       console.error("Failed to send status update email:", error);
 
-      await ctx.runMutation(api.notifications.logEmailSent, {
+      await ctx.runMutation(internal.notifications.logEmailSent, {
         appointmentId: args.appointmentId,
         emailType: "status_update",
         recipientEmail: appointment.customerEmail,
@@ -268,7 +271,7 @@ export const sendStatusUpdate = action({
 });
 
 // Get appointment by ID (helper query)
-export const getById = query({
+export const getById = internalQuery({
   args: { id: v.id("appointments") },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
@@ -276,7 +279,7 @@ export const getById = query({
 });
 
 // Log email sending attempts
-export const logEmailSent = mutation({
+export const logEmailSent = internalMutation({
   args: {
     appointmentId: v.id("appointments"),
     emailType: v.string(),
@@ -296,22 +299,8 @@ export const logEmailSent = mutation({
   },
 });
 
-// Get email logs for an appointment
-export const getEmailLogs = query({
-  args: { appointmentId: v.id("appointments") },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("emailLogs")
-      .withIndex("by_appointment", (q) =>
-        q.eq("appointmentId", args.appointmentId),
-      )
-      .order("desc")
-      .collect();
-  },
-});
-
 // Check appointments that need reminders (for scheduled function)
-export const getAppointmentsNeedingReminders = query({
+export const getAppointmentsNeedingReminders = internalQuery({
   args: {},
   handler: async (ctx) => {
     // Get all confirmed appointments
@@ -351,8 +340,7 @@ export const getAppointmentsNeedingReminders = query({
   },
 });
 
-// Scheduled function to send daily reminders
-export const sendDailyReminders = action({
+export const sendDailyReminders = internalAction({
   args: {},
   handler: async (
     ctx,
@@ -363,7 +351,7 @@ export const sendDailyReminders = action({
     message: string;
   }> => {
     const appointmentsNeedingReminders = await ctx.runQuery(
-      api.notifications.getAppointmentsNeedingReminders,
+      internal.notifications.getAppointmentsNeedingReminders,
     );
 
     console.log(
@@ -376,7 +364,7 @@ export const sendDailyReminders = action({
     // Send reminder for each appointment
     for (const appointment of appointmentsNeedingReminders) {
       try {
-        await ctx.runAction(api.notifications.sendAppointmentReminder, {
+        await ctx.runAction(internal.notifications.sendAppointmentReminder, {
           appointmentId: appointment._id,
         });
         successCount++;
@@ -393,45 +381,5 @@ export const sendDailyReminders = action({
       failureCount,
       message: `Daily reminders complete: ${successCount} sent, ${failureCount} failed`,
     };
-  },
-});
-
-// Get all email logs (admin only)
-export const getAllEmailLogs = query({
-  args: {
-    limit: v.optional(v.number()),
-  },
-  handler: async (ctx, args) => {
-    const limit = args.limit || 50;
-    return await ctx.db.query("emailLogs").order("desc").take(limit);
-  },
-});
-
-// Get email statistics
-export const getEmailStats = query({
-  args: {},
-  handler: async (ctx) => {
-    const logs = await ctx.db.query("emailLogs").collect();
-
-    const stats = {
-      total: logs.length,
-      sent: logs.filter((log) => log.status === "sent").length,
-      failed: logs.filter((log) => log.status === "failed").length,
-      byType: {
-        confirmation: logs.filter((log) => log.emailType === "confirmation")
-          .length,
-        reminder: logs.filter((log) => log.emailType === "reminder").length,
-        status_update: logs.filter((log) => log.emailType === "status_update")
-          .length,
-      },
-      recent: logs.filter((log) => {
-        const logDate = new Date(log.sentAt);
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        return logDate >= weekAgo;
-      }).length,
-    };
-
-    return stats;
   },
 });

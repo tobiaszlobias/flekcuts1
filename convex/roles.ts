@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { normalizeEmail } from "./authz";
 
 // Create user role for new users
 export const createUserRole = mutation({
@@ -20,7 +21,7 @@ export const createUserRole = mutation({
       await ctx.db.insert("userRoles", {
         userId: identity.subject,
         role: "user",
-        email: identity.email || "unknown@email.com",
+        email: identity.email ? normalizeEmail(identity.email) : "unknown@email.com",
       });
     }
   },
@@ -85,10 +86,12 @@ export const promoteToAdmin = mutation({
       throw new Error("Only admins can promote users");
     }
 
+    const targetEmail = normalizeEmail(args.email);
+
     // Find user by email and promote them
     const targetUser = await ctx.db
       .query("userRoles")
-      .filter((q) => q.eq(q.field("email"), args.email))
+      .withIndex("by_email", (q: any) => q.eq("email", targetEmail))
       .first();
 
     if (!targetUser) {

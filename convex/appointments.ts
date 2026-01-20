@@ -1,6 +1,7 @@
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { internal } from "./_generated/api";
+import { normalizeEmail, requireAdmin, requireIdentity } from "./authz";
 
 const parseTimeToMinutes = (time: string): number => {
   const [hoursStr, minutesStr = "0"] = time.split(":");
@@ -209,10 +210,16 @@ export const linkAnonymousAppointments = mutation({
     email: v.string(),
   },
   handler: async (ctx, { userId, email }) => {
+    const identity = await requireIdentity(ctx);
+    const safeEmail = identity.email ? normalizeEmail(identity.email) : null;
+    if (!safeEmail) throw new Error("Missing email on identity");
+    if (identity.subject !== userId) throw new Error("Unauthorized");
+    if (normalizeEmail(email) !== safeEmail) throw new Error("Unauthorized");
+
     // Find all anonymous appointments with this email
     const anonymousAppointments = await ctx.db
       .query("appointments")
-      .withIndex("by_email", (q) => q.eq("customerEmail", email))
+      .withIndex("by_email", (q) => q.eq("customerEmail", safeEmail))
       .filter((q) => q.eq(q.field("userId"), "anonymous"))
       .collect();
 
@@ -230,14 +237,33 @@ export const linkAnonymousAppointments = mutation({
   },
 });
 
+export const linkMyAnonymousAppointments = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await requireIdentity(ctx);
+    const safeEmail = identity.email ? normalizeEmail(identity.email) : null;
+    if (!safeEmail) return 0;
+
+    const anonymousAppointments = await ctx.db
+      .query("appointments")
+      .withIndex("by_email", (q) => q.eq("customerEmail", safeEmail))
+      .filter((q) => q.eq(q.field("userId"), "anonymous"))
+      .collect();
+
+    for (const appointment of anonymousAppointments) {
+      await ctx.db.patch(appointment._id, { userId: identity.subject });
+    }
+
+    console.log(`✅ Linked ${anonymousAppointments.length} anonymous appointments to current user`);
+    return anonymousAppointments.length;
+  },
+});
+
 // Get all appointments for the current user (including anonymous by email)
 export const getMyAppointments = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
+    const identity = await requireIdentity(ctx);
 
     const mine = await ctx.db
       .query("appointments")
@@ -245,14 +271,20 @@ export const getMyAppointments = query({
       .order("desc")
       .collect();
 
-    const email = identity.email;
-    if (!email) return mine;
-
-    const anonymousByEmail = await ctx.db
-      .query("appointments")
-      .withIndex("by_email", (q) => q.eq("customerEmail", email))
-      .filter((q) => q.eq(q.field("userId"), "anonymous"))
-      .collect();
+    const emailRaw = identity.email;
+    if (!emailRaw) return mine;
+    const emailNorm = normalizeEmail(emailRaw);
+    const emailsToTry = emailNorm !== emailRaw ? [emailRaw, emailNorm] : [emailRaw];
+    const anonymousByEmailLists = await Promise.all(
+      emailsToTry.map((e) =>
+        ctx.db
+          .query("appointments")
+          .withIndex("by_email", (q) => q.eq("customerEmail", e))
+          .filter((q: any) => q.eq(q.field("userId"), "anonymous"))
+          .collect()
+      )
+    );
+    const anonymousByEmail = anonymousByEmailLists.flat();
 
     const merged = [...mine, ...anonymousByEmail];
     merged.sort((a, b) => {
@@ -280,6 +312,7 @@ export const createAppointment = mutation({
     if (identity === null) {
       throw new Error("Not authenticated");
     }
+    const safeEmail = normalizeEmail(args.customerEmail);
 
     if (!isDateWithinNextMonth(args.date)) {
       throw new Error("Appointments can only be booked up to 1 month in advance.");
@@ -337,7 +370,7 @@ export const createAppointment = mutation({
     const appointmentId = await ctx.db.insert("appointments", {
       userId: identity.subject,
       customerName: args.customerName,
-      customerEmail: args.customerEmail,
+      customerEmail: safeEmail,
       service: args.service,
       date: args.date,
       time: args.time,
@@ -348,7 +381,7 @@ export const createAppointment = mutation({
 
     // 🆕 NEW: Auto-send confirmation email
     try {
-      await ctx.scheduler.runAfter(0, api.notifications.sendAppointmentConfirmation, {
+      await ctx.scheduler.runAfter(0, internal.notifications.sendAppointmentConfirmation, {
         appointmentId,
       });
       console.log("✅ Confirmation email scheduled for:", appointmentId);
@@ -373,6 +406,7 @@ export const createAnonymousAppointment = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const safeEmail = normalizeEmail(args.customerEmail);
     if (!isDateWithinNextMonth(args.date)) {
       throw new Error("Appointments can only be booked up to 1 month in advance.");
     }
@@ -429,7 +463,7 @@ export const createAnonymousAppointment = mutation({
     const appointmentId = await ctx.db.insert("appointments", {
       userId: "anonymous",
       customerName: args.customerName,
-      customerEmail: args.customerEmail,
+      customerEmail: safeEmail,
       customerPhone: args.customerPhone,
       service: args.service,
       date: args.date,
@@ -440,7 +474,7 @@ export const createAnonymousAppointment = mutation({
     });
 
     try {
-      await ctx.scheduler.runAfter(0, api.notifications.sendAppointmentConfirmation, {
+      await ctx.scheduler.runAfter(0, internal.notifications.sendAppointmentConfirmation, {
         appointmentId,
       });
       console.log("✅ Anonymous confirmation email scheduled for:", appointmentId);
@@ -495,7 +529,7 @@ export const cancelAppointment = mutation({
 
     // 🆕 NEW: Auto-send cancellation email
     try {
-      await ctx.scheduler.runAfter(0, api.notifications.sendStatusUpdate, {
+      await ctx.scheduler.runAfter(0, internal.notifications.sendStatusUpdate, {
         appointmentId: args.appointmentId,
         newStatus: "cancelled",
       });
@@ -506,7 +540,7 @@ export const cancelAppointment = mutation({
   },
 });
 
-export const cleanupOldAppointments = mutation({
+export const cleanupOldAppointments = internalMutation({
   args: {},
   handler: async (ctx) => {
     const retentionEnabled = process.env.RETENTION_ENABLED === "true";
@@ -597,18 +631,9 @@ export const cleanupOldAppointments = mutation({
 export const backfillAppointmentStartMs = mutation({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
-
-    const userRole = await ctx.db
-      .query("userRoles")
-      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
-      .first();
-
-    if (userRole?.role !== "admin") {
-      throw new Error("Admin access required");
+    await requireAdmin(ctx);
+    if (process.env.ADMIN_MAINTENANCE_ENABLED !== "true") {
+      throw new Error("Maintenance disabled (set ADMIN_MAINTENANCE_ENABLED=true)");
     }
 
     const limit = (() => {
@@ -649,32 +674,55 @@ export const importReconstructedAppointments = mutation({
         sourceTimestamp: v.union(v.string(), v.null()),
       })
     ),
+    dryRun: v.optional(v.boolean()),
+    maxInsert: v.optional(v.number()),
+    confirmToken: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      throw new Error("Not authenticated");
+    await requireAdmin(ctx);
+
+    if (process.env.RECOVERY_IMPORT_ENABLED !== "true") {
+      throw new Error("Recovery import disabled (set RECOVERY_IMPORT_ENABLED=true)");
+    }
+    const expectedToken = process.env.RECOVERY_IMPORT_CONFIRM_TOKEN;
+    if (!expectedToken) {
+      throw new Error("Missing RECOVERY_IMPORT_CONFIRM_TOKEN env var");
+    }
+    if (args.confirmToken !== expectedToken) {
+      throw new Error("Invalid confirmToken");
     }
 
-    const userRole = await ctx.db
-      .query("userRoles")
-      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
-      .first();
-
-    if (userRole?.role !== "admin") {
-      throw new Error("Admin access required");
-    }
+    const dryRun = args.dryRun !== false;
+    const maxInsert = (() => {
+      const raw = args.maxInsert ?? 200;
+      const n = Number(raw);
+      return Number.isFinite(n) && n > 0 ? Math.min(1000, Math.floor(n)) : 200;
+    })();
 
     const results = {
       inserted: 0,
+      wouldInsert: 0,
       skippedDuplicate: 0,
+      skippedDuplicateInBatch: 0,
       skippedInvalid: 0,
       skippedConflict: 0,
+      processed: 0,
+      dryRun,
+      maxInsert,
     };
 
+    const seen = new Set<string>();
+    const isValidDate = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s);
+    const isValidTime = (s: string) => /^\d{1,2}:\d{2}$/.test(s);
+
     for (const item of args.items) {
+      if (!dryRun && results.inserted >= maxInsert) break;
+      if (dryRun && results.wouldInsert >= maxInsert) break;
+      results.processed += 1;
+
       const customerName = typeof item.customerName === "string" ? item.customerName.trim() : "";
-      const customerEmail = typeof item.customerEmail === "string" ? item.customerEmail.trim() : "";
+      const customerEmailRaw =
+        typeof item.customerEmail === "string" ? item.customerEmail.trim() : "";
       const service = typeof item.service === "string" ? item.service.trim() : "";
       const date = typeof item.date === "string" ? item.date.trim() : "";
       const time = typeof item.time === "string" ? item.time.trim() : "";
@@ -686,11 +734,19 @@ export const importReconstructedAppointments = mutation({
       const sourceTimestamp =
         typeof item.sourceTimestamp === "string" ? item.sourceTimestamp.trim() : "";
 
+      const customerEmail = customerEmailRaw ? normalizeEmail(customerEmailRaw) : "";
       const hasCore = !!customerName && !!customerEmail && !!service && !!date && !!time;
-      if (!hasCore) {
+      if (!hasCore || !isValidDate(date) || !isValidTime(time)) {
         results.skippedInvalid += 1;
         continue;
       }
+
+      const key = `${customerEmail}|${date}|${time}|${service}`;
+      if (seen.has(key)) {
+        results.skippedDuplicateInBatch += 1;
+        continue;
+      }
+      seen.add(key);
 
       const existingAtTime = await ctx.db
         .query("appointments")
@@ -715,6 +771,11 @@ export const importReconstructedAppointments = mutation({
       }
 
       const appointmentStartMs = pragueLocalToUtcMs(date, time);
+      if (!Number.isFinite(appointmentStartMs)) {
+        results.skippedInvalid += 1;
+        continue;
+      }
+
       const combinedNotes = [
         notes,
         sourceResendId ? `Recovered from Resend: ${sourceResendId}` : null,
@@ -722,6 +783,11 @@ export const importReconstructedAppointments = mutation({
       ]
         .filter(Boolean)
         .join("\n");
+
+      if (dryRun) {
+        results.wouldInsert += 1;
+        continue;
+      }
 
       await ctx.db.insert("appointments", {
         userId: "anonymous",
@@ -731,7 +797,7 @@ export const importReconstructedAppointments = mutation({
         service,
         date,
         time,
-        appointmentStartMs: Number.isFinite(appointmentStartMs) ? appointmentStartMs : undefined,
+        appointmentStartMs,
         status: "pending",
         notes: combinedNotes ? combinedNotes : undefined,
       });
@@ -771,61 +837,11 @@ export const getAllAppointments = query({
 export const getAppointmentsByDate = query({
   args: { date: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const appointments = await ctx.db
       .query("appointments")
       .withIndex("by_date", (q) => q.eq("date", args.date))
       .collect();
-  },
-});
-
-// ===============================
-// 🐛 DEBUG FUNCTIONS
-// ===============================
-
-// Debug: Check all appointments in database
-export const debugAllAppointments = query({
-  args: {},
-  handler: async (ctx) => {
-    const allAppointments = await ctx.db.query("appointments").collect();
-    console.log(
-      "🔍 ALL APPOINTMENTS IN DATABASE:",
-      allAppointments.map((a) => ({
-        id: a._id,
-        userId: a.userId,
-        customerName: a.customerName,
-        customerEmail: a.customerEmail,
-        service: a.service,
-        date: a.date,
-        time: a.time,
-        status: a.status,
-      }))
-    );
-    return allAppointments;
-  },
-});
-
-// Debug: Check appointments for specific email
-export const debugAppointmentsByEmail = query({
-  args: { email: v.string() },
-  handler: async (ctx, args) => {
-    const appointments = await ctx.db
-      .query("appointments")
-      .withIndex("by_email", (q) => q.eq("customerEmail", args.email))
-      .collect();
-
-    console.log(
-      `🔍 APPOINTMENTS FOR EMAIL ${args.email}:`,
-      appointments.map((a) => ({
-        id: a._id,
-        userId: a.userId,
-        customerName: a.customerName,
-        service: a.service,
-        date: a.date,
-        time: a.time,
-        status: a.status,
-      }))
-    );
-
-    return appointments;
+    // Public booking UI only needs to know which slots are occupied.
+    return appointments.map((a) => ({ time: a.time, service: a.service, status: a.status }));
   },
 });
