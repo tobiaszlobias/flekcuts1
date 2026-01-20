@@ -34,260 +34,138 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({
 
         {/* Content */}
         <div className="overflow-y-auto max-h-[calc(90vh-120px)] p-6 space-y-6">
-          {/* Základní informace */}
+          <div className="text-sm text-gray-600">
+            <div className="font-semibold text-gray-900">
+              Všeobecné obchodní podmínky (rezervace termínů)
+            </div>
+            <div>Účinnost od: 20. 1. 2026</div>
+          </div>
+
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              1. Základní informace o poskytovateli služeb
+              1. Poskytovatel
             </h3>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-gray-700">
-                <strong>Obchodní jméno:</strong> FlekCuts
-                <br />
-                <strong>Adresa:</strong> Zámecké náměstí 19, Bruntál
-                <br />
-                <strong>Telefon:</strong> +420 778 779 938
-                <br />
-                <strong>E-mail:</strong> info@flekcuts.cz
-              </p>
+            <div className="bg-gray-50 p-4 rounded-lg text-gray-700">
+              <div className="font-semibold">Štěpán Flekač (fyzická osoba podnikající)</div>
+              <div>IČO: 21795908</div>
+              <div>Provozovna: Zámecké náměstí 19, Bruntál</div>
+              <div>Telefon: +420 778 779 938</div>
             </div>
           </div>
 
-          {/* Předmět činnosti */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              2. Předmět podnikání
+              2. Služby
             </h3>
             <p className="text-gray-700">
-              FlekCuts poskytuje služby profesionálního holičství, včetně:
+              Poskytujeme holičské služby dle aktuální nabídky v provozovně.
             </p>
-            <ul className="list-disc list-inside text-gray-700 space-y-1 mt-2 ml-4">
-              <li>Pánských střihů všech typů</li>
-              <li>Úpravy vousů a knírů</li>
-              <li>Holení břitvou</li>
-              <li>Péče o vlasy a pokožku hlavy</li>
-              <li>Poradenství v oblasti péče o vlasy</li>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              3. Rezervace termínu a vznik závazku
+            </h3>
+            <p className="text-gray-700 mb-2">Rezervaci lze vytvořit:</p>
+            <ul className="list-disc list-inside text-gray-700 space-y-1 ml-4">
+              <li>online prostřednictvím webu,</li>
+              <li>telefonicky,</li>
+              <li>osobně v provozovně.</li>
             </ul>
-          </div>
-
-          {/* Objednávkový systém */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              3. Objednávkový systém a rezervace termínů
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium text-gray-800 mb-2">
-                  Způsoby objednávání:
-                </h4>
-                <ul className="list-disc list-inside text-gray-700 space-y-1 ml-4">
-                  <li>Online prostřednictvím webových stránek</li>
-                  <li>Telefonicky na čísle +420 778 779 938</li>
-                  <li>Osobně v provozovně</li>
-                </ul>
-              </div>
-
-              <div className="bg-white border border-[#e5ebe9] p-4 rounded-lg">
-                <h4 className="font-medium text-gray-800 mb-2">
-                  Potvrzení objednávky:
-                </h4>
-                <p className="text-gray-700">
-                  Po odeslání online objednávky obdržíte potvrzení e-mailem.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Ceny a platby */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              4. Ceny a způsoby platby
-            </h3>
-            <div className="space-y-3">
-              <p className="text-gray-700">
-                <strong>Aktuální ceník služeb:</strong>
-              </p>
-              <ul className="list-disc list-inside text-gray-700 space-y-1 ml-4">
-                <li>Pánský střih: 350 Kč</li>
-                <li>Dětský střih: 250 Kč</li>
-                <li>Úprava vousů: 200 Kč</li>
-                <li>Holení: 300 Kč</li>
-                <li>Komplet (střih + vousy): 500 Kč</li>
-              </ul>
-
-              <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                <p className="text-gray-700">
-                  <strong>Platba:</strong> Platba se provádí v hotovosti nebo
-                  kartou přímo v provozovně po poskytnutí služby. Neúčtujeme
-                  žádné poplatky za rezervaci termínu.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Storno podmínky */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              5. Podmínky zrušení a změny termínu
-            </h3>
-            <div className="space-y-3">
-              <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-                <h4 className="font-medium text-green-800 mb-2">
-                  ✅ Bezplatné zrušení:
-                </h4>
-                <ul className="list-disc list-inside text-green-700 space-y-1 ml-4">
-                  <li>Minimálně 24 hodin před termínem</li>
-                  <li>Online prostřednictvím webových stránek</li>
-                  <li>Telefonicky na +420 778 779 938</li>
-                </ul>
-              </div>
-
-              <div className="bg-[#fafbfa] border border-[#e5ebe9] p-4 rounded-lg">
-                <h4 className="font-medium text-[#3C493F] mb-2">
-                  ❌ Pozdní zrušení:
-                </h4>
-                <p className="text-[#3C493F]">
-                  Online zrušení je možné nejpozději 24 hodin před termínem. Později
-                  nás prosím kontaktujte telefonicky.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Pravidla provozovny */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              6. Pravidla a podmínky návštěvy provozovny
-            </h3>
-            <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-              <li>
-                Respektujte prosím rezervované časy - při zpoždění 15+ minut
-                může být termín zrušen
-              </li>
-              <li>V provozovně je zakázáno kouření a konzumace alkoholu</li>
-              <li>Dbejte na slušné chování a respekt k ostatním klientům</li>
-              <li>V případě nemoci prosím termín přesuňte</li>
-              <li>Zodpovědnost za cennosti si ponechává klient</li>
-            </ul>
-          </div>
-
-          {/* Reklamace */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              7. Reklamace a spokojenost klientů
-            </h3>
-            <p className="text-gray-700 mb-3">
-              Vaše spokojenost je naší prioritou. V případě nespokojenosti se
-              službou:
+            <p className="text-gray-700 mt-3">
+              Rezervace je závazná okamžikem jejího odeslání online a zobrazením
+              potvrzení na webu. Potvrzovací e-mail slouží jako informativní
+              kontrola; pokud nedorazí, rezervace platí.
             </p>
-            <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-              <li>
-                Informujte nás ihned během návštěvy - pokusíme se problém
-                vyřešit okamžitě
-              </li>
-              <li>Reklamaci můžete podat do 48 hodin po návštěvě</li>
-              <li>Oprávněné reklamace řešíme bezplatným opakováním služby</li>
-              <li>Kontaktujte nás na +420 778 779 938</li>
-            </ul>
           </div>
 
-          {/* Ochrana zdraví */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              8. Hygiena a bezpečnost
+              4. Cena a platba
             </h3>
-            <div className="bg-white border border-[#e5ebe9] p-4 rounded-lg">
-              <ul className="list-disc list-inside text-gray-700 space-y-2">
-                <li>
-                  Všechny nástroje jsou řádně dezinfikovány a sterilizovány
-                </li>
-                <li>
-                  Používáme pouze jednorázové materiály (žiletky, ručníky)
-                </li>
-                <li>Dodržujeme všechny hygienické normy a předpisy</li>
-                <li>
-                  V případě kožních problémů si vyhrazujeme právo odmítnout
-                  službu
-                </li>
-              </ul>
-            </div>
+            <p className="text-gray-700">
+              Platba probíhá v provozovně po poskytnutí služby v hotovosti nebo
+              kartou. Za vytvoření rezervace neúčtujeme poplatek. Aktuální ceny
+              jsou uvedeny v ceníku na webu nebo v provozovně.
+            </p>
           </div>
 
-          {/* Odpovědnost */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              9. Omezení odpovědnosti
+              5. Zrušení a změna termínu
             </h3>
-            <div className="space-y-3">
-              <p className="text-gray-700">FlekCuts nenese odpovědnost za:</p>
-              <ul className="list-disc list-inside text-gray-700 space-y-1 ml-4">
-                <li>Škody způsobené nedodržením našich doporučení po službě</li>
-                <li>
-                  Alergické reakce na použité produkty (informujte nás o
-                  alergiích předem)
-                </li>
-                <li>Ztrátu nebo poškození osobních věcí klienta</li>
-                <li>Následky nesprávných informací poskytnutých klientem</li>
-              </ul>
-            </div>
+            <p className="text-gray-700">
+              Zrušení nebo změna termínu je možná nejpozději 24 hodin předem
+              online nebo telefonicky.
+            </p>
+            <p className="text-gray-700 mt-3">
+              V kratší lhůtě nás prosím kontaktuj telefonicky.
+            </p>
           </div>
 
-          {/* ADR */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              6. Pravidla návštěvy provozovny
+            </h3>
+            <p className="text-gray-700">
+              Při zpoždění 15+ minut si vyhrazujeme právo termín zrušit nebo
+              přizpůsobit tak, aby byla respektována navazující rezervace.
+            </p>
+            <p className="text-gray-700 mt-3">
+              Prosíme o dodržování provozních pravidel a ohleduplnost k ostatním
+              klientům.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              7. Reklamace
+            </h3>
+            <p className="text-gray-700">
+              V případě nespokojenosti nás kontaktuj bez zbytečného odkladu, aby
+              bylo možné situaci posoudit a domluvit nápravu.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              8. Ochrana osobních údajů
+            </h3>
+            <p className="text-gray-700">
+              Zpracování osobních údajů se řídí „Zásadami ochrany osobních údajů“.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              9. Informace o odstoupení od smlouvy
+            </h3>
+            <p className="text-gray-700">
+              U služeb poskytovaných v konkrétním termínu se mohou uplatnit
+              zákonné výjimky z práva spotřebitele na odstoupení od smlouvy
+              uzavřené na dálku; po poskytnutí služby nelze odstoupení uplatnit
+              v rozsahu stanoveném právními předpisy.
+            </p>
+          </div>
+
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
               10. Mimosoudní řešení spotřebitelských sporů (ADR)
             </h3>
-            <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-              <p className="text-green-800 font-medium mb-2">
-                Česká obchodní inspekce (ČOI)
-              </p>
-              <p className="text-green-700 text-sm">
-                Štěpánská 15, 120 00 Praha 2
-                <br />
-                E-mail: adr@coi.cz
-                <br />
-                Web:{" "}
-                <a
-                  href="https://adr.coi.cz"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline"
-                >
-                  https://adr.coi.cz
-                </a>
-              </p>
-            </div>
+            <p className="text-gray-700">
+              V případě spotřebitelského sporu lze využít mimosoudní řešení sporu
+              u České obchodní inspekce (ČOI). Podrobné informace a postup jsou
+              dostupné na webu ČOI.
+            </p>
           </div>
 
-          {/* Závěrečná ustanovení */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
               11. Závěrečná ustanovení
             </h3>
-            <div className="space-y-3">
-              <p className="text-gray-700">
-                Tyto obchodní podmínky se řídí právním řádem České republiky.
-                Sporné otázky budou řešeny smírnou cestou, v případě neúspěchu
-                příslušnými českými soudy.
-              </p>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-gray-700">
-                  <strong>Změny podmínek:</strong> FlekCuts si vyhrazuje právo
-                  změnit tyto obchodní podmínky. O změnách budou klienti
-                  informováni prostřednictvím webových stránek.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center pt-6 border-t border-gray-200">
-            <p className="text-gray-500 text-sm">
-              <strong>Datum účinnosti:</strong>{" "}
-              {new Date().toLocaleDateString("cs-CZ")}
-            </p>
-            <p className="text-gray-400 text-xs mt-2">
-              Tyto podmínky jsou v souladu s českým obchodním právem a zákoníkem
-              práce.
+            <p className="text-gray-700">
+              Tyto podmínky se řídí právním řádem České republiky. Aktuální znění
+              je vždy dostupné na webu.
             </p>
           </div>
         </div>

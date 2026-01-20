@@ -32,196 +32,62 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({
 
         {/* Content */}
         <div className="overflow-y-auto max-h-[calc(90vh-120px)] p-6 space-y-6">
-          {/* Základní údaje o podnikateli */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Building className="w-5 h-5 text-[#3C493F]" />
-              Základní údaje o podnikateli
-            </h3>
-            <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600 font-medium">
-                    Obchodní jméno:
-                  </p>
-                  <p className="text-gray-900 font-semibold">Štěpán Flekač</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 font-medium">
-                    Právní forma:
-                  </p>
-                  <p className="text-gray-900">Fyzická osoba podnikající</p>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-gray-200">
-                <p className="text-sm text-gray-600 font-medium mb-1">
-                  Předmět podnikání:
-                </p>
-                <p className="text-gray-700">Holičství, kadeřnictví</p>
-              </div>
+          <div className="text-gray-700 space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Základní údaje o podnikateli
+              </h3>
+              <p>Jméno: Štěpán Flekač</p>
+              <p>Právní forma: fyzická osoba podnikající</p>
+              <p>IČO: 21795908</p>
+              <p>Předmět podnikání: Holičství, kadeřnictví</p>
             </div>
-          </div>
 
-          {/* Kontaktní údaje */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Kontaktní údaje
-            </h3>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 p-3 bg-white rounded-lg">
-                <MapPin className="w-5 h-5 text-[#3C493F]" />
-                <div>
-                  <p className="text-sm text-gray-600">Adresa provozovny:</p>
-                  <p className="text-gray-900 font-medium">
-                    Zámecké náměstí 19
-                    <br />
-                    Bruntál, Czechia
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                <Phone className="w-5 h-5 text-green-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Telefon:</p>
-                  <p className="text-gray-900 font-medium">+420 778 779 938</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
-                <Mail className="w-5 h-5 text-purple-600" />
-                <div>
-                  <p className="text-sm text-gray-600">E-mail:</p>
-                  <p className="text-gray-900 font-medium">info@flekcuts.cz</p>
-                </div>
-              </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Kontakty
+              </h3>
+              <p>Adresa provozovny: Zámecké náměstí 19, Bruntál, Česká republika</p>
+              <p>Telefon: +420 778 779 938</p>
             </div>
-          </div>
 
-          {/* Registrační údaje */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-orange-600" />
-              Registrační údaje
-            </h3>
-            <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600 font-medium">
-                    IČO (Identifikační číslo):
-                  </p>
-                  <p className="text-gray-900 font-mono">21795908</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 font-medium">
-                    Identifikační číslo provozovny:
-                  </p>
-                  <p className="text-gray-900 font-mono">1015359981</p>
-                </div>
-              </div>
-
-              <div className="pt-3 mt-3 border-t border-orange-200">
-                <p className="text-sm text-gray-600 font-medium mb-1">
-                  Registrace živnosti:
-                </p>
-                <p className="text-gray-700">Městský úřad Bruntál</p>
-                <p className="text-sm text-gray-600 mt-1">
-                  Datum zahájení: 08.10.2024
-                </p>
-              </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Registrační údaje
+              </h3>
+              <p>Identifikační číslo provozovny: 1015359981</p>
+              <p>Registrace živnosti: Městský úřad Bruntál</p>
+              <p>Datum zahájení: 08. 10. 2024</p>
             </div>
-          </div>
 
-          {/* Otevírací doba */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Provozní doba
-            </h3>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="space-y-1">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Pondělí:</span>
-                    <span>9:00-11:45, 13:00-17:00</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Úterý:</span>
-                    <span>9:00-11:45, 13:00-17:00</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Středa:</span>
-                    <span>9:00-11:45, 13:00-17:00</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Čtvrtek:</span>
-                    <span>13:00-19:30</span>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Pátek:</span>
-                    <span>9:00-11:45, 13:00-17:00</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Sobota:</span>
-                    <span className="text-[#3C493F]">Zavřeno</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Neděle:</span>
-                    <span className="text-[#3C493F]">Zavřeno</span>
-                  </div>
-                </div>
-              </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Provozní doba
+              </h3>
+              <p>Pondělí: 9:00–11:45, 13:00–17:00</p>
+              <p>Úterý: 9:00–11:45, 13:00–17:00</p>
+              <p>Středa: 9:00–11:45, 13:00–17:00</p>
+              <p>Čtvrtek: 13:00–19:30</p>
+              <p>Pátek: 9:00–11:45, 13:00–17:00</p>
+              <p>Sobota: zavřeno</p>
+              <p>Neděle: zavřeno</p>
             </div>
-          </div>
 
-          {/* Regulační informace */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Regulační informace
-            </h3>
-            <div className="space-y-3">
-              <div className="p-3 bg-white border border-[#e5ebe9] rounded-lg">
-                <p className="text-sm font-medium text-[#3C493F] mb-1">
-                  Dohled nad živností:
-                </p>
-                <p className="text-sm text-[#3C493F]">
-                  Krajská hygienická stanice Moravskoslezského kraje
-                </p>
-              </div>
-
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm font-medium text-green-800 mb-1">
-                  Řešení sporů:
-                </p>
-                <p className="text-sm text-green-700">
-                  Česká obchodní inspekce (ČOI), Štěpánská 15, 120 00 Praha 2
-                  <br />
-                  E-mail: adr@coi.cz
-                  <br />
-                  Web:{" "}
-                  <a
-                    href="https://adr.coi.cz"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline"
-                  >
-                    https://adr.coi.cz
-                  </a>
-                </p>
-              </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Dohled
+              </h3>
+              <p>Krajská hygienická stanice Moravskoslezského kraje</p>
             </div>
-          </div>
 
-          <div className="text-center pt-6 border-t border-gray-200">
-            <p className="text-gray-500 text-sm">
-              <strong>Aktualizováno:</strong>{" "}
-              {new Date().toLocaleDateString("cs-CZ")}
-            </p>
-            <p className="text-gray-400 text-xs mt-2">
-              Tyto informace jsou uvedeny v souladu s českým obchodním právem
-            </p>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Řešení sporů (ADR)
+              </h3>
+              <p>
+                Česká obchodní inspekce (ČOI) – informace k ADR jsou dostupné na webu ČOI.
+              </p>
+            </div>
           </div>
         </div>
       </div>
