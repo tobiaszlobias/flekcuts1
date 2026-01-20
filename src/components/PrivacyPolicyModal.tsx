@@ -50,6 +50,7 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
               <div>IČO: 21795908</div>
               <div>Provozovna: Zámecké náměstí 19, Bruntál, Česká republika</div>
               <div>Telefon: +420 778 779 938</div>
+              <div>E-mail: stepaflekac1@gmail.com</div>
             </div>
             <p className="text-gray-700 mt-3">
               Tyto zásady vysvětlují, jak zpracováváme osobní údaje při online
@@ -232,7 +233,7 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
             </h3>
             <p className="text-gray-700">
               Kontaktuj nás telefonicky na +420 778 779 938 nebo osobně v provozovně na adrese
-              Zámecké náměstí 19, Bruntál. Před vyřízením žádosti můžeme přiměřeně ověřit totožnost.
+              Zámecké náměstí 19, Bruntál nebo e-mailem na: stepaflekac1@gmail.com. Před vyřízením žádosti můžeme přiměřeně ověřit totožnost.
             </p>
           </div>
 

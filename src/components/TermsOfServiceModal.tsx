@@ -50,6 +50,7 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({
               <div>IČO: 21795908</div>
               <div>Provozovna: Zámecké náměstí 19, Bruntál</div>
               <div>Telefon: +420 778 779 938</div>
+              <div>E-mail: stepaflekac1@gmail.com</div>
             </div>
           </div>
 

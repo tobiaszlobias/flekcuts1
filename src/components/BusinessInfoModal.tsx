@@ -49,6 +49,7 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({
               </h3>
               <p>Adresa provozovny: Zámecké náměstí 19, Bruntál, Česká republika</p>
               <p>Telefon: +420 778 779 938</p>
+              <p>E-mail: stepaflekac1@gmail.com</p>
             </div>
 
             <div>
