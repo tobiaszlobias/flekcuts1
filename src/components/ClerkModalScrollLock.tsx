@@ -78,8 +78,7 @@ export default function ClerkModalScrollLock() {
         if (inBackdrop && !inModal) {
           e.preventDefault();
           e.stopPropagation();
-          // @ts-expect-error stopImmediatePropagation exists on Event in browsers
-          e.stopImmediatePropagation?.();
+          (e as Event & { stopImmediatePropagation?: () => void }).stopImmediatePropagation?.();
         }
       };
       // Use window-level capture so we run before any document-level handlers Clerk attaches.
