@@ -694,7 +694,7 @@ const Booking = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const fieldRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  useBodyScrollLock(isServiceSelectOpen);
+  useBodyScrollLock(isServiceSelectOpen, { strategy: "overflow" });
 
   const createAppointment = useMutation(api.appointments.createAppointment);
   const createAnonymousAppointment = useMutation(

@@ -6,7 +6,11 @@ let savedHtmlStyle = "";
 let savedScrollY = 0;
 let removeGuards: (() => void) | null = null;
 
-export const useBodyScrollLock = (locked: boolean) => {
+type ScrollLockOptions = {
+  strategy?: "fixed" | "overflow";
+};
+
+export const useBodyScrollLock = (locked: boolean, options?: ScrollLockOptions) => {
   useLayoutEffect(() => {
     if (!locked) return;
 
@@ -20,18 +24,25 @@ export const useBodyScrollLock = (locked: boolean) => {
     savedBodyStyle = document.body.getAttribute("style") || "";
     savedHtmlStyle = document.documentElement.getAttribute("style") || "";
 
-    // Lock background scroll (mobile-friendly) without breaking `position: sticky`.
-    // Using `position: fixed` avoids iOS/Safari sticky bugs when toggling overflow.
+    const strategy = options?.strategy ?? "fixed";
+
+    // Lock background scroll (mobile-friendly).
     savedScrollY = window.scrollY;
     const scrollbarWidth =
       window.innerWidth - document.documentElement.clientWidth;
 
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${savedScrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.width = "100%";
-    document.body.style.overflow = "hidden";
+    if (strategy === "fixed") {
+      // Using `position: fixed` avoids iOS/Safari sticky bugs when toggling overflow.
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${savedScrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+      document.body.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+    }
 
     document.documentElement.style.overscrollBehavior = "none";
     if (scrollbarWidth > 0) {
@@ -71,14 +82,16 @@ export const useBodyScrollLock = (locked: boolean) => {
       removeGuards?.();
       removeGuards = null;
 
-      // Ensure restoring scroll position is instant (site enables smooth scrolling globally).
-      const prevHtmlScrollBehavior = document.documentElement.style.scrollBehavior;
-      const prevBodyScrollBehavior = document.body.style.scrollBehavior;
-      document.documentElement.style.scrollBehavior = "auto";
-      document.body.style.scrollBehavior = "auto";
-      window.scrollTo({ top: savedScrollY, left: 0, behavior: "auto" });
-      document.documentElement.style.scrollBehavior = prevHtmlScrollBehavior;
-      document.body.style.scrollBehavior = prevBodyScrollBehavior;
+      if (strategy === "fixed") {
+        // Ensure restoring scroll position is instant (site enables smooth scrolling globally).
+        const prevHtmlScrollBehavior = document.documentElement.style.scrollBehavior;
+        const prevBodyScrollBehavior = document.body.style.scrollBehavior;
+        document.documentElement.style.scrollBehavior = "auto";
+        document.body.style.scrollBehavior = "auto";
+        window.scrollTo({ top: savedScrollY, left: 0, behavior: "auto" });
+        document.documentElement.style.scrollBehavior = prevHtmlScrollBehavior;
+        document.body.style.scrollBehavior = prevBodyScrollBehavior;
+      }
     };
-  }, [locked]);
+  }, [locked, options?.strategy]);
 };
