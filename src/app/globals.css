@@ -672,6 +672,19 @@ h6 {
 html {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+  scrollbar-gutter: stable;
+}
+
+/* Clerk modals: centered on mobile + prevent layout shift when locking scroll */
+.cl-modalBackdrop {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+}
+
+.clerk-modal-open {
+  overflow: hidden;
 }
 
 /* Clerk Auth Modal Buttons - Match Site Styling */

@@ -155,7 +155,7 @@ const Navbar = () => {
         }
       `}</style>
 
-      <nav className="bg-white/30 backdrop-blur-md shadow-sm sticky top-0 z-50 relative">
+      <nav className="bg-white/30 backdrop-blur-md shadow-sm sticky top-0 z-[60] relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="flex justify-between items-center h-16">
             <button
@@ -281,110 +281,146 @@ const Navbar = () => {
       {/* Backdrop Blur Overlay */}
       {isMenuOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/10 backdrop-blur-sm z-30"
+          className="md:hidden fixed inset-0 bg-black/10 backdrop-blur-sm z-40"
           aria-hidden="true"
           onClick={() => setIsMenuOpen(false)}
-          onTouchStart={(e) => e.preventDefault()}
-          onMouseDown={(e) => e.preventDefault()}
         />
       )}
 
-      {/* Mobile Navigation - Overlay */}
+      {/* Mobile Menu Header (visible even when scrolled) */}
       {isMenuOpen && (
-        <div
-          className="md:hidden fixed left-0 right-0 top-16 shadow-sm animate-slideDown z-40"
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.3)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            pointerEvents: 'all'
-          }}
-        >
-          <div className="px-4 pt-4 pb-4 space-y-2">
-                <SignedIn>
-                  {/* Authenticated mobile navigation */}
-                  <>
-                    <button
-                      onClick={() => {
-                        handleViewChange("home");
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
-                    >
-                      Domů
-                    </button>
-                    <button
-                      onClick={() => handleViewChange("dashboard")}
-                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
-                    >
-                      Moje objednávky
-                    </button>
-                    {isAdmin && (
-                      <button
-                        onClick={() => handleViewChange("admin")}
-                        className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
-                      >
-                        Admin
-                      </button>
-                    )}
-                    <button
-                      onClick={handleServicesClick}
-                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
-                    >
-                      Služby
-                    </button>
-                    <button
-                      onClick={() => scrollToSection("objednat")}
-                      className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group"
-                    >
-                      <span className="relative z-10">Objednat</span>
-                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
-                    </button>
-                  </>
-                </SignedIn>
-                <SignedOut>
-                  {/* Unauthenticated mobile navigation */}
-                  <>
-                    <button
-                      onClick={() => {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        setIsMenuOpen(false);
-                      }}
-                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
-                    >
-                      Domů
-                    </button>
-                    <button
-                      onClick={handleServicesClick}
-                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
-                    >
-                      Služby
-                    </button>
-                    <button
-                      onClick={() => scrollToSection("objednat")}
-                      className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group"
-                    >
-                      <span className="relative z-10">Objednat</span>
-                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
-                    </button>
-                    <div className="border-t border-gray-200 my-3"></div>
-                    <SignInButton mode="modal">
-                      <button className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group">
-                        <span className="relative z-10">Přihlásit se</span>
-                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
-                      </button>
-                    </SignInButton>
-                    <SignUpButton mode="modal">
-                      <button className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group">
-                        <span className="relative z-10">Registrovat se</span>
-                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
-                      </button>
-                    </SignUpButton>
-                  </>
-                </SignedOut>
+        <div className="md:hidden fixed top-0 left-0 right-0 z-[70] bg-white/30 backdrop-blur-md shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <button
+                onClick={handleLogoClick}
+                className="flex items-center space-x-2 transition-all duration-300 group"
+              >
+                <Scissors className="h-8 w-8 text-[#FF6B35] group-hover:rotate-12 transition-transform duration-300" />
+                <span className="font-crimson italic text-xl font-bold text-gray-900">
+                  FlekCuts
+                </span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                {isSignedIn && (
+                  <div className="cursor-pointer flex items-center">
+                    <UserButton />
+                  </div>
+                )}
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-gray-700 p-2 rounded-md transition-all duration-200 cursor-pointer relative w-10 h-10"
+                  aria-label="Zavřít menu"
+                >
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-5 h-4 relative">
+                      <span className="absolute left-0 w-full h-[2px] bg-gray-700 top-1/2 -translate-y-1/2 rotate-45"></span>
+                      <span className="absolute left-0 w-full h-[2px] bg-gray-700 top-1/2 -translate-y-1/2 -rotate-45"></span>
+                    </div>
+                  </div>
+                </button>
               </div>
             </div>
-          )}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Navigation - Modal panel (centered in viewport) */}
+      {isMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
+          <div className="w-full max-w-md bg-white/30 backdrop-blur-md border border-white/40 shadow-lg rounded-2xl overflow-hidden">
+            <div className="p-4 space-y-2 max-h-[calc(100vh-8rem)] overflow-y-auto">
+              <SignedIn>
+                <>
+                  <button
+                    onClick={() => {
+                      handleViewChange("home");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                  >
+                    Domů
+                  </button>
+                  <button
+                    onClick={() => handleViewChange("dashboard")}
+                    className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                  >
+                    Moje objednávky
+                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleViewChange("admin")}
+                      className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                    >
+                      Admin
+                    </button>
+                  )}
+                  <button
+                    onClick={handleServicesClick}
+                    className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                  >
+                    Služby
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("objednat")}
+                    className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group"
+                  >
+                    <span className="relative z-10">Objednat</span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
+                  </button>
+                </>
+              </SignedIn>
+
+              <SignedOut>
+                <>
+                  <button
+                    onClick={() => {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                      setIsMenuOpen(false);
+                    }}
+                    className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                  >
+                    Domů
+                  </button>
+                  <button
+                    onClick={handleServicesClick}
+                    className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                  >
+                    Služby
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("objednat")}
+                    className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group"
+                  >
+                    <span className="relative z-10">Objednat</span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
+                  </button>
+                  <div className="border-t border-gray-200 my-3"></div>
+                  <SignInButton mode="modal">
+                    <button
+                      onClick={() => setIsMenuOpen(false)}
+                      className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group"
+                    >
+                      <span className="relative z-10">Přihlásit se</span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button
+                      onClick={() => setIsMenuOpen(false)}
+                      className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group"
+                    >
+                      <span className="relative z-10">Registrovat se</span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFE5DC] to-transparent opacity-0 group-hover:opacity-70 animate-shimmer"></span>
+                    </button>
+                  </SignUpButton>
+                </>
+              </SignedOut>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
