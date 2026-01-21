@@ -29,13 +29,33 @@ const timeToMinutes = (time: string) => {
   return Number(hoursStr) * 60 + Number(minutesStr);
 };
 
+const pad2 = (value: number) => String(value).padStart(2, "0");
+
+const getLocalNow = (): { date: string; yearMonth: string; minutes: number } => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = pad2(d.getMonth() + 1);
+  const day = pad2(d.getDate());
+  return {
+    date: `${year}-${month}-${day}`,
+    yearMonth: `${year}-${month}`,
+    minutes: d.getHours() * 60 + d.getMinutes(),
+  };
+};
+
 const getTodayInPrague = (): { date: string; yearMonth: string } => {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Prague",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
+  let parts: Intl.DateTimeFormatPart[];
+  try {
+    parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Prague",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(new Date());
+  } catch {
+    const local = getLocalNow();
+    return { date: local.date, yearMonth: local.yearMonth };
+  }
   const get = (type: string) => parts.find((p) => p.type === type)?.value;
   const year = get("year") || new Date().getFullYear().toString();
   const month = get("month") || String(new Date().getMonth() + 1).padStart(2, "0");
@@ -44,15 +64,21 @@ const getTodayInPrague = (): { date: string; yearMonth: string } => {
 };
 
 const getNowInPrague = (): { date: string; minutes: number } => {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Prague",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).formatToParts(new Date());
+  let parts: Intl.DateTimeFormatPart[];
+  try {
+    parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Prague",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(new Date());
+  } catch {
+    const local = getLocalNow();
+    return { date: local.date, minutes: local.minutes };
+  }
   const get = (type: string) => parts.find((p) => p.type === type)?.value;
   const year = get("year") || new Date().getFullYear().toString();
   const month = get("month") || String(new Date().getMonth() + 1).padStart(2, "0");
