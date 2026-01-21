@@ -683,6 +683,7 @@ const Booking = () => {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isServiceSelectOpen, setIsServiceSelectOpen] = useState(false);
   const [serviceJustSelected, setServiceJustSelected] = useState(false);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -692,6 +693,8 @@ const Booking = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const fieldRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  useBodyScrollLock(isServiceSelectOpen);
 
   const createAppointment = useMutation(api.appointments.createAppointment);
   const createAnonymousAppointment = useMutation(
@@ -1260,6 +1263,7 @@ const Booking = () => {
                 <Select
                   value={bookingForm.service}
                   onValueChange={(value) => handleInputChange("service", value)}
+                  onOpenChange={setIsServiceSelectOpen}
                 >
                   <SelectTrigger
                     id="service"
