@@ -113,6 +113,7 @@ const BookingConfirmationModal = ({
     >
       <div
         className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-auto"
+        data-scroll-lock-allow="true"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

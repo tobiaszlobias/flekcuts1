@@ -33,7 +33,10 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-120px)] p-6 space-y-6">
+        <div
+          className="overflow-y-auto max-h-[calc(90vh-120px)] p-6 space-y-6"
+          data-scroll-lock-allow="true"
+        >
           <div className="text-sm text-gray-600">
             <div className="font-semibold text-gray-900">
               Všeobecné obchodní podmínky (rezervace termínů)

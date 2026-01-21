@@ -38,6 +38,30 @@ export const useBodyScrollLock = (locked: boolean) => {
       document.body.style.paddingRight = `${scrollbarWidth}px`;
     }
 
+    const allowScroll = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return false;
+      return Boolean(target.closest('[data-scroll-lock-allow="true"]'));
+    };
+
+    const preventOutside = (e: Event) => {
+      if (allowScroll(e.target)) return;
+      e.preventDefault();
+    };
+
+    const preventKeys = (e: KeyboardEvent) => {
+      const keys = ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "];
+      if (keys.includes(e.key)) e.preventDefault();
+    };
+
+    document.addEventListener("touchmove", preventOutside, { passive: false });
+    document.addEventListener("wheel", preventOutside, { passive: false });
+    window.addEventListener("keydown", preventKeys);
+    removeGuards = () => {
+      document.removeEventListener("touchmove", preventOutside as EventListener);
+      document.removeEventListener("wheel", preventOutside as EventListener);
+      window.removeEventListener("keydown", preventKeys);
+    };
+
     return () => {
       lockCount = Math.max(0, lockCount - 1);
       if (lockCount !== 0) return;

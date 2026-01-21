@@ -31,7 +31,10 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-120px)] p-6 space-y-6">
+        <div
+          className="overflow-y-auto max-h-[calc(90vh-120px)] p-6 space-y-6"
+          data-scroll-lock-allow="true"
+        >
           <div className="text-gray-700 space-y-6">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">

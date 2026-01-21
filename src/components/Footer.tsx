@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MapPin, Phone, Clock, ExternalLink } from "lucide-react";
-import { openConsentSettings, readConsent, writeConsent } from "@/lib/consent";
+import { openConsentSettings, readConsent } from "@/lib/consent";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -38,15 +38,6 @@ const Footer = () => {
     return () =>
       window.removeEventListener("flekcuts:consentUpdated", onUpdated as EventListener);
   }, []);
-
-  const enableExternalMaps = () => {
-    const current = readConsent();
-    writeConsent({
-      analytics: current?.analytics ?? false,
-      external: true,
-    });
-    setExternalEnabled(true);
-  };
 
   return (
     <footer className="bg-white border-t border-gray-200">
@@ -166,6 +157,18 @@ const Footer = () => {
                     onClick={handleDirectionsClick}
                     title="Klikněte pro otevření v mapách"
                   />
+
+                  {/* Overlay with address info */}
+                  <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm text-gray-800 p-3 rounded-lg border border-gray-200 shadow-md">
+                    <div className="flex items-start gap-2">
+                      <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                      <div className="font-montserrat text-sm">
+                        <div className="font-semibold text-gray-900">FlekCuts</div>
+                        <div className="text-gray-600">Zámecké náměstí 19</div>
+                        <div className="text-gray-600">792 01 Bruntál</div>
+                      </div>
+                    </div>
+                  </div>
                 </>
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-[#FFF4EF] via-white to-[#FFF9F6] flex items-center justify-center p-6">
@@ -177,44 +180,18 @@ const Footer = () => {
                       Mapa je poskytována službou Google Maps. Po načtení může Google
                       zpracovávat technické údaje o zařízení a IP adresu.
                     </p>
-                    <div className="mt-4 flex flex-col sm:flex-row gap-2 justify-center">
-                      <button
-                        type="button"
-                        onClick={enableExternalMaps}
-                        className="px-4 py-2 text-sm bg-[#FF6B35] text-white rounded-lg hover:bg-[#E5572C] transition-colors font-medium"
-                      >
-                        Načíst mapu
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleDirectionsClick}
-                        className="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors"
-                      >
-                        Otevřít v Google Maps
-                      </button>
-                      <button
-                        type="button"
-                        onClick={openConsentSettings}
-                        className="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors"
-                      >
-                        Nastavení
-                      </button>
+
+                    <div className="mt-4 inline-flex items-start gap-2 bg-white/90 text-gray-800 p-3 rounded-lg border border-gray-200 shadow-sm text-left">
+                      <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                      <div className="font-montserrat text-sm">
+                        <div className="font-semibold text-gray-900">FlekCuts</div>
+                        <div className="text-gray-600">Zámecké náměstí 19</div>
+                        <div className="text-gray-600">792 01 Bruntál</div>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
-
-              {/* Overlay with address info */}
-              <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm text-gray-800 p-3 rounded-lg border border-gray-200 shadow-md">
-                <div className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                  <div className="font-montserrat text-sm">
-                    <div className="font-semibold text-gray-900">FlekCuts</div>
-                    <div className="text-gray-600">Zámecké náměstí 19</div>
-                    <div className="text-gray-600">792 01 Bruntál</div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

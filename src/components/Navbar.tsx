@@ -59,6 +59,11 @@ const Navbar = () => {
   // Prevent body scroll when mobile menu is open
   useBodyScrollLock(isMenuOpen);
 
+  const closeMenuThen = (action: () => void) => {
+    setIsMenuOpen(false);
+    requestAnimationFrame(() => requestAnimationFrame(action));
+  };
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -293,7 +298,7 @@ const Navbar = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <button
-                onClick={handleLogoClick}
+                onClick={() => closeMenuThen(handleLogoClick)}
                 className="flex items-center space-x-2 transition-all duration-300 group"
               >
                 <Scissors className="h-8 w-8 text-[#FF6B35] group-hover:rotate-12 transition-transform duration-300" />
@@ -330,40 +335,40 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="md:hidden fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
           <div className="w-full max-w-md bg-white/30 backdrop-blur-md border border-white/40 shadow-lg rounded-2xl overflow-hidden">
-            <div className="p-4 space-y-2 max-h-[calc(100vh-8rem)] overflow-y-auto">
+            <div
+              className="p-4 space-y-2 max-h-[calc(100vh-8rem)] overflow-y-auto"
+              data-scroll-lock-allow="true"
+            >
               <SignedIn>
                 <>
                   <button
-                    onClick={() => {
-                      handleViewChange("home");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
+                    onClick={() => closeMenuThen(() => handleViewChange("home"))}
                     className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
                   >
                     Domů
                   </button>
-                  <button
-                    onClick={() => handleViewChange("dashboard")}
-                    className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
-                  >
-                    Moje objednávky
-                  </button>
-                  {isAdmin && (
                     <button
-                      onClick={() => handleViewChange("admin")}
+                      onClick={() => closeMenuThen(() => handleViewChange("dashboard"))}
                       className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
                     >
-                      Admin
+                      Moje objednávky
                     </button>
-                  )}
+                    {isAdmin && (
+                      <button
+                        onClick={() => closeMenuThen(() => handleViewChange("admin"))}
+                        className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
+                      >
+                        Admin
+                      </button>
+                    )}
                   <button
-                    onClick={handleServicesClick}
+                    onClick={() => closeMenuThen(handleServicesClick)}
                     className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
                   >
                     Služby
                   </button>
                   <button
-                    onClick={() => scrollToSection("objednat")}
+                    onClick={() => closeMenuThen(() => scrollToSection("objednat"))}
                     className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group"
                   >
                     <span className="relative z-10">Objednat</span>
@@ -375,22 +380,21 @@ const Navbar = () => {
               <SignedOut>
                 <>
                   <button
-                    onClick={() => {
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                      setIsMenuOpen(false);
-                    }}
+                    onClick={() =>
+                      closeMenuThen(() => window.scrollTo({ top: 0, behavior: "smooth" }))
+                    }
                     className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
                   >
                     Domů
                   </button>
                   <button
-                    onClick={handleServicesClick}
+                    onClick={() => closeMenuThen(handleServicesClick)}
                     className="font-montserrat block w-full text-center px-4 py-2.5 text-gray-700 bg-white/95 backdrop-blur-lg border border-gray-200 hover:border-[#FF6B35] hover:text-[#FF6B35] rounded-full transition-all duration-200 active:scale-95 cursor-pointer"
                   >
                     Služby
                   </button>
                   <button
-                    onClick={() => scrollToSection("objednat")}
+                    onClick={() => closeMenuThen(() => scrollToSection("objednat"))}
                     className="font-montserrat block w-full text-center px-4 py-2.5 bg-white border-2 border-[#FF6B35] text-[#FF6B35] hover:bg-white hover:text-[#E5572C] hover:border-[#E5572C] rounded-full transition-all duration-200 hover:scale-102 active:scale-99 cursor-pointer relative overflow-hidden group"
                   >
                     <span className="relative z-10">Objednat</span>
