@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { CONSENT_STORAGE_KEY, readConsent, writeConsent } from "@/lib/consent";
 
@@ -10,9 +11,12 @@ type Draft = {
 };
 
 const ConsentBanner = () => {
+  const [mounted, setMounted] = useState(false);
   const [consent, setConsent] = useState(() => readConsent());
   const [showSettings, setShowSettings] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const hasChoice = !!consent;
   const showBanner = !hasChoice && !showSettings && !dismissed;
@@ -37,14 +41,27 @@ const ConsentBanner = () => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === CONSENT_STORAGE_KEY) setConsent(readConsent());
     };
+    const onFocus = () => setConsent(readConsent());
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") setConsent(readConsent());
+    };
     window.addEventListener("flekcuts:openConsentSettings", onOpen as EventListener);
     window.addEventListener("flekcuts:consentUpdated", onUpdated as EventListener);
     window.addEventListener("storage", onStorage);
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       window.removeEventListener("flekcuts:openConsentSettings", onOpen as EventListener);
       window.removeEventListener("flekcuts:consentUpdated", onUpdated as EventListener);
       window.removeEventListener("storage", onStorage);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
+  }, []);
+
+  useEffect(() => {
+    // Ensure we pick up stored consent even if the initial render happened before storage was ready.
+    setConsent(readConsent());
   }, []);
 
   const acceptAll = () => {
@@ -89,7 +106,9 @@ const ConsentBanner = () => {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [showSettings, consent, draft.analytics, draft.external]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <>
       {showBanner && (
         <div className="fixed inset-x-0 bottom-0 z-[2147483647] pointer-events-auto border-t border-gray-200 bg-white/95 backdrop-blur">
@@ -235,7 +254,8 @@ const ConsentBanner = () => {
           </div>
         </div>
       )}
-    </>
+    </>,
+    document.body
   );
 };
 

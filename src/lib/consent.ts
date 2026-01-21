@@ -39,36 +39,48 @@ const writeCookie = (name: string, value: string) => {
 
 export const readConsent = (): ConsentState | null => {
   if (!isBrowser()) return null;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return memoryConsent;
-    const parsed = JSON.parse(raw) as Partial<ConsentState>;
+
+  const validate = (value: unknown): ConsentState | null => {
+    if (!value || typeof value !== "object") return null;
+    const parsed = value as Partial<ConsentState>;
     if (parsed.version !== 1) return null;
     if (typeof parsed.analytics !== "boolean") return null;
     if (typeof parsed.external !== "boolean") return null;
     if (typeof parsed.updatedAt !== "string") return null;
-    const normalized = parsed as ConsentState;
-    memoryConsent = normalized;
-    return normalized;
-  } catch {
-    // If localStorage is blocked/unavailable, try cookie fallback.
-    if (memoryConsent) return memoryConsent;
-    try {
-      const cookieRaw = readCookie(COOKIE_KEY);
-      if (!cookieRaw) return null;
-      const decoded = decodeURIComponent(cookieRaw);
-      const parsed = JSON.parse(decoded) as Partial<ConsentState>;
-      if (parsed.version !== 1) return null;
-      if (typeof parsed.analytics !== "boolean") return null;
-      if (typeof parsed.external !== "boolean") return null;
-      if (typeof parsed.updatedAt !== "string") return null;
-      const normalized = parsed as ConsentState;
-      memoryConsent = normalized;
-      return normalized;
-    } catch {
-      return null;
+    return parsed as ConsentState;
+  };
+
+  // 1) localStorage (preferred)
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const fromStorage = validate(JSON.parse(raw));
+      if (fromStorage) {
+        memoryConsent = fromStorage;
+        return fromStorage;
+      }
     }
+  } catch {
+    // Ignore and fallback to cookie/memory.
   }
+
+  // 2) cookie fallback (covers cases where localStorage is unavailable or cleared)
+  try {
+    const cookieRaw = readCookie(COOKIE_KEY);
+    if (cookieRaw) {
+      const decoded = decodeURIComponent(cookieRaw);
+      const fromCookie = validate(JSON.parse(decoded));
+      if (fromCookie) {
+        memoryConsent = fromCookie;
+        return fromCookie;
+      }
+    }
+  } catch {
+    // Ignore.
+  }
+
+  // 3) in-memory fallback for this tab
+  return memoryConsent;
 };
 
 export const writeConsent = (categories: ConsentCategories): ConsentState => {
