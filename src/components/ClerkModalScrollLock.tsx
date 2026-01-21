@@ -14,8 +14,12 @@ export default function ClerkModalScrollLock() {
   const isLockedRef = useRef(false);
   const scrollYRef = useRef(0);
   const removeGuardsRef = useRef<null | (() => void)>(null);
+  const removeBackdropGuardsRef = useRef<null | (() => void)>(null);
+  const openAnimRafRef = useRef<number | null>(null);
 
   useEffect(() => {
+    let rafId: number | null = null;
+
     const lock = () => {
       if (isLockedRef.current) return;
       isLockedRef.current = true;
@@ -25,14 +29,21 @@ export default function ClerkModalScrollLock() {
         window.innerWidth - document.documentElement.clientWidth;
 
       document.body.classList.add("clerk-modal-open");
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollYRef.current}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-      document.body.style.width = "100%";
+      document.body.classList.remove("clerk-modal-opened");
+      document.body.classList.add("clerk-modal-opening");
+      document.documentElement.style.overflow = "hidden";
       if (scrollbarWidth > 0) {
         document.body.style.paddingRight = `${scrollbarWidth}px`;
       }
+
+      if (openAnimRafRef.current != null) {
+        cancelAnimationFrame(openAnimRafRef.current);
+      }
+      openAnimRafRef.current = requestAnimationFrame(() => {
+        document.body.classList.add("clerk-modal-opened");
+        document.body.classList.remove("clerk-modal-opening");
+        openAnimRafRef.current = null;
+      });
 
       const allowScroll = (target: EventTarget | null) => {
         if (!(target instanceof Element)) return false;
@@ -58,6 +69,36 @@ export default function ClerkModalScrollLock() {
         window.removeEventListener("keydown", preventKeys);
       };
       removeGuardsRef.current = removeGuards;
+
+      const preventBackdropClose = (e: Event) => {
+        const target = e.target;
+        if (!(target instanceof Element)) return;
+        const inBackdrop = Boolean(target.closest(CLERK_MODAL_BACKDROP_SELECTOR));
+        const inModal = Boolean(target.closest(CLERK_MODAL_ALLOW_SELECTOR));
+        if (inBackdrop && !inModal) {
+          e.preventDefault();
+          e.stopPropagation();
+          // @ts-expect-error stopImmediatePropagation exists on Event in browsers
+          e.stopImmediatePropagation?.();
+        }
+      };
+      // Use window-level capture so we run before any document-level handlers Clerk attaches.
+      window.addEventListener("pointerdown", preventBackdropClose, true);
+      window.addEventListener("pointerup", preventBackdropClose, true);
+      window.addEventListener("click", preventBackdropClose, true);
+      window.addEventListener("mousedown", preventBackdropClose, true);
+      window.addEventListener("mouseup", preventBackdropClose, true);
+      window.addEventListener("touchstart", preventBackdropClose, true);
+      window.addEventListener("touchend", preventBackdropClose, true);
+      removeBackdropGuardsRef.current = () => {
+        window.removeEventListener("pointerdown", preventBackdropClose, true);
+        window.removeEventListener("pointerup", preventBackdropClose, true);
+        window.removeEventListener("click", preventBackdropClose, true);
+        window.removeEventListener("mousedown", preventBackdropClose, true);
+        window.removeEventListener("mouseup", preventBackdropClose, true);
+        window.removeEventListener("touchstart", preventBackdropClose, true);
+        window.removeEventListener("touchend", preventBackdropClose, true);
+      };
     };
 
     const unlock = () => {
@@ -65,14 +106,18 @@ export default function ClerkModalScrollLock() {
       isLockedRef.current = false;
 
       document.body.classList.remove("clerk-modal-open");
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.width = "";
+      document.body.classList.remove("clerk-modal-opening");
+      document.body.classList.remove("clerk-modal-opened");
       document.body.style.paddingRight = "";
+      document.documentElement.style.overflow = "";
       removeGuardsRef.current?.();
       removeGuardsRef.current = null;
+      removeBackdropGuardsRef.current?.();
+      removeBackdropGuardsRef.current = null;
+      if (openAnimRafRef.current != null) {
+        cancelAnimationFrame(openAnimRafRef.current);
+        openAnimRafRef.current = null;
+      }
 
       // Ensure restoring scroll position is instant (site enables smooth scrolling globally).
       const prevHtmlScrollBehavior = document.documentElement.style.scrollBehavior;
@@ -84,16 +129,21 @@ export default function ClerkModalScrollLock() {
       document.body.style.scrollBehavior = prevBodyScrollBehavior;
     };
 
-    const update = () => {
-      if (isClerkModalOpen()) lock();
-      else unlock();
+    const scheduleUpdate = () => {
+      if (rafId != null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (isClerkModalOpen()) lock();
+        else unlock();
+      });
     };
 
-    update();
-    const observer = new MutationObserver(update);
+    scheduleUpdate();
+    const observer = new MutationObserver(scheduleUpdate);
     observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
+      if (rafId != null) cancelAnimationFrame(rafId);
       observer.disconnect();
       unlock();
     };

@@ -676,53 +676,56 @@ html {
 
 /* Clerk modals: centered on mobile + prevent layout shift when locking scroll */
 .cl-modalBackdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   padding: 16px !important;
+  background: rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
   pointer-events: auto !important;
-  touch-action: none !important;
-  animation: clerkBackdropIn 160ms ease-out;
+  z-index: 2147483645 !important;
+  opacity: 0 !important;
+  transition: opacity 140ms ease-out !important;
 }
 
 .clerk-modal-open {
   overflow: hidden;
 }
 
-@keyframes clerkBackdropIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+body.clerk-modal-opened .cl-modalBackdrop {
+  opacity: 1 !important;
 }
 
-@keyframes clerkModalIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+body.clerk-modal-opening .cl-modalBackdrop {
+  opacity: 0 !important;
 }
 
+/* Prevent the initial translucent/unstyled flash while Clerk finishes rendering */
 .cl-modalBackdrop .cl-modal,
 .cl-modalBackdrop .cl-card {
-  animation: clerkModalIn 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  background: white !important;
+  opacity: 0 !important;
+  transform: translateY(8px) scale(0.98) !important;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), opacity 180ms ease-out !important;
   will-change: transform, opacity;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .cl-modalBackdrop {
-    animation: none;
-  }
+body.clerk-modal-opened .cl-modalBackdrop .cl-modal,
+body.clerk-modal-opened .cl-modalBackdrop .cl-card {
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
+}
 
+@media (prefers-reduced-motion: reduce) {
+  .cl-modalBackdrop,
   .cl-modalBackdrop .cl-modal,
   .cl-modalBackdrop .cl-card {
-    animation: none;
+    transition: none !important;
   }
 }
 
