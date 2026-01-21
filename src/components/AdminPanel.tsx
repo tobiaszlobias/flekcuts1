@@ -21,6 +21,7 @@ import {
   Trash2,
   TrendingUp,
   Phone,
+  RotateCcw,
 } from "lucide-react";
 
 const timeToMinutes = (time: string) => {
@@ -40,6 +41,25 @@ const getTodayInPrague = (): { date: string; yearMonth: string } => {
   const month = get("month") || String(new Date().getMonth() + 1).padStart(2, "0");
   const day = get("day") || String(new Date().getDate()).padStart(2, "0");
   return { date: `${year}-${month}-${day}`, yearMonth: `${year}-${month}` };
+};
+
+const getNowInPrague = (): { date: string; minutes: number } => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Prague",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date());
+  const get = (type: string) => parts.find((p) => p.type === type)?.value;
+  const year = get("year") || new Date().getFullYear().toString();
+  const month = get("month") || String(new Date().getMonth() + 1).padStart(2, "0");
+  const day = get("day") || String(new Date().getDate()).padStart(2, "0");
+  const hour = Number(get("hour") || "0");
+  const minute = Number(get("minute") || "0");
+  return { date: `${year}-${month}-${day}`, minutes: hour * 60 + minute };
 };
 
 export default function AdminPanel() {
@@ -253,6 +273,7 @@ export default function AdminPanel() {
   };
 
   const prague = getTodayInPrague();
+  const nowPrague = getNowInPrague();
   const todayCount = appointments.filter((a) => a.date === prague.date).length;
   const monthCount = appointments.filter((a) => a.date.startsWith(prague.yearMonth)).length;
 
@@ -558,7 +579,13 @@ export default function AdminPanel() {
               dateKeys.map((date) => (
                 <div key={date} className="space-y-2">
                   <div className="sticky top-2 z-10">
-                    <div className="inline-flex items-center gap-2 rounded-full bg-white/90 backdrop-blur border border-gray-200 px-4 py-2 shadow-sm">
+                    <div
+                      className={`inline-flex items-center gap-2 rounded-full backdrop-blur border px-4 py-2 shadow-sm ${
+                        date === prague.date
+                          ? "bg-[#FFF4EF]/90 border-[#FF6B35]/20"
+                          : "bg-white/90 border-gray-200"
+                      }`}
+                    >
                       <Calendar className="w-4 h-4 text-gray-500" />
                       <span className="font-montserrat text-sm font-semibold text-gray-900">
                         {new Date(date + "T00:00:00").toLocaleDateString("cs-CZ", {
@@ -571,15 +598,42 @@ export default function AdminPanel() {
                       <span className="font-montserrat text-xs text-gray-500">
                         ({appointmentsByDate[date].length})
                       </span>
+                      {date === prague.date && (
+                        <span className="inline-flex items-center rounded-full bg-[#FF6B35]/10 text-[#FF6B35] px-2 py-0.5 text-xs font-semibold">
+                          Dnes
+                        </span>
+                      )}
+                      <span className="font-montserrat text-xs text-gray-500">
+                        Hotovo{" "}
+                        {
+                          appointmentsByDate[date].filter((a) => a.status === "confirmed")
+                            .length
+                        }
+                        /{appointmentsByDate[date].length}
+                      </span>
                     </div>
                   </div>
 
                   {appointmentsByDate[date].map((appointment) => {
+                    const isToday = date === nowPrague.date;
+                    const appointmentMinutes = timeToMinutes(appointment.time);
+                    const isPast =
+                      date < nowPrague.date ||
+                      (isToday && appointmentMinutes < nowPrague.minutes);
+                    const timingLabel = isPast ? "Po termínu" : "Před termínem";
+                    const timingChrome =
+                      isPast && appointment.status === "pending"
+                        ? "border-red-200 bg-white text-red-700"
+                        : isPast
+                          ? "border-gray-200 bg-white text-gray-700"
+                          : "border-blue-200 bg-white text-blue-700";
                     if (mode === "overview") {
                       return (
                         <div
                           key={appointment._id}
-                          className={`rounded-xl border p-3 ${getCardChrome(appointment.status)}`}
+                          className={`rounded-xl border p-3 ${getCardChrome(appointment.status)} ${
+                            isToday ? "ring-2 ring-[#FF6B35]/20" : ""
+                          }`}
                         >
                           <div className="grid grid-cols-[72px_1fr] sm:grid-cols-[88px_1fr_260px] gap-3 items-center">
                             <div className="rounded-lg bg-white/70 border border-white/60 px-3 py-2 text-center">
@@ -592,6 +646,12 @@ export default function AdminPanel() {
                               <div className="flex items-center gap-2">
                                 <span className="font-montserrat text-sm font-semibold text-gray-900 truncate">
                                   {appointment.service}
+                                </span>
+                                <span
+                                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${timingChrome}`}
+                                >
+                                  <Clock className="h-3.5 w-3.5" />
+                                  {timingLabel}
                                 </span>
                                 {appointment.status !== "pending" && (
                                   <span
@@ -645,7 +705,9 @@ export default function AdminPanel() {
                     return (
                       <div
                         key={appointment._id}
-                        className={`rounded-xl border p-4 ${getCardChrome(appointment.status)}`}
+                        className={`rounded-xl border p-4 ${getCardChrome(appointment.status)} ${
+                          isToday ? "ring-2 ring-[#FF6B35]/20" : ""
+                        }`}
                       >
                         <div className="grid grid-cols-1 lg:grid-cols-[180px_1fr_auto] gap-4 items-start">
                           <div className="rounded-lg bg-white/70 border border-white/60 p-3">
@@ -674,6 +736,12 @@ export default function AdminPanel() {
                                   {appointment.service}
                                 </h4>
                                 <div className="mt-1 flex items-center gap-2">
+                                  <span
+                                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${timingChrome}`}
+                                  >
+                                    <Clock className="h-3.5 w-3.5" />
+                                    {timingLabel}
+                                  </span>
                                   {appointment.status !== "pending" && (
                                     <span
                                       className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium bg-white ${
@@ -748,14 +816,24 @@ export default function AdminPanel() {
                             )}
 
                             {appointment.status === "confirmed" && (
-                              <Button
-                                onClick={() => handleStatusUpdate(appointment._id, "cancelled")}
-                                variant="outline"
-                                className="flex-1 lg:flex-none font-montserrat border-2 border-red-600 text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                              >
-                                <XCircle className="h-4 w-4" />
-                                Zrušit
-                              </Button>
+                              <>
+                                <Button
+                                  onClick={() => handleStatusUpdate(appointment._id, "pending")}
+                                  variant="outline"
+                                  className="flex-1 lg:flex-none font-montserrat border-2 border-gray-300 text-gray-700 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <RotateCcw className="h-4 w-4" />
+                                  Vrátit
+                                </Button>
+                                <Button
+                                  onClick={() => handleStatusUpdate(appointment._id, "cancelled")}
+                                  variant="outline"
+                                  className="flex-1 lg:flex-none font-montserrat border-2 border-red-600 text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <XCircle className="h-4 w-4" />
+                                  Zrušit
+                                </Button>
+                              </>
                             )}
 
                             {appointment.status === "cancelled" && (
