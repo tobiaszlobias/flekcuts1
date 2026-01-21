@@ -1409,6 +1409,32 @@ const Booking = () => {
                   </>
                 )}
               </Button>
+
+              <p className="mt-2 text-xs text-gray-500 leading-relaxed text-center">
+                Odesláním rezervace berete na vědomí{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent("showPrivacyPolicy"));
+                  }}
+                  className="text-gray-600 underline underline-offset-2 hover:text-[#FF6B35] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6B35]/30 rounded-sm"
+                  aria-label="Otevřít Zásady ochrany osobních údajů"
+                >
+                  Zásady ochrany osobních údajů
+                </button>{" "}
+                a{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent("showTermsOfService"));
+                  }}
+                  className="text-gray-600 underline underline-offset-2 hover:text-[#FF6B35] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6B35]/30 rounded-sm"
+                  aria-label="Otevřít Všeobecné obchodní podmínky"
+                >
+                  Všeobecné obchodní podmínky
+                </button>
+                .
+              </p>
             </form>
           </CardContent>
         </Card>

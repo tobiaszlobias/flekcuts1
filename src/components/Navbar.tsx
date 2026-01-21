@@ -281,8 +281,8 @@ const Navbar = () => {
       {/* Backdrop Blur Overlay */}
       {isMenuOpen && (
         <div
-          className="md:hidden fixed top-16 left-0 right-0 bottom-0 bg-black/10 backdrop-blur-sm"
-          style={{ zIndex: 9998, pointerEvents: 'all' }}
+          className="md:hidden fixed inset-0 bg-black/10 backdrop-blur-sm z-30"
+          aria-hidden="true"
           onClick={() => setIsMenuOpen(false)}
           onTouchStart={(e) => e.preventDefault()}
           onMouseDown={(e) => e.preventDefault()}
@@ -292,13 +292,12 @@ const Navbar = () => {
       {/* Mobile Navigation - Overlay */}
       {isMenuOpen && (
         <div
-          className="md:hidden fixed left-0 right-0 top-16 shadow-sm animate-slideDown"
+          className="md:hidden fixed left-0 right-0 top-16 shadow-sm animate-slideDown z-40"
           style={{
             backgroundColor: 'rgba(255, 255, 255, 0.3)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            pointerEvents: 'all',
-            zIndex: 9999
+            pointerEvents: 'all'
           }}
         >
           <div className="px-4 pt-4 pb-4 space-y-2">
