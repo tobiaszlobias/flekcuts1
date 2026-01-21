@@ -713,6 +713,9 @@ body.clerk-modal-opening .cl-modalBackdrop {
   transform: translateY(8px) scale(0.98) !important;
   transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), opacity 180ms ease-out !important;
   will-change: transform, opacity;
+  max-height: calc(100dvh - 32px) !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 body.clerk-modal-opened .cl-modalBackdrop .cl-modal,
