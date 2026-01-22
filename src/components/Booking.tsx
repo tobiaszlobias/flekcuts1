@@ -347,6 +347,7 @@ const CompactDateTimePicker = ({
   availableStartTimes,
   bookedTimes,
   vacations,
+  isLoadingAvailability = false,
 }: {
   selectedDate: string;
   selectedTime: string;
@@ -356,6 +357,7 @@ const CompactDateTimePicker = ({
   availableStartTimes: string[];
   bookedTimes: string[];
   vacations: Vacation[];
+  isLoadingAvailability?: boolean;
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showTimeSlots, setShowTimeSlots] = useState(!!selectedDate);
@@ -573,81 +575,93 @@ const CompactDateTimePicker = ({
             Dostupné časy - {formatDate(selectedDate)}
           </h4>
 
-          {(() => {
-            const vac = getVacationIntervalsForDate(vacations, selectedDate);
-            if (vac.length === 0) return null;
-            const isFullDay = vac.some((v) => v.start === 0 && v.end === 24 * 60);
-            const label = vac[0]?.label || "Dovolená";
-            return (
-              <div className="mb-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800">
-                <span className="font-medium">{label}</span>
-                {isFullDay ? (
-                  <span> — tento den je zavřeno</span>
-                ) : (
-                  <span> — část dne není dostupná</span>
-                )}
-              </div>
-            );
-          })()}
-
-          {(() => {
-            const timeToMinutes = (t: string) => {
-              const [h, m = "0"] = t.split(":");
-              return Number(h) * 60 + Number(m);
-            };
-
-            const displayedTimes = (() => {
-              if (!selectedTime) return availableStartTimes;
-              if (availableStartTimes.includes(selectedTime)) return availableStartTimes;
-              return [selectedTime, ...availableStartTimes];
-            })().slice().sort((a, b) => timeToMinutes(a) - timeToMinutes(b));
-
-            return displayedTimes.length > 0 ? (
-            <div className="grid grid-cols-4 gap-1.5">
-              {displayedTimes.map((time) => {
-                const isBooked = bookedTimes.includes(time);
-                const isWithin2Hours = !isDateTimeAvailable(selectedDate, time);
-                const isStartAvailable = availableStartTimes.includes(time);
-                const canSelect = !isBooked && !isWithin2Hours && isStartAvailable;
-                const isSelected = selectedTime === time;
-
+          {isLoadingAvailability ? (
+            <div className="flex items-center justify-center gap-2 py-6 text-sm text-gray-600">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400" />
+              <span>Načítám dostupné časy…</span>
+            </div>
+          ) : (
+            <>
+              {(() => {
+                const vac = getVacationIntervalsForDate(vacations, selectedDate);
+                if (vac.length === 0) return null;
+                const isFullDay = vac.some((v) => v.start === 0 && v.end === 24 * 60);
+                const label = vac[0]?.label || "Dovolená";
                 return (
-                  <button
-                    key={time}
-                    type="button"
-                    onClick={() => (canSelect ? onTimeSelect(time) : null)}
-                    disabled={!canSelect}
-                    aria-pressed={isSelected}
-                    title={
-                      isSelected && !canSelect
-                        ? "Vybráno (už není dostupné pro zvolenou službu)"
-                        : undefined
-                    }
-                    className={`
-                      relative p-2 text-xs rounded border transition-all duration-200
-                      ${
-                        isSelected
-                          ? "bg-[#FF8C5A] text-white border-[#FF8C5A] font-medium"
-                          : canSelect
-                            ? "border-[#e5ebe9] hover:border-[#FF6B35] hover:bg-white"
-                            : isBooked
-                              ? "border-gray-300 bg-gray-200 text-gray-700 cursor-not-allowed"
-                              : "border-gray-200 bg-gray-100 text-gray-600 cursor-not-allowed"
-                      }
-                    `}
-                  >
-                    {time}
-                  </button>
+                  <div className="mb-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800">
+                    <span className="font-medium">{label}</span>
+                    {isFullDay ? (
+                      <span> — tento den je zavřeno</span>
+                    ) : (
+                      <span> — část dne není dostupná</span>
+                    )}
+                  </div>
                 );
-              })}
-            </div>
-            ) : (
-            <div className="text-center text-gray-500 py-4">
-              <Clock className="w-5 h-5 mx-auto mb-1 text-gray-300" />
-              <p className="text-xs">Pro zvolenou službu nejsou dostupné časy</p>
-            </div>
-            );
-          })()}
+              })()}
+
+              {(() => {
+                const timeToMinutes = (t: string) => {
+                  const [h, m = "0"] = t.split(":");
+                  return Number(h) * 60 + Number(m);
+                };
+
+                const displayedTimes = (() => {
+                  if (!selectedTime) return availableStartTimes;
+                  if (availableStartTimes.includes(selectedTime)) return availableStartTimes;
+                  return [selectedTime, ...availableStartTimes];
+                })()
+                  .slice()
+                  .sort((a, b) => timeToMinutes(a) - timeToMinutes(b));
+
+                return displayedTimes.length > 0 ? (
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {displayedTimes.map((time) => {
+                      const isBooked = bookedTimes.includes(time);
+                      const isWithin2Hours = !isDateTimeAvailable(selectedDate, time);
+                      const isStartAvailable = availableStartTimes.includes(time);
+                      const canSelect = !isBooked && !isWithin2Hours && isStartAvailable;
+                      const isSelected = selectedTime === time;
+
+                      return (
+                        <button
+                          key={time}
+                          type="button"
+                          onClick={() => (canSelect ? onTimeSelect(time) : null)}
+                          disabled={!canSelect}
+                          aria-pressed={isSelected}
+                          title={
+                            isSelected && !canSelect
+                              ? "Vybráno (už není dostupné pro zvolenou službu)"
+                              : undefined
+                          }
+                          className={`
+                            relative p-2 text-xs rounded border transition-all duration-200
+                            ${
+                              isSelected
+                                ? "bg-[#FF8C5A] text-white border-[#FF8C5A] font-medium"
+                                : canSelect
+                                  ? "border-[#e5ebe9] hover:border-[#FF6B35] hover:bg-white"
+                                  : isBooked
+                                    ? "border-gray-300 bg-gray-200 text-gray-700 cursor-not-allowed"
+                                    : "border-gray-200 bg-gray-100 text-gray-600 cursor-not-allowed"
+                            }
+                          `}
+                        >
+                          {time}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-500 py-4">
+                    <Clock className="w-5 h-5 mx-auto mb-1 text-gray-300" />
+                    <p className="text-xs">Pro zvolenou službu nejsou dostupné časy</p>
+                  </div>
+                );
+              })()}
+            </>
+          )}
+
         </div>
       )}
 
@@ -718,11 +732,15 @@ const Booking = () => {
     return d;
   })();
 
-  const vacations =
-    useQuery(api.vacations.getVacationsByRange, {
-      startDate: formatDateIso(bookingWindowStart),
-      endDate: formatDateIso(bookingWindowEnd),
-    }) || [];
+  const vacationsQuery = useQuery(api.vacations.getVacationsByRange, {
+    startDate: formatDateIso(bookingWindowStart),
+    endDate: formatDateIso(bookingWindowEnd),
+  });
+
+  const vacations = vacationsQuery ?? [];
+  const isAvailabilityLoading =
+    !!bookingForm.date &&
+    (appointmentsForDate === undefined || vacationsQuery === undefined);
 
   const isDefined = <T,>(value: T | null | undefined): value is T =>
     value !== null && value !== undefined;
@@ -805,7 +823,7 @@ const Booking = () => {
   const openSlots = getOpenSlotsForDate(bookingForm.date);
   const workingPeriods = getWorkingPeriodsForDate(bookingForm.date);
 
-  const existingIntervals = (appointmentsForDate || [])
+  const existingIntervals = (isAvailabilityLoading ? [] : appointmentsForDate || [])
     .filter((apt) => apt.status !== "cancelled")
     .map((apt) => {
       const start = timeStringToMinutes(apt.time);
@@ -815,7 +833,7 @@ const Booking = () => {
     })
     .filter((interval) => Number.isFinite(interval.start) && Number.isFinite(interval.end));
 
-  const vacationIntervals = bookingForm.date
+  const vacationIntervals = !isAvailabilityLoading && bookingForm.date
     ? getVacationIntervalsForDate(vacations, bookingForm.date).map((v) => ({
         start: v.start,
         end: v.end,
@@ -840,6 +858,7 @@ const Booking = () => {
 
   const availableTimeSlots = (() => {
     if (!bookingForm.date) return [];
+    if (isAvailabilityLoading) return [];
     if (openSlots.length === 0) return [];
 
     const durationMinutes = derivedSelection.durationMinutes || SLOT_MINUTES;
@@ -1367,6 +1386,7 @@ const Booking = () => {
                     availableStartTimes={availableTimeSlots}
                     bookedTimes={bookedTimes}
                     vacations={vacations}
+                    isLoadingAvailability={isAvailabilityLoading}
                   />
                 </div>
 
