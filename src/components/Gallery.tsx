@@ -3,15 +3,14 @@ import React, { useRef, useEffect, useState } from "react";
 const Gallery = () => {
   // Replace these with your actual image paths
   const images = [
-    "/haircut1.jpg",
-    "/haircut2.jpg",
-    "/haircut3.jpg",
-    "/haircut4.jpg",
-    "/haircut5.jpg",
-    "/haircut6.jpg",
-    "/haircut7.jpg",
-    "/haircut8.jpg",
-    "/haircut9.jpg",
+    "/haircut1.png",
+    "/haircut2.png",
+    "/haircut3.png",
+    "/haircut4.png",
+    "/haircut5.png",
+    "/haircut6.png",
+    "/haircut7.png",
+    "/haircut8.png",
   ];
 
   // Triple the images for seamless infinite scroll
@@ -208,7 +207,23 @@ const Gallery = () => {
               <img
                 src={image}
                 alt={`Střih ${(index % images.length) + 1}`}
-                className="w-full h-full object-cover"
+                className={`w-full h-full ${
+                  (index % images.length) === 0
+                    ? "object-contain object-[50%_20%] scale-[1.16]"
+                    : (index % images.length) === 1
+                      ? "object-contain scale-[1.06]"
+                    : (index % images.length) === 3
+                      ? "object-contain scale-[1.12]"
+                    : (index % images.length) === 4
+                      ? "object-contain scale-[1.10]"
+                    : (index % images.length) === 5
+                      ? "object-contain scale-[1.06]"
+                    : (index % images.length) === 6
+                      ? "object-contain scale-[1.10]"
+                    : (index % images.length) === 7
+                      ? "object-contain scale-[1.06]"
+                      : "object-cover"
+                }`}
                 draggable="false"
                 loading="lazy"
               />
