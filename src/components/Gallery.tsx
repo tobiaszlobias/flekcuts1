@@ -212,6 +212,8 @@ const Gallery = () => {
                     ? "object-contain object-[50%_20%] scale-[1.16]"
                     : (index % images.length) === 1
                       ? "object-contain scale-[1.06]"
+                    : (index % images.length) === 2
+                      ? "object-contain scale-[1.02]"
                     : (index % images.length) === 3
                       ? "object-contain scale-[1.12]"
                     : (index % images.length) === 4
