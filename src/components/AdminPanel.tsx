@@ -11,6 +11,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { BOOKING_DROPDOWN_SERVICES, deriveServiceSelection } from "@/lib/services";
+import {
   Calendar,
   Clock,
   User,
@@ -95,11 +103,15 @@ export default function AdminPanel() {
   const vacations = useQuery(api.admin.getAllVacations);
   const createVacation = useMutation(api.admin.createVacation);
   const deleteVacation = useMutation(api.admin.deleteVacation);
+  const internalBlocks = useQuery(api.admin.getMyInternalBlocks);
+  const createInternalBlock = useMutation(api.admin.createInternalBlock);
+  const deleteInternalBlock = useMutation(api.admin.deleteInternalBlock);
 
   const [mode, setMode] = useState<"overview" | "manage">("overview");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [appointmentToDeleteId, setAppointmentToDeleteId] = useState<Id<"appointments"> | null>(null);
   const [showVacationUi, setShowVacationUi] = useState(false);
+  const [showInternalBlockUi, setShowInternalBlockUi] = useState(false);
   const [vacationForm, setVacationForm] = useState<{
     startDate: string;
     endDate: string;
@@ -116,6 +128,22 @@ export default function AdminPanel() {
     note: "",
   });
   const [isSavingVacation, setIsSavingVacation] = useState(false);
+  const [internalBlockForm, setInternalBlockForm] = useState<{
+    date: string;
+    time: string;
+    service: string;
+    addBeard: boolean;
+    addWash: boolean;
+    note: string;
+  }>({
+    date: "",
+    time: "",
+    service: "",
+    addBeard: false,
+    addWash: false,
+    note: "",
+  });
+  const [isSavingInternalBlock, setIsSavingInternalBlock] = useState(false);
 
   const formatVacationDate = (date: string) =>
     new Date(date + "T00:00:00").toLocaleDateString("cs-CZ", {
@@ -175,6 +203,63 @@ export default function AdminPanel() {
     } catch (error) {
       console.error("Failed to delete vacation:", error);
       toast.error("Nepodařilo se smazat dovolenou");
+    }
+  };
+
+  const handleCreateInternalBlock = async () => {
+    const date = internalBlockForm.date.trim();
+    const time = internalBlockForm.time.trim();
+    const note = internalBlockForm.note.trim();
+    const baseName = internalBlockForm.service.trim();
+
+    if (!date || !time) {
+      toast.error("Vyplňte datum a čas");
+      return;
+    }
+    if (!baseName) {
+      toast.error("Vyberte službu");
+      return;
+    }
+
+    const derived = deriveServiceSelection({
+      baseName,
+      addBeard: internalBlockForm.addBeard,
+      addWash: internalBlockForm.addWash,
+    });
+
+    setIsSavingInternalBlock(true);
+    try {
+      await createInternalBlock({
+        date,
+        time,
+        service: derived.displayName ? derived.displayName : undefined,
+        durationMinutes: derived.durationMinutes ? derived.durationMinutes : undefined,
+        note: note ? note : undefined,
+      });
+      toast.success("Vlastní termín byl přidán");
+      setInternalBlockForm({
+        date: "",
+        time: "",
+        service: "",
+        addBeard: false,
+        addWash: false,
+        note: "",
+      });
+    } catch (error) {
+      console.error("Failed to create internal block:", error);
+      toast.error("Nepodařilo se přidat vlastní termín");
+    } finally {
+      setIsSavingInternalBlock(false);
+    }
+  };
+
+  const handleDeleteInternalBlock = async (blockId: Id<"internalBlocks">) => {
+    try {
+      await deleteInternalBlock({ blockId });
+      toast.success("Vlastní termín byl smazán");
+    } catch (error) {
+      console.error("Failed to delete internal block:", error);
+      toast.error("Nepodařilo se smazat vlastní termín");
     }
   };
 
@@ -275,6 +360,7 @@ export default function AdminPanel() {
 
   const filteredAppointments = appointments;
   const vacationList = vacations || [];
+  const internalBlockList = internalBlocks || [];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -311,6 +397,14 @@ export default function AdminPanel() {
       return timeToMinutes(a.time) - timeToMinutes(b.time);
     });
 
+  const sortedInternalBlocks = internalBlockList
+    .slice()
+    .sort((a, b) => {
+      const dateCmp = a.date.localeCompare(b.date);
+      if (dateCmp !== 0) return dateCmp;
+      return timeToMinutes(a.time) - timeToMinutes(b.time);
+    });
+
   const appointmentsByDate = sortedAppointments.reduce<Record<string, typeof sortedAppointments>>(
     (acc, apt) => {
       (acc[apt.date] ||= []).push(apt);
@@ -319,7 +413,17 @@ export default function AdminPanel() {
     {}
   );
 
-  const dateKeys = Object.keys(appointmentsByDate).sort((a, b) => a.localeCompare(b));
+  const blocksByDate = sortedInternalBlocks.reduce<Record<string, typeof sortedInternalBlocks>>(
+    (acc, blk) => {
+      (acc[blk.date] ||= []).push(blk);
+      return acc;
+    },
+    {}
+  );
+
+  const dateKeys = Array.from(
+    new Set([...Object.keys(appointmentsByDate), ...Object.keys(blocksByDate)])
+  ).sort((a, b) => a.localeCompare(b));
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
@@ -365,6 +469,18 @@ export default function AdminPanel() {
             >
               Přidat dovolenou
             </Button>
+            {mode === "manage" && (
+              <Button
+                onClick={() => setShowInternalBlockUi((v) => !v)}
+                className={`font-montserrat ${
+                  showInternalBlockUi
+                    ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                    : "bg-white border-2 border-blue-200 text-blue-800 hover:bg-blue-50"
+                } px-4 py-2 rounded-full text-sm font-medium transition-colors`}
+              >
+                Vlastní termín
+              </Button>
+            )}
           </div>
         </div>
 
@@ -583,27 +699,197 @@ export default function AdminPanel() {
         </div>
         )}
 
+        {/* Internal blocks */}
+        {mode === "manage" && showInternalBlockUi && (
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="font-montserrat text-lg font-bold text-gray-900">
+                  Vlastní termíny
+                </h3>
+                <p className="font-montserrat text-sm text-gray-600">
+                  Termíny jsou viditelné jen v adminu, blokují rezervace a v přehledu jsou modře.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-4">
+              <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="font-montserrat text-xs text-gray-700">Datum</Label>
+                    <Input
+                      type="date"
+                      value={internalBlockForm.date}
+                      onChange={(e) =>
+                        setInternalBlockForm((p) => ({ ...p, date: e.target.value }))
+                      }
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="font-montserrat text-xs text-gray-700">Čas</Label>
+                    <Input
+                      type="time"
+                      value={internalBlockForm.time}
+                      onChange={(e) =>
+                        setInternalBlockForm((p) => ({ ...p, time: e.target.value }))
+                      }
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <Label className="font-montserrat text-xs text-gray-700">Služba</Label>
+                    <div className="mt-1 grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-2 items-center">
+                      <Select
+                        value={internalBlockForm.service}
+                        onValueChange={(value) =>
+                          setInternalBlockForm((p) => ({ ...p, service: value }))
+                        }
+                      >
+                        <SelectTrigger className="bg-white">
+                          <SelectValue placeholder="Vyberte službu" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {BOOKING_DROPDOWN_SERVICES.map((s) => (
+                            <SelectItem key={s.id} value={s.name}>
+                              {s.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={internalBlockForm.addBeard}
+                          onChange={(e) =>
+                            setInternalBlockForm((p) => ({ ...p, addBeard: e.target.checked }))
+                          }
+                        />
+                        Vousy
+                      </label>
+
+                      <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={internalBlockForm.addWash}
+                          onChange={(e) =>
+                            setInternalBlockForm((p) => ({ ...p, addWash: e.target.checked }))
+                          }
+                        />
+                        Mytí
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <Label className="font-montserrat text-xs text-gray-700">Poznámka</Label>
+                    <Input
+                      value={internalBlockForm.note}
+                      onChange={(e) =>
+                        setInternalBlockForm((p) => ({ ...p, note: e.target.value }))
+                      }
+                      className="mt-1"
+                      placeholder="Např. vlastní klient / blokace"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <Button
+                    onClick={handleCreateInternalBlock}
+                    disabled={isSavingInternalBlock}
+                    className="w-full font-montserrat bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2"
+                  >
+                    {isSavingInternalBlock ? "Ukládám..." : "Přidat vlastní termín"}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <div className="font-montserrat text-sm font-semibold text-gray-900 mb-3">
+                  Seznam
+                </div>
+                {internalBlocks === undefined ? (
+                  <div className="text-sm text-gray-500">Načítám...</div>
+                ) : internalBlockList.length === 0 ? (
+                  <div className="text-sm text-gray-500">Zatím žádné vlastní termíny</div>
+                ) : (
+                  <div className="space-y-2">
+                    {sortedInternalBlocks.map((b) => (
+                      <div
+                        key={b._id}
+                        className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex h-2 w-2 rounded-full bg-blue-600" />
+                              <div className="font-montserrat text-sm font-semibold text-gray-900 truncate">
+                                {new Date(b.date + "T00:00:00").toLocaleDateString("cs-CZ", {
+                                  weekday: "long",
+                                  day: "numeric",
+                                  month: "long",
+                                  year: "numeric",
+                                })}{" "}
+                                • {b.time}
+                              </div>
+                            </div>
+                            <div className="mt-1 font-montserrat text-xs text-gray-700">
+                              {(b.service || "Blokace") + ` (${b.durationMinutes} min)`}
+                            </div>
+                            {b.note && (
+                              <div className="mt-1 font-montserrat text-xs text-gray-600">
+                                {b.note}
+                              </div>
+                            )}
+                          </div>
+                          <Button
+                            onClick={() => handleDeleteInternalBlock(b._id)}
+                            variant="outline"
+                            className="border-2 border-gray-300 text-gray-700 hover:border-red-600 hover:text-red-600 hover:bg-white rounded-xl px-3 py-2"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Appointments List */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-montserrat text-xl font-bold text-gray-900">
               {mode === "overview"
-                ? `Přehled objednávek (${sortedAppointments.length})`
-                : `Upravit objednávky (${sortedAppointments.length})`}
+                ? `Přehled (${sortedAppointments.length} objednávek, ${sortedInternalBlocks.length} blokací)`
+                : `Upravit (${sortedAppointments.length} objednávek, ${sortedInternalBlocks.length} blokací)`}
             </h3>
           </div>
 
           <div className="space-y-4">
-            {sortedAppointments.length === 0 ? (
+            {sortedAppointments.length === 0 && sortedInternalBlocks.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Calendar className="w-8 h-8 text-gray-400" />
                 </div>
-                <p className="font-montserrat text-gray-600">Žádné objednávky k zobrazení</p>
+                <p className="font-montserrat text-gray-600">Žádné položky k zobrazení</p>
               </div>
             ) : (
               dateKeys.map((date) => (
                 <div key={date} className="space-y-2">
+                  {(() => {
+                    const dayAppointments = appointmentsByDate[date] || [];
+                    const dayBlocks = blocksByDate[date] || [];
+                    const totalCount = dayAppointments.length + dayBlocks.length;
+                    const doneCount = dayAppointments.filter((a) => a.status === "confirmed").length;
+                    return (
                   <div className="sticky top-2 z-10">
                     <div
                       className={`inline-flex items-center gap-2 rounded-full backdrop-blur border px-4 py-2 shadow-sm ${
@@ -622,7 +908,7 @@ export default function AdminPanel() {
                         })}
                       </span>
                       <span className="font-montserrat text-xs text-gray-500">
-                        ({appointmentsByDate[date].length})
+                        ({totalCount})
                       </span>
                       {date === prague.date && (
                         <span className="inline-flex items-center rounded-full bg-[#FF6B35]/10 text-[#FF6B35] px-2 py-0.5 text-xs font-semibold">
@@ -630,17 +916,90 @@ export default function AdminPanel() {
                         </span>
                       )}
                       <span className="font-montserrat text-xs text-gray-500">
-                        Hotovo{" "}
-                        {
-                          appointmentsByDate[date].filter((a) => a.status === "confirmed")
-                            .length
-                        }
-                        /{appointmentsByDate[date].length}
+                        Hotovo {doneCount}/{dayAppointments.length}
                       </span>
                     </div>
                   </div>
+                    );
+                  })()}
 
-                  {appointmentsByDate[date].map((appointment) => {
+                  {(() => {
+                    const dayAppointments = appointmentsByDate[date] || [];
+                    const dayBlocks = blocksByDate[date] || [];
+                    const items: Array<
+                      | { kind: "appointment"; value: (typeof sortedAppointments)[number] }
+                      | { kind: "block"; value: (typeof sortedInternalBlocks)[number] }
+                    > = [
+                      ...dayAppointments.map((a) => ({ kind: "appointment" as const, value: a })),
+                      ...dayBlocks.map((b) => ({ kind: "block" as const, value: b })),
+                    ].sort((a, b) => timeToMinutes(a.value.time) - timeToMinutes(b.value.time));
+
+                    return items.map((item) => {
+                      if (item.kind === "block") {
+                        const block = item.value;
+                        const isToday = date === nowPrague.date;
+                        const blockMinutes = timeToMinutes(block.time);
+                        const isPast =
+                          date < nowPrague.date || (isToday && blockMinutes < nowPrague.minutes);
+                        const timingLabel = isPast ? "Po termínu" : "Před termínem";
+                        const timingChrome = isPast
+                          ? "border-gray-200 bg-white text-gray-700"
+                          : "border-blue-200 bg-white text-blue-700";
+
+                        return (
+                          <div
+                            key={block._id}
+                            className={`rounded-xl border border-blue-200 bg-blue-50 p-3 ${
+                              isToday ? "ring-2 ring-[#FF6B35]/20" : ""
+                            }`}
+                          >
+                            <div className="grid grid-cols-[72px_1fr] sm:grid-cols-[88px_1fr_260px] gap-3 items-center">
+                              <div className="rounded-lg bg-white/70 border border-white/60 px-3 py-2 text-center">
+                                <div className="font-montserrat text-xl font-bold text-gray-900">
+                                  {block.time}
+                                </div>
+                              </div>
+
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-montserrat text-sm font-semibold text-blue-900 truncate">
+                                    {block.service || "Vlastní termín"}
+                                  </span>
+                                  <span
+                                    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${timingChrome}`}
+                                  >
+                                    <Clock className="h-3.5 w-3.5" />
+                                    {timingLabel}
+                                  </span>
+                                  <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-blue-200 bg-white px-2 py-0.5 text-xs font-medium text-blue-700">
+                                    {block.durationMinutes} min
+                                  </span>
+                                </div>
+                                {block.note && (
+                                  <div className="mt-1 text-xs text-blue-900/80 truncate">
+                                    {block.note}
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="flex justify-end gap-2">
+                                {mode === "manage" && (
+                                  <Button
+                                    onClick={() => handleDeleteInternalBlock(block._id)}
+                                    variant="outline"
+                                    className="border-2 border-gray-300 text-gray-700 hover:border-red-600 hover:text-red-600 hover:bg-white rounded-lg px-3 py-2 text-xs font-medium transition-colors flex items-center justify-center gap-2"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                    <span className="hidden sm:inline">Smazat</span>
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      const appointment = item.value;
                     const isToday = date === nowPrague.date;
                     const appointmentMinutes = timeToMinutes(appointment.time);
                     const isPast =
@@ -885,7 +1244,8 @@ export default function AdminPanel() {
                         </div>
                       </div>
                     );
-                  })}
+                    });
+                  })()}
                 </div>
               ))
             )}

@@ -348,6 +348,20 @@ export const createAppointment = mutation({
       throw new Error("Selected time is during vacation.");
     }
 
+    // Check for overlapping internal blocks on the same date
+    const internalBlocks = await ctx.db
+      .query("internalBlocks")
+      .withIndex("by_date", (q) => q.eq("date", args.date))
+      .collect();
+    for (const block of internalBlocks) {
+      const blockStart = parseTimeToMinutes(block.time);
+      if (!Number.isFinite(blockStart)) continue;
+      const blockEnd = blockStart + (block.durationMinutes ?? 0);
+      if (overlaps(newStart, newEnd, blockStart, blockEnd)) {
+        throw new Error("Selected time is not available.");
+      }
+    }
+
     // Check for overlapping appointments on the same date (ignore cancelled)
     const existingAppointments = await ctx.db
       .query("appointments")
@@ -439,6 +453,20 @@ export const createAnonymousAppointment = mutation({
     const vacationIntervals = await getVacationIntervalsForDate(ctx, args.date);
     if (vacationIntervals.some((v) => overlaps(newStart, newEnd, v.start, v.end))) {
       throw new Error("Selected time is during vacation.");
+    }
+
+    // Check for overlapping internal blocks on the same date
+    const internalBlocks = await ctx.db
+      .query("internalBlocks")
+      .withIndex("by_date", (q) => q.eq("date", args.date))
+      .collect();
+    for (const block of internalBlocks) {
+      const blockStart = parseTimeToMinutes(block.time);
+      if (!Number.isFinite(blockStart)) continue;
+      const blockEnd = blockStart + (block.durationMinutes ?? 0);
+      if (overlaps(newStart, newEnd, blockStart, blockEnd)) {
+        throw new Error("Selected time is not available.");
+      }
     }
 
     // Check for overlapping appointments on the same date (ignore cancelled)
@@ -843,7 +871,21 @@ export const getAppointmentsByDate = query({
       .query("appointments")
       .withIndex("by_date", (q) => q.eq("date", args.date))
       .collect();
+
+    const blocks = await ctx.db
+      .query("internalBlocks")
+      .withIndex("by_date", (q) => q.eq("date", args.date))
+      .collect();
+
     // Public booking UI only needs to know which slots are occupied.
-    return appointments.map((a) => ({ time: a.time, service: a.service, status: a.status }));
+    return [
+      ...appointments.map((a) => ({ time: a.time, service: a.service, status: a.status as string })),
+      ...blocks.map((b) => ({
+        time: b.time,
+        service: "",
+        status: "blocked" as string,
+        durationMinutes: b.durationMinutes,
+      })),
+    ];
   },
 });

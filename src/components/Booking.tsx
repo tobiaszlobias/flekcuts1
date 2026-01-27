@@ -827,7 +827,10 @@ const Booking = () => {
     .filter((apt) => apt.status !== "cancelled")
     .map((apt) => {
       const start = timeStringToMinutes(apt.time);
-      const durationMinutes = deriveServiceFromName(apt.service).durationMinutes ?? 30;
+      const durationMinutes =
+        (typeof apt.durationMinutes === "number" ? apt.durationMinutes : undefined) ??
+        deriveServiceFromName(apt.service || "").durationMinutes ??
+        30;
       const end = start + durationMinutes;
       return { start, end };
     })

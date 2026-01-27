@@ -75,4 +75,17 @@ export default defineSchema({
   })
     .index("by_userId", ["userId"])
     .index("by_email", ["email"]),
+
+  internalBlocks: defineTable({
+    createdByUserId: v.string(),
+    date: v.string(), // YYYY-MM-DD
+    time: v.string(), // HH:MM
+    durationMinutes: v.number(),
+    service: v.optional(v.string()),
+    note: v.optional(v.string()),
+    createdAt: v.string(), // ISO string
+  })
+    .index("by_user", ["createdByUserId"])
+    .index("by_date", ["date"])
+    .index("by_date_time", ["date", "time"]),
 });
