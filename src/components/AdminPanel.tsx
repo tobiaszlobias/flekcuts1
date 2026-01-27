@@ -103,7 +103,11 @@ export default function AdminPanel() {
   const vacations = useQuery(api.admin.getAllVacations);
   const createVacation = useMutation(api.admin.createVacation);
   const deleteVacation = useMutation(api.admin.deleteVacation);
-  const internalBlocks = useQuery(api.admin.getMyInternalBlocks);
+  const [shouldLoadInternalBlocks, setShouldLoadInternalBlocks] = useState(false);
+  const internalBlocks = useQuery(
+    api.admin.getMyInternalBlocks,
+    shouldLoadInternalBlocks ? {} : "skip"
+  );
   const createInternalBlock = useMutation(api.admin.createInternalBlock);
   const deleteInternalBlock = useMutation(api.admin.deleteInternalBlock);
 
@@ -471,7 +475,10 @@ export default function AdminPanel() {
             </Button>
             {mode === "manage" && (
               <Button
-                onClick={() => setShowInternalBlockUi((v) => !v)}
+                onClick={() => {
+                  setShouldLoadInternalBlocks(true);
+                  setShowInternalBlockUi((v) => !v);
+                }}
                 className={`font-montserrat ${
                   showInternalBlockUi
                     ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
