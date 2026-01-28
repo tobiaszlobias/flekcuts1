@@ -108,6 +108,7 @@ export default function AdminPanel() {
   const deleteInternalBlock = useMutation(api.admin.deleteInternalBlock);
 
   const [mode, setMode] = useState<"overview" | "manage">("overview");
+  const [overviewDate, setOverviewDate] = useState(() => getTodayInPrague().date);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [appointmentToDeleteId, setAppointmentToDeleteId] = useState<Id<"appointments"> | null>(null);
   const [showVacationUi, setShowVacationUi] = useState(false);
@@ -447,6 +448,14 @@ export default function AdminPanel() {
   const dateKeys = Array.from(
     new Set([...Object.keys(appointmentsByDate), ...Object.keys(blocksByDate)])
   ).sort((a, b) => a.localeCompare(b));
+
+  const displayDateKeys = mode === "overview" ? [overviewDate] : dateKeys;
+
+  useEffect(() => {
+    if (mode !== "overview") return;
+    // Keep overview focused on upcoming dates only.
+    if (overviewDate < nowPrague.date) setOverviewDate(nowPrague.date);
+  }, [mode, nowPrague.date, overviewDate]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
@@ -886,31 +895,62 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* Appointments List */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-montserrat text-xl font-bold text-gray-900">
-              {mode === "overview"
-                ? `Přehled (${sortedAppointments.length} objednávek, ${sortedInternalBlocks.length} blokací)`
-                : `Upravit (${sortedAppointments.length} objednávek, ${sortedInternalBlocks.length} blokací)`}
-            </h3>
-          </div>
+	        {/* Appointments List */}
+	        <div>
+	          <div className="flex items-center justify-between mb-4">
+	            <h3 className="font-montserrat text-xl font-bold text-gray-900">
+	              {mode === "overview" ? "Přehled" : "Upravit"}{" "}
+	              <span className="font-montserrat text-sm font-medium text-gray-500">
+	                (
+	                {(mode === "overview"
+	                  ? (appointmentsByDate[overviewDate]?.length || 0)
+	                  : sortedAppointments.length)}{" "}
+	                objednávek,{" "}
+	                {(mode === "overview"
+	                  ? (blocksByDate[overviewDate]?.length || 0)
+	                  : sortedInternalBlocks.length)}{" "}
+	                blokací)
+	              </span>
+	            </h3>
+	            {mode === "overview" && (
+	              <div className="flex items-center gap-2">
+	                <Label className="font-montserrat text-xs text-gray-600">Den</Label>
+	                <Input
+	                  type="date"
+	                  value={overviewDate}
+	                  min={nowPrague.date}
+	                  onChange={(e) => setOverviewDate(e.target.value)}
+	                  className="w-[170px] bg-white"
+	                />
+	              </div>
+	            )}
+	          </div>
 
-          <div className="space-y-4">
-            {sortedAppointments.length === 0 && sortedInternalBlocks.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Calendar className="w-8 h-8 text-gray-400" />
-                </div>
-                <p className="font-montserrat text-gray-600">Žádné položky k zobrazení</p>
-              </div>
-            ) : (
-              dateKeys.map((date) => (
-                <div key={date} className="space-y-2">
-                  {(() => {
-                    const dayAppointments = appointmentsByDate[date] || [];
-                    const dayBlocks = blocksByDate[date] || [];
-                    const totalCount = dayAppointments.length + dayBlocks.length;
+	          <div className="space-y-4">
+	            {displayDateKeys.length === 0 ||
+	            (mode === "overview" &&
+	              (appointmentsByDate[overviewDate]?.length || 0) === 0 &&
+	              (blocksByDate[overviewDate]?.length || 0) === 0) ||
+	            (mode !== "overview" &&
+	              sortedAppointments.length === 0 &&
+	              sortedInternalBlocks.length === 0) ? (
+	              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+	                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+	                  <Calendar className="w-8 h-8 text-gray-400" />
+	                </div>
+	                <p className="font-montserrat text-gray-600">
+	                  {mode === "overview"
+	                    ? "Žádné položky pro vybraný den"
+	                    : "Žádné položky k zobrazení"}
+	                </p>
+	              </div>
+	            ) : (
+	              displayDateKeys.map((date) => (
+	                <div key={date} className="space-y-2">
+	                  {(() => {
+	                    const dayAppointments = appointmentsByDate[date] || [];
+	                    const dayBlocks = blocksByDate[date] || [];
+	                    const totalCount = dayAppointments.length + dayBlocks.length;
                     const doneCount = dayAppointments.filter((a) => a.status === "confirmed").length;
                     return (
                   <div className="sticky top-2 z-10">
