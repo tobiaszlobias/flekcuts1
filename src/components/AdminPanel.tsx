@@ -148,6 +148,9 @@ export default function AdminPanel() {
   });
   const [isSavingInternalBlock, setIsSavingInternalBlock] = useState(false);
 
+  const prague = getTodayInPrague();
+  const nowPrague = getNowInPrague();
+
   const loadInternalBlocks = async () => {
     try {
       setInternalBlocksError(null);
@@ -166,6 +169,12 @@ export default function AdminPanel() {
     void loadInternalBlocks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (mode !== "overview") return;
+    // Keep overview focused on upcoming dates only.
+    if (overviewDate < nowPrague.date) setOverviewDate(nowPrague.date);
+  }, [mode, nowPrague.date, overviewDate]);
 
   const formatVacationDate = (date: string) =>
     new Date(date + "T00:00:00").toLocaleDateString("cs-CZ", {
@@ -408,8 +417,6 @@ export default function AdminPanel() {
     }
   };
 
-  const prague = getTodayInPrague();
-  const nowPrague = getNowInPrague();
   const todayCount = appointments.filter((a) => a.date === prague.date).length;
   const monthCount = appointments.filter((a) => a.date.startsWith(prague.yearMonth)).length;
 
@@ -450,12 +457,6 @@ export default function AdminPanel() {
   ).sort((a, b) => a.localeCompare(b));
 
   const displayDateKeys = mode === "overview" ? [overviewDate] : dateKeys;
-
-  useEffect(() => {
-    if (mode !== "overview") return;
-    // Keep overview focused on upcoming dates only.
-    if (overviewDate < nowPrague.date) setOverviewDate(nowPrague.date);
-  }, [mode, nowPrague.date, overviewDate]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
