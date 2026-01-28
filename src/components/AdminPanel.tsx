@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ConfirmationDialog from "./ConfirmationDialog";
 import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -112,7 +112,7 @@ export default function AdminPanel() {
   const [appointmentToDeleteId, setAppointmentToDeleteId] = useState<Id<"appointments"> | null>(null);
   const [showVacationUi, setShowVacationUi] = useState(false);
   const [showInternalBlockUi, setShowInternalBlockUi] = useState(false);
-  const [internalBlocks, setInternalBlocks] = useState<any[] | null>(null);
+  const [internalBlocks, setInternalBlocks] = useState<Array<Doc<"internalBlocks">> | null>(null);
   const [internalBlocksError, setInternalBlocksError] = useState<string | null>(null);
   const [vacationForm, setVacationForm] = useState<{
     startDate: string;
@@ -275,7 +275,7 @@ export default function AdminPanel() {
     }
   };
 
-  const handleDeleteInternalBlock = async (blockId: Id<any>) => {
+  const handleDeleteInternalBlock = async (blockId: Id<"internalBlocks">) => {
     try {
       await deleteInternalBlock({ blockId });
       toast.success("Vlastní termín byl smazán");
