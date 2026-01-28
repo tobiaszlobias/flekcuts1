@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, CheckCircle, Phone, Mail, CalendarDays } from "lucide-react";
+import { Clock, CheckCircle } from "lucide-react";
 import {
   BOOKING_DROPDOWN_SERVICES,
   deriveServiceFromName,
@@ -343,7 +343,6 @@ const CompactDateTimePicker = ({
   selectedTime,
   onDateSelect,
   onTimeSelect,
-  timeSlots,
   availableStartTimes,
   bookedTimes,
   vacations,
@@ -353,7 +352,6 @@ const CompactDateTimePicker = ({
   selectedTime: string;
   onDateSelect: (date: string) => void;
   onTimeSelect: (time: string) => void;
-  timeSlots: string[];
   availableStartTimes: string[];
   bookedTimes: string[];
   vacations: Vacation[];
@@ -929,14 +927,11 @@ const Booking = () => {
       }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
+    const node = sectionRef.current;
+    if (node) observer.observe(node);
 
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
+      if (node) observer.unobserve(node);
     };
   }, []);
 
@@ -1386,7 +1381,6 @@ const Booking = () => {
                     selectedTime={bookingForm.time}
                     onDateSelect={handleDateSelect}
                     onTimeSelect={handleTimeSelect}
-                    timeSlots={openSlots}
                     availableStartTimes={availableTimeSlots}
                     bookedTimes={bookedTimes}
                     vacations={vacations}

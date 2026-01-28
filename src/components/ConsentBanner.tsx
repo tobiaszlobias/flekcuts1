@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { CONSENT_STORAGE_KEY, readConsent, writeConsent } from "@/lib/consent";
@@ -83,14 +83,14 @@ const ConsentBanner = () => {
   };
 
   const openSettings = () => setShowSettings(true);
-  const closeSettings = () => {
+  const closeSettings = useCallback(() => {
     // If the user closes settings without a stored choice yet, treat it as reject-all.
     if (!consent) {
       setDismissed(true);
       setConsent(writeConsent({ analytics: false, external: false }));
     }
     setShowSettings(false);
-  };
+  }, [consent]);
 
   const saveSettings = () => {
     setConsent(writeConsent({ analytics: draft.analytics, external: draft.external }));
@@ -104,7 +104,7 @@ const ConsentBanner = () => {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [showSettings, consent, draft.analytics, draft.external]);
+  }, [showSettings, closeSettings]);
 
   if (!mounted) return null;
 

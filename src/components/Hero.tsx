@@ -1,25 +1,25 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { useEffect, useState } from "react";
+
+const HERO_IMAGES = [
+  "/comb.png",
+  "/spray-bottle.png",
+  "/clippers.png",
+  "/scissors.png",
+  "/razor.png",
+  "/comb2.png",
+] as const;
 
 const Hero = () => {
   const [scrollY, setScrollY] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  const images = [
-    "/comb.png",
-    "/spray-bottle.png",
-    "/clippers.png",
-    "/scissors.png",
-    "/razor.png",
-    "/comb2.png",
-  ];
-
   useEffect(() => {
     // Preload images in background without blocking UI
-    images.forEach((src) => {
-      const img = new Image();
+    HERO_IMAGES.forEach((src) => {
+      const img = new window.Image();
       img.src = src;
     });
   }, []);
@@ -76,95 +76,107 @@ const Hero = () => {
 
         {/* Animated Barbershop Tools Background */}
 
-        {/* Comb 1 - Top Right */}
-        <div
-          className="absolute top-20 sm:top-16 right-12 w-36 h-48 sm:w-56 sm:h-72 pointer-events-none opacity-15 sm:opacity-60 will-change-transform"
-          style={{
-            transform: `translate3d(0, ${scrollY * (isMobile ? 0.2 : 0.4)}px, 0) rotate(${-5 + scrollY * (isMobile ? 0.03 : 0.06)}deg)`,
-            backfaceVisibility: "hidden",
-          }}
-        >
-          <img
-            src="/comb.png"
-            alt=""
-            className="w-full h-full object-contain"
-          />
-        </div>
+	        {/* Comb 1 - Top Right */}
+	        <div
+	          className="absolute relative top-20 sm:top-16 right-12 w-36 h-48 sm:w-56 sm:h-72 pointer-events-none opacity-15 sm:opacity-60 will-change-transform"
+	          style={{
+	            transform: `translate3d(0, ${scrollY * (isMobile ? 0.2 : 0.4)}px, 0) rotate(${-5 + scrollY * (isMobile ? 0.03 : 0.06)}deg)`,
+	            backfaceVisibility: "hidden",
+	          }}
+	        >
+	          <Image
+	            src="/comb.png"
+	            alt=""
+	            fill
+	            sizes="(max-width: 640px) 144px, 224px"
+	            className="object-contain"
+	          />
+	        </div>
 
-        {/* Spray Bottle - Bottom Left */}
-        <div
-          className="absolute bottom-[22rem] left-16 sm:bottom-[240px] sm:left-[110px] w-24 h-24 sm:w-36 sm:h-36 pointer-events-none opacity-15 sm:opacity-55 will-change-transform"
-          style={{
-            transform: `translate3d(0, ${scrollY * (isMobile ? -0.25 : -0.5)}px, 0) rotate(${10 + scrollY * (isMobile ? 0.05 : 0.1)}deg)`,
-            backfaceVisibility: "hidden",
-          }}
-        >
-          <img
-            src="/spray-bottle.png"
-            alt=""
-            className="w-full h-full object-contain"
-          />
-        </div>
+	        {/* Spray Bottle - Bottom Left */}
+	        <div
+	          className="absolute relative bottom-[22rem] left-16 sm:bottom-[240px] sm:left-[110px] w-24 h-24 sm:w-36 sm:h-36 pointer-events-none opacity-15 sm:opacity-55 will-change-transform"
+	          style={{
+	            transform: `translate3d(0, ${scrollY * (isMobile ? -0.25 : -0.5)}px, 0) rotate(${10 + scrollY * (isMobile ? 0.05 : 0.1)}deg)`,
+	            backfaceVisibility: "hidden",
+	          }}
+	        >
+	          <Image
+	            src="/spray-bottle.png"
+	            alt=""
+	            fill
+	            sizes="(max-width: 640px) 96px, 144px"
+	            className="object-contain"
+	          />
+	        </div>
 
-        {/* Clippers - Top Left */}
-        <div
-          className="absolute top-36 left-8 w-36 h-36 sm:top-20 sm:left-20 sm:w-56 sm:h-56 pointer-events-none opacity-18 sm:opacity-65 will-change-transform"
-          style={{
-            transform: `translate3d(${scrollY * (isMobile ? 0.07 : 0.14)}px, ${scrollY * (isMobile ? 0.3 : 0.6)}px, 0) rotate(${15 + scrollY * (isMobile ? 0.04 : 0.08)}deg)`,
-            backfaceVisibility: "hidden",
-          }}
-        >
-          <img
-            src="/clippers.png"
-            alt=""
-            className="w-full h-full object-contain"
-          />
-        </div>
+	        {/* Clippers - Top Left */}
+	        <div
+	          className="absolute relative top-36 left-8 w-36 h-36 sm:top-20 sm:left-20 sm:w-56 sm:h-56 pointer-events-none opacity-18 sm:opacity-65 will-change-transform"
+	          style={{
+	            transform: `translate3d(${scrollY * (isMobile ? 0.07 : 0.14)}px, ${scrollY * (isMobile ? 0.3 : 0.6)}px, 0) rotate(${15 + scrollY * (isMobile ? 0.04 : 0.08)}deg)`,
+	            backfaceVisibility: "hidden",
+	          }}
+	        >
+	          <Image
+	            src="/clippers.png"
+	            alt=""
+	            fill
+	            sizes="(max-width: 640px) 144px, 224px"
+	            className="object-contain"
+	          />
+	        </div>
 
-        {/* Scissors - Middle Right */}
-        <div
-          className="absolute top-80 right-12 w-36 h-32 sm:top-96 sm:right-16 sm:w-48 sm:h-42 pointer-events-none opacity-15 sm:opacity-60 will-change-transform"
-          style={{
-            transform: `translate3d(0, ${-50 + scrollY * (isMobile ? 0.22 : 0.44)}px, 0) rotate(${-30 + scrollY * (isMobile ? 0.04 : 0.08)}deg)`,
-            backfaceVisibility: "hidden",
-          }}
-        >
-          <img
-            src="/scissors.png"
-            alt=""
-            className="w-full h-full object-contain"
-          />
-        </div>
+	        {/* Scissors - Middle Right */}
+	        <div
+	          className="absolute relative top-80 right-12 w-36 h-32 sm:top-96 sm:right-16 sm:w-48 sm:h-42 pointer-events-none opacity-15 sm:opacity-60 will-change-transform"
+	          style={{
+	            transform: `translate3d(0, ${-50 + scrollY * (isMobile ? 0.22 : 0.44)}px, 0) rotate(${-30 + scrollY * (isMobile ? 0.04 : 0.08)}deg)`,
+	            backfaceVisibility: "hidden",
+	          }}
+	        >
+	          <Image
+	            src="/scissors.png"
+	            alt=""
+	            fill
+	            sizes="(max-width: 640px) 144px, 192px"
+	            className="object-contain"
+	          />
+	        </div>
 
-        {/* Razor - Bottom Right */}
-        <div
-          className="absolute bottom-44 right-8 w-40 h-40 sm:bottom-[30px] sm:right-[140px] sm:w-52 sm:h-52 pointer-events-none opacity-15 sm:opacity-55 will-change-transform"
-          style={{
-            transform: `translate3d(${scrollY * (isMobile ? -0.05 : -0.1)}px, ${scrollY * (isMobile ? -0.28 : -0.56)}px, 0) rotate(${60 + scrollY * (isMobile ? 0.03 : 0.06)}deg)`,
-            backfaceVisibility: "hidden",
-          }}
-        >
-          <img
-            src="/razor.png"
-            alt=""
-            className="w-full h-full object-contain"
-          />
-        </div>
+	        {/* Razor - Bottom Right */}
+	        <div
+	          className="absolute relative bottom-44 right-8 w-40 h-40 sm:bottom-[30px] sm:right-[140px] sm:w-52 sm:h-52 pointer-events-none opacity-15 sm:opacity-55 will-change-transform"
+	          style={{
+	            transform: `translate3d(${scrollY * (isMobile ? -0.05 : -0.1)}px, ${scrollY * (isMobile ? -0.28 : -0.56)}px, 0) rotate(${60 + scrollY * (isMobile ? 0.03 : 0.06)}deg)`,
+	            backfaceVisibility: "hidden",
+	          }}
+	        >
+	          <Image
+	            src="/razor.png"
+	            alt=""
+	            fill
+	            sizes="(max-width: 640px) 160px, 208px"
+	            className="object-contain"
+	          />
+	        </div>
 
-        {/* Small Comb 2 - Middle Left */}
-        <div
-          className="absolute top-[68%] left-12 w-48 h-48 sm:top-[70%] sm:left-[120px] sm:w-60 sm:h-60 pointer-events-none opacity-12 sm:opacity-50 will-change-transform"
-          style={{
-            transform: `translate3d(0, ${scrollY * (isMobile ? 0.18 : 0.36)}px, 0) rotate(${-45 + scrollY * (isMobile ? 0.05 : 0.1)}deg)`,
-            backfaceVisibility: "hidden",
-          }}
-        >
-          <img
-            src="/comb2.png"
-            alt=""
-            className="w-full h-full object-contain"
-          />
-        </div>
+	        {/* Small Comb 2 - Middle Left */}
+	        <div
+	          className="absolute relative top-[68%] left-12 w-48 h-48 sm:top-[70%] sm:left-[120px] sm:w-60 sm:h-60 pointer-events-none opacity-12 sm:opacity-50 will-change-transform"
+	          style={{
+	            transform: `translate3d(0, ${scrollY * (isMobile ? 0.18 : 0.36)}px, 0) rotate(${-45 + scrollY * (isMobile ? 0.05 : 0.1)}deg)`,
+	            backfaceVisibility: "hidden",
+	          }}
+	        >
+	          <Image
+	            src="/comb2.png"
+	            alt=""
+	            fill
+	            sizes="(max-width: 640px) 192px, 240px"
+	            className="object-contain"
+	          />
+	        </div>
 
         <div className="max-w-7xl mx-auto text-center relative z-10">
           {/* Main Heading - Largest (Golden Ratio Base) */}

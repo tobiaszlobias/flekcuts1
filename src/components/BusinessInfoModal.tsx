@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, MapPin, Phone, Mail, Building, FileText } from "lucide-react";
+import { X } from "lucide-react";
 import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 
 interface BusinessInfoModalProps {

@@ -1,10 +1,9 @@
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const Services = () => {
   const [visibleItems, setVisibleItems] = useState<Set<number>>(new Set());
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [isClient, setIsClient] = useState(false);
   const [isSectionVisible, setIsSectionVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -15,11 +14,6 @@ const Services = () => {
     imageUrl?: string;
     preselectServiceName?: string;
   };
-
-  // Ensure client-side rendering
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   // Scroll animation observer for entire section
   useEffect(() => {
@@ -37,14 +31,11 @@ const Services = () => {
       }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
+    const node = sectionRef.current;
+    if (node) observer.observe(node);
 
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
+      if (node) observer.unobserve(node);
     };
   }, []);
 
@@ -93,15 +84,19 @@ const Services = () => {
   ];
 
   useEffect(() => {
+    const items = itemRefs.current.slice();
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const itemIndex = itemRefs.current.indexOf(
-              entry.target as HTMLDivElement
-            );
-            if (itemIndex !== -1 && !visibleItems.has(itemIndex)) {
-              setVisibleItems((prev) => new Set([...prev, itemIndex]));
+            const itemIndex = items.indexOf(entry.target as HTMLDivElement);
+            if (itemIndex !== -1) {
+              setVisibleItems((prev) => {
+                if (prev.has(itemIndex)) return prev;
+                const next = new Set(prev);
+                next.add(itemIndex);
+                return next;
+              });
               observer.unobserve(entry.target);
             }
           }
@@ -113,20 +108,20 @@ const Services = () => {
       }
     );
 
-    itemRefs.current.forEach((item) => {
+    items.forEach((item) => {
       if (item) {
         observer.observe(item);
       }
     });
 
     return () => {
-      itemRefs.current.forEach((item) => {
+      items.forEach((item) => {
         if (item) {
           observer.unobserve(item);
         }
       });
     };
-  }, [visibleItems]);
+  }, []);
 
   const handleServiceClick = (serviceName: string) => {
     // Dispatch event first
@@ -227,19 +222,23 @@ const Services = () => {
                     </div>
                   </div>
 
-                  {/* Image */}
-                  <div className="w-full h-48 md:w-1/2 md:h-80 overflow-hidden bg-custom-orange">
-                    <img
-                      src={service.imageUrl}
-                      alt={service.name}
-                      className="w-full h-full object-contain"
-                      loading="eager"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+	                  {/* Image */}
+	                  <div className="relative w-full h-48 md:w-1/2 md:h-80 overflow-hidden bg-custom-orange">
+	                    {service.imageUrl ? (
+	                      <Image
+	                        src={service.imageUrl}
+	                        alt={service.name}
+	                        fill
+	                        sizes="(max-width: 768px) 100vw, 50vw"
+	                        className="object-contain"
+	                        priority={index === 0}
+	                      />
+	                    ) : null}
+	                  </div>
+	                </div>
+	              </div>
+	            </div>
+	          ))}
         </div>
 
         {/* Other Services - Compact Grid */}

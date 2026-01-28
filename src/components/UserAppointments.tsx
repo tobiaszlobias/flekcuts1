@@ -4,7 +4,7 @@ import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { SignInButton, useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Calendar, Clock, Scissors, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -45,10 +45,12 @@ export default function UserAppointments() {
   const linkMyAnonymousAppointments = useMutation(api.appointments.linkMyAnonymousAppointments);
   const [isLinking, setIsLinking] = useState(false);
   const [hasTriedLinking, setHasTriedLinking] = useState(false);
+  const userId = user?.id;
+  const userEmail = user?.primaryEmailAddress?.emailAddress;
 
   // Manual linking function as a backup
-  const handleManualLink = async () => {
-    if (!user?.id || !user?.primaryEmailAddress?.emailAddress || isLinking) return;
+  const handleManualLink = useCallback(async () => {
+    if (!userId || !userEmail || isLinking) return;
 
     setIsLinking(true);
     try {
@@ -61,25 +63,30 @@ export default function UserAppointments() {
       setIsLinking(false);
       setHasTriedLinking(true);
     }
-  };
+  }, [isLinking, linkMyAnonymousAppointments, userEmail, userId]);
 
   // Auto-attempt manual linking if user has no appointments but hasn't tried yet
   useEffect(() => {
     if (
       isLoaded &&
       isSignedIn &&
-      user?.primaryEmailAddress?.emailAddress &&
+      userEmail &&
       appointments?.length === 0 &&
       !hasTriedLinking &&
       !isLinking
     ) {
-      console.log(
-        "Auto-attempting to link appointments for:",
-        user.primaryEmailAddress.emailAddress
-      );
+      console.log("Auto-attempting to link appointments for:", userEmail);
       handleManualLink();
     }
-  }, [user, appointments, hasTriedLinking, isLinking]);
+  }, [
+    appointments,
+    handleManualLink,
+    hasTriedLinking,
+    isLinking,
+    isLoaded,
+    isSignedIn,
+    userEmail,
+  ]);
 
   const handleCancel = async (appointmentId: Id<"appointments">) => {
     try {

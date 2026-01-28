@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React, { useRef, useEffect, useState } from "react";
 
 const Gallery = () => {
@@ -49,14 +50,11 @@ const Gallery = () => {
       }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
+    const node = sectionRef.current;
+    if (node) observer.observe(node);
 
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
+      if (node) observer.unobserve(node);
     };
   }, []);
 
@@ -199,17 +197,19 @@ const Gallery = () => {
             backfaceVisibility: "hidden" as const
           }}
         >
-          {allImages.map((image, index) => (
-            <div
-              key={index}
-              className="flex-shrink-0 w-64 h-48 sm:w-[20rem] sm:h-64 lg:w-[24rem] lg:h-80 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg select-none bg-custom-orange"
-            >
-              <img
-                src={image}
-                alt={`Střih ${(index % images.length) + 1}`}
-                className={`w-full h-full ${
-                  (index % images.length) === 0
-                    ? "object-contain object-[50%_20%] scale-[1.16]"
+	          {allImages.map((image, index) => (
+	            <div
+	              key={index}
+	              className="relative flex-shrink-0 w-64 h-48 sm:w-[20rem] sm:h-64 lg:w-[24rem] lg:h-80 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg select-none bg-custom-orange"
+	            >
+	              <Image
+	                src={image}
+	                alt={`Střih ${(index % images.length) + 1}`}
+	                fill
+	                sizes="(max-width: 640px) 256px, (max-width: 1024px) 320px, 384px"
+	                className={`w-full h-full ${
+	                  (index % images.length) === 0
+	                    ? "object-contain object-[50%_20%] scale-[1.16]"
                     : (index % images.length) === 1
                       ? "object-contain scale-[1.06]"
                     : (index % images.length) === 2
@@ -226,11 +226,11 @@ const Gallery = () => {
                       ? "object-contain scale-[1.06]"
                       : "object-cover"
                 }`}
-                draggable="false"
-                loading="lazy"
-              />
-            </div>
-          ))}
+	                draggable={false}
+	                loading="lazy"
+	              />
+	            </div>
+	          ))}
         </div>
       </div>
     </section>
