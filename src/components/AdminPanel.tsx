@@ -1,7 +1,7 @@
 "use client";
 
-import { useQuery, useMutation } from "convex/react";
-import { useState } from "react";
+import { useConvex, useMutation, useQuery } from "convex/react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ConfirmationDialog from "./ConfirmationDialog";
 import { api } from "../../convex/_generated/api";
@@ -97,17 +97,13 @@ const getNowInPrague = (): { date: string; minutes: number } => {
 };
 
 export default function AdminPanel() {
+  const convex = useConvex();
   const appointments = useQuery(api.admin.getAllAppointments);
   const updateStatus = useMutation(api.admin.updateAppointmentStatus);
   const deleteAppointment = useMutation(api.admin.deleteAppointment);
   const vacations = useQuery(api.admin.getAllVacations);
   const createVacation = useMutation(api.admin.createVacation);
   const deleteVacation = useMutation(api.admin.deleteVacation);
-  const [shouldLoadInternalBlocks, setShouldLoadInternalBlocks] = useState(false);
-  const internalBlocks = useQuery(
-    api.admin.getMyInternalBlocks,
-    shouldLoadInternalBlocks ? {} : "skip"
-  );
   const createInternalBlock = useMutation(api.admin.createInternalBlock);
   const deleteInternalBlock = useMutation(api.admin.deleteInternalBlock);
 
@@ -116,6 +112,8 @@ export default function AdminPanel() {
   const [appointmentToDeleteId, setAppointmentToDeleteId] = useState<Id<"appointments"> | null>(null);
   const [showVacationUi, setShowVacationUi] = useState(false);
   const [showInternalBlockUi, setShowInternalBlockUi] = useState(false);
+  const [internalBlocks, setInternalBlocks] = useState<any[] | null>(null);
+  const [internalBlocksError, setInternalBlocksError] = useState<string | null>(null);
   const [vacationForm, setVacationForm] = useState<{
     startDate: string;
     endDate: string;
@@ -148,6 +146,25 @@ export default function AdminPanel() {
     note: "",
   });
   const [isSavingInternalBlock, setIsSavingInternalBlock] = useState(false);
+
+  const loadInternalBlocks = async () => {
+    try {
+      setInternalBlocksError(null);
+      const result = await convex.query(api.admin.getMyInternalBlocks, {});
+      setInternalBlocks(Array.isArray(result) ? result : []);
+    } catch (error) {
+      console.error("Failed to load internal blocks:", error);
+      setInternalBlocks([]);
+      setInternalBlocksError(
+        "Nepodařilo se načíst vlastní termíny. Zkontrolujte, že je nasazený Convex backend."
+      );
+    }
+  };
+
+  useEffect(() => {
+    void loadInternalBlocks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const formatVacationDate = (date: string) =>
     new Date(date + "T00:00:00").toLocaleDateString("cs-CZ", {
@@ -249,6 +266,7 @@ export default function AdminPanel() {
         addWash: false,
         note: "",
       });
+      await loadInternalBlocks();
     } catch (error) {
       console.error("Failed to create internal block:", error);
       toast.error("Nepodařilo se přidat vlastní termín");
@@ -257,10 +275,11 @@ export default function AdminPanel() {
     }
   };
 
-  const handleDeleteInternalBlock = async (blockId: Id<"internalBlocks">) => {
+  const handleDeleteInternalBlock = async (blockId: Id<any>) => {
     try {
       await deleteInternalBlock({ blockId });
       toast.success("Vlastní termín byl smazán");
+      await loadInternalBlocks();
     } catch (error) {
       console.error("Failed to delete internal block:", error);
       toast.error("Nepodařilo se smazat vlastní termín");
@@ -473,21 +492,16 @@ export default function AdminPanel() {
             >
               Přidat dovolenou
             </Button>
-            {mode === "manage" && (
-              <Button
-                onClick={() => {
-                  setShouldLoadInternalBlocks(true);
-                  setShowInternalBlockUi((v) => !v);
-                }}
-                className={`font-montserrat ${
-                  showInternalBlockUi
-                    ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
-                    : "bg-white border-2 border-blue-200 text-blue-800 hover:bg-blue-50"
-                } px-4 py-2 rounded-full text-sm font-medium transition-colors`}
-              >
-                Vlastní termín
-              </Button>
-            )}
+            <Button
+              onClick={() => setShowInternalBlockUi((v) => !v)}
+              className={`font-montserrat ${
+                showInternalBlockUi
+                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                  : "bg-white border-2 border-blue-200 text-blue-800 hover:bg-blue-50"
+              } px-4 py-2 rounded-full text-sm font-medium transition-colors`}
+            >
+              Vlastní termín
+            </Button>
           </div>
         </div>
 
@@ -707,7 +721,7 @@ export default function AdminPanel() {
         )}
 
         {/* Internal blocks */}
-        {mode === "manage" && showInternalBlockUi && (
+        {showInternalBlockUi && (
           <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -819,7 +833,9 @@ export default function AdminPanel() {
                 <div className="font-montserrat text-sm font-semibold text-gray-900 mb-3">
                   Seznam
                 </div>
-                {internalBlocks === undefined ? (
+                {internalBlocksError ? (
+                  <div className="text-sm text-red-600">{internalBlocksError}</div>
+                ) : internalBlocks === null ? (
                   <div className="text-sm text-gray-500">Načítám...</div>
                 ) : internalBlockList.length === 0 ? (
                   <div className="text-sm text-gray-500">Zatím žádné vlastní termíny</div>
