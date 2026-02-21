@@ -38,19 +38,24 @@ interface FormErrors {
   service?: string;
 }
 
-// Simple phone validation - just check for minimum 9 digits
+// Phone validation: support Czech local numbers and E.164-like inputs.
 const validatePhoneNumber = (phone: string): boolean => {
+  const raw = phone.trim();
   const numbers = phone.replace(/\D/g, "");
-  return numbers.length >= 9;
+  if (!numbers) return false;
+  if (raw.startsWith("+")) return numbers.length >= 8 && numbers.length <= 15;
+  if (numbers.startsWith("00")) return numbers.length >= 10 && numbers.length <= 17;
+  if (numbers.startsWith("420")) return numbers.length === 12;
+  return numbers.length === 9;
 };
 
 // Phone formatting helper
 const formatPhoneDisplay = (phone: string): string => {
+  const hasPlus = phone.trim().startsWith("+");
   const numbers = phone.replace(/\D/g, "");
-  if (numbers.length >= 9) {
-    return `${numbers.slice(0, 3)} ${numbers.slice(3, 6)} ${numbers.slice(6, 9)}`;
-  }
-  return phone;
+  if (!numbers) return phone;
+  const groups = numbers.match(/.{1,3}/g)?.join(" ") ?? numbers;
+  return hasPlus ? `+${groups}` : groups;
 };
 
 // Confirmation Modal Component
@@ -644,7 +649,7 @@ const Booking = () => {
     if (!bookingForm.phone.trim()) {
       newErrors.phone = "Telefon je povinný";
     } else if (!validatePhoneNumber(bookingForm.phone)) {
-      newErrors.phone = "Zadejte alespoň 9 číslic";
+      newErrors.phone = "Zadejte platné telefonní číslo";
     }
 
     if (!bookingForm.service) newErrors.service = "Služba je povinná";
@@ -668,6 +673,7 @@ const Booking = () => {
         await createAppointment({
           customerName: bookingForm.name,
           customerEmail: bookingForm.email,
+          customerPhone: bookingForm.phone,
           service: bookingForm.service,
           date: bookingForm.date,
           time: bookingForm.time,
@@ -713,14 +719,15 @@ const Booking = () => {
   };
 
   const formatPhoneInput = (value: string): string => {
-    // Remove all non-numeric characters
-    const numbers = value.replace(/\D/g, "");
+    const trimmed = value.trimStart();
+    const hasPlus = trimmed.startsWith("+");
+    const numbers = trimmed.replace(/\D/g, "").slice(0, 15);
 
-    // Format as XXX XXX XXX
-    if (numbers.length === 0) return "";
-    if (numbers.length <= 3) return numbers;
-    if (numbers.length <= 6) return `${numbers.slice(0, 3)} ${numbers.slice(3)}`;
-    return `${numbers.slice(0, 3)} ${numbers.slice(3, 6)} ${numbers.slice(6, 9)}`;
+    if (!numbers && hasPlus) return "+";
+    if (!numbers) return "";
+
+    const grouped = numbers.match(/.{1,3}/g)?.join(" ") ?? numbers;
+    return hasPlus ? `+${grouped}` : grouped;
   };
 
   const handleInputChange = (field: keyof BookingForm, value: string) => {
@@ -872,7 +879,7 @@ const Booking = () => {
                   value={bookingForm.phone}
                   onChange={(e) => handlePhoneChange(e.target.value)}
                   className={`mt-2 rounded-lg transition-all duration-200 ${errors.phone ? "border-[#FF6B35]" : "border-gray-300 hover:border-[#FF6B35] focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20"}`}
-                  placeholder="123 456 789"
+                  placeholder="+420 123 456 789"
                 />
                 {errors.phone && (
                   <p className="text-[#FF6B35] text-sm mt-1">{errors.phone}</p>

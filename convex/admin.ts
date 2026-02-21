@@ -31,7 +31,7 @@ export const getAllAppointments = query({
   },
 });
 
-// Update appointment status (admin only) - 🆕 NOW WITH AUTO-EMAIL!
+// Update appointment status (admin only)
 export const updateAppointmentStatus = mutation({
   args: {
     appointmentId: v.id("appointments"),
@@ -44,22 +44,10 @@ export const updateAppointmentStatus = mutation({
   handler: async (ctx, args) => {
     await checkIsAdmin(ctx);
 
-    // Update the appointment status
+    // Status is used as internal admin workflow marker; no customer notification here.
     await ctx.db.patch(args.appointmentId, {
       status: args.status,
     });
-
-    // 🆕 NEW: Auto-send status update email
-    try {
-      await ctx.scheduler.runAfter(0, api.notifications.sendStatusUpdate, {
-        appointmentId: args.appointmentId,
-        newStatus: args.status,
-      });
-      console.log("✅ Status update email scheduled for:", args.appointmentId);
-    } catch (error) {
-      console.error("❌ Failed to schedule status update email:", error);
-      // Don't throw - status update should succeed even if email fails
-    }
   },
 });
 

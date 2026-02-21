@@ -2,6 +2,47 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
+const normalizePhoneNumber = (rawPhone: string): string => {
+  const raw = rawPhone.trim();
+  if (!raw) {
+    throw new Error("Phone number is required.");
+  }
+
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) {
+    throw new Error("Invalid phone number.");
+  }
+
+  // International format with '+'.
+  if (raw.startsWith("+")) {
+    if (digits.length < 8 || digits.length > 15) {
+      throw new Error("Invalid phone number format.");
+    }
+    return `+${digits}`;
+  }
+
+  // International format with leading 00.
+  if (digits.startsWith("00")) {
+    const stripped = digits.slice(2);
+    if (stripped.length < 8 || stripped.length > 15) {
+      throw new Error("Invalid phone number format.");
+    }
+    return `+${stripped}`;
+  }
+
+  // Czech local format without country code.
+  if (digits.length === 9) {
+    return `+420${digits}`;
+  }
+
+  // Czech number with country code but without '+'.
+  if (digits.length === 12 && digits.startsWith("420")) {
+    return `+${digits}`;
+  }
+
+  throw new Error("Invalid phone number format.");
+};
+
 // 🆕 NEW: Link anonymous appointments to authenticated user
 export const linkAnonymousAppointments = mutation({
   args: {
@@ -52,6 +93,7 @@ export const createAppointment = mutation({
   args: {
     customerName: v.string(),
     customerEmail: v.string(),
+    customerPhone: v.string(),
     service: v.string(),
     date: v.string(),
     time: v.string(),
@@ -62,6 +104,8 @@ export const createAppointment = mutation({
     if (identity === null) {
       throw new Error("Not authenticated");
     }
+
+    const safePhone = normalizePhoneNumber(args.customerPhone);
 
     // Check for existing appointment at the same date and time
     const existingAppointment = await ctx.db
@@ -80,6 +124,7 @@ export const createAppointment = mutation({
       userId: identity.subject,
       customerName: args.customerName,
       customerEmail: args.customerEmail,
+      customerPhone: safePhone,
       service: args.service,
       date: args.date,
       time: args.time,
@@ -118,6 +163,8 @@ export const createAnonymousAppointment = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const safePhone = normalizePhoneNumber(args.customerPhone);
+
     // Check for existing appointment at the same date and time
     const existingAppointment = await ctx.db
       .query("appointments")
@@ -135,7 +182,7 @@ export const createAnonymousAppointment = mutation({
       userId: "anonymous", // Use a special marker for anonymous appointments
       customerName: args.customerName,
       customerEmail: args.customerEmail,
-      customerPhone: args.customerPhone,
+      customerPhone: safePhone,
       service: args.service,
       date: args.date,
       time: args.time,
