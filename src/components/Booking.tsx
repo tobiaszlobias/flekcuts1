@@ -52,19 +52,50 @@ type BookingField = keyof BookingForm;
 type StringBookingField = Exclude<BookingField, "addBeard" | "addWash">;
 type FormErrors = Partial<Record<BookingField, string>>;
 
-// Simple phone validation - just check for minimum 9 digits
+const getExplicitPlusPrefixLength = (raw: string): 2 | 3 | null => {
+  const match = raw.match(/^\+(\d{2,3})\s/);
+  if (!match) return null;
+  return match[1].length === 2 ? 2 : 3;
+};
+
+const formatPlusPhone = (digits: string, ccLength = 3): string => {
+  if (!digits) return "+";
+  if (digits.length <= ccLength) return `+${digits}`;
+
+  const country = digits.slice(0, ccLength);
+  const rest = digits.slice(ccLength);
+  if (!rest) return `+${country}`;
+
+  const groups = rest.match(/.{1,3}/g)?.join(" ") ?? rest;
+  return `+${country} ${groups}`;
+};
+
+// Phone validation: keep local format and allow +xx/+xxx international prefix.
 const validatePhoneNumber = (phone: string): boolean => {
+  const raw = phone.trim();
   const numbers = phone.replace(/\D/g, "");
-  return numbers.length >= 9;
+  if (!numbers) return false;
+  if (raw.startsWith("+")) {
+    const explicitPrefixLength = getExplicitPlusPrefixLength(raw);
+    if (explicitPrefixLength === 2) return numbers.length === 11;
+    return numbers.length === 12;
+  }
+  return numbers.length === 9;
 };
 
 // Phone formatting helper
 const formatPhoneDisplay = (phone: string): string => {
+  const hasPlus = phone.trim().startsWith("+");
   const numbers = phone.replace(/\D/g, "");
+  if (!numbers) return phone;
+  if (hasPlus) {
+    const ccLength = numbers.length === 11 ? 2 : 3;
+    return formatPlusPhone(numbers, ccLength);
+  }
   if (numbers.length >= 9) {
     return `${numbers.slice(0, 3)} ${numbers.slice(3, 6)} ${numbers.slice(6, 9)}`;
   }
-  return phone;
+  return numbers;
 };
 
 // Confirmation Modal Component
@@ -948,7 +979,7 @@ const Booking = () => {
     if (!bookingForm.phone.trim()) {
       newErrors.phone = "Telefon je povinný";
     } else if (!validatePhoneNumber(bookingForm.phone)) {
-      newErrors.phone = "Zadejte alespoň 9 číslic";
+      newErrors.phone = "Použijte 123 456 789 nebo +420 123 456 789";
     }
 
     if (!bookingForm.service) newErrors.service = "Služba je povinná";
@@ -1017,6 +1048,7 @@ const Booking = () => {
         await createAppointment({
           customerName: bookingForm.name,
           customerEmail: bookingForm.email,
+          customerPhone: bookingForm.phone,
           service: serviceNameToSave,
           date: bookingForm.date,
           time: bookingForm.time,
@@ -1065,14 +1097,27 @@ const Booking = () => {
   };
 
   const formatPhoneInput = (value: string): string => {
-    // Remove all non-numeric characters
-    const numbers = value.replace(/\D/g, "");
+    const trimmed = value.trimStart();
+    const hasPlus = trimmed.startsWith("+");
+    const numbers = trimmed.replace(/\D/g, "");
+    const explicitPrefixLength = getExplicitPlusPrefixLength(trimmed);
 
-    // Format as XXX XXX XXX
-    if (numbers.length === 0) return "";
-    if (numbers.length <= 3) return numbers;
-    if (numbers.length <= 6) return `${numbers.slice(0, 3)} ${numbers.slice(3)}`;
-    return `${numbers.slice(0, 3)} ${numbers.slice(3, 6)} ${numbers.slice(6, 9)}`;
+    if (!numbers && hasPlus) return "+";
+    if (!numbers) return "";
+    if (hasPlus) {
+      const ccLength = explicitPrefixLength ?? 3;
+      const maxDigits = ccLength + 9;
+      const clipped = numbers.slice(0, maxDigits);
+      if (explicitPrefixLength && clipped.length <= ccLength) {
+        return `+${clipped} `;
+      }
+      return formatPlusPhone(clipped, ccLength);
+    }
+
+    const normalizedDigits = numbers.startsWith("420")
+      ? numbers.slice(0, 12)
+      : `420${numbers.slice(0, 9)}`;
+    return formatPlusPhone(normalizedDigits, 3);
   };
 
   const handleInputChange = (field: StringBookingField, value: string) => {
@@ -1260,7 +1305,7 @@ const Booking = () => {
                   value={bookingForm.phone}
                   onChange={(e) => handlePhoneChange(e.target.value)}
                   className={`mt-2 rounded-lg transition-all duration-200 ${errors.phone ? "border-[#FF6B35]" : "border-gray-300 hover:border-[#FF6B35] focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20"}`}
-                  placeholder="123 456 789"
+                  placeholder="+420 123 456 789"
                 />
                 {errors.phone && (
                   <p className="text-[#FF6B35] text-sm mt-1">{errors.phone}</p>

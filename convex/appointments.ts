@@ -11,6 +11,39 @@ const parseTimeToMinutes = (time: string): number => {
   return hours * 60 + minutes;
 };
 
+const normalizePhoneNumber = (rawPhone: string): string => {
+  const raw = rawPhone.trim();
+  if (!raw) throw new Error("Phone number is required.");
+
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) throw new Error("Invalid phone number.");
+
+  if (raw.startsWith("+")) {
+    if (digits.length !== 11 && digits.length !== 12) {
+      throw new Error("Invalid phone number format.");
+    }
+    return `+${digits}`;
+  }
+
+  if (digits.startsWith("00")) {
+    const stripped = digits.slice(2);
+    if (stripped.length !== 11 && stripped.length !== 12) {
+      throw new Error("Invalid phone number format.");
+    }
+    return `+${stripped}`;
+  }
+
+  if (digits.length === 9) {
+    return `+420${digits}`;
+  }
+
+  if (digits.length === 12 && digits.startsWith("420")) {
+    return `+${digits}`;
+  }
+
+  throw new Error("Invalid phone number format.");
+};
+
 const pragueLocalToUtcMs = (date: string, time: string): number => {
   // Convert (YYYY-MM-DD, HH:MM) interpreted in Europe/Prague to UTC epoch ms.
   // Uses an iterative Intl-based offset correction to handle DST.
@@ -301,6 +334,7 @@ export const createAppointment = mutation({
   args: {
     customerName: v.string(),
     customerEmail: v.string(),
+    customerPhone: v.string(),
     service: v.string(),
     date: v.string(),
     time: v.string(),
@@ -313,6 +347,7 @@ export const createAppointment = mutation({
       throw new Error("Not authenticated");
     }
     const safeEmail = normalizeEmail(args.customerEmail);
+    const safePhone = normalizePhoneNumber(args.customerPhone);
 
     if (!isDateWithinNextMonth(args.date)) {
       throw new Error("Appointments can only be booked up to 1 month in advance.");
@@ -385,6 +420,7 @@ export const createAppointment = mutation({
       userId: identity.subject,
       customerName: args.customerName,
       customerEmail: safeEmail,
+      customerPhone: safePhone,
       service: args.service,
       date: args.date,
       time: args.time,
@@ -421,6 +457,7 @@ export const createAnonymousAppointment = mutation({
   },
   handler: async (ctx, args) => {
     const safeEmail = normalizeEmail(args.customerEmail);
+    const safePhone = normalizePhoneNumber(args.customerPhone);
     if (!isDateWithinNextMonth(args.date)) {
       throw new Error("Appointments can only be booked up to 1 month in advance.");
     }
@@ -492,7 +529,7 @@ export const createAnonymousAppointment = mutation({
       userId: "anonymous",
       customerName: args.customerName,
       customerEmail: safeEmail,
-      customerPhone: args.customerPhone,
+      customerPhone: safePhone,
       service: args.service,
       date: args.date,
       time: args.time,
