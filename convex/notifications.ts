@@ -20,6 +20,179 @@ interface EmailResult {
   emailId?: string;
 }
 
+interface GoSmsTokenResponse {
+  access_token?: string;
+  expires_in?: number;
+  token_type?: string;
+}
+
+interface GoSmsSendResponse {
+  link?: string;
+  message?: string;
+  error?: string;
+  error_description?: string;
+  recipients?: {
+    invalid?: string[];
+  };
+}
+
+interface SmsResult {
+  success: boolean;
+  message: string;
+  link?: string;
+}
+
+const GOSMS_TOKEN_URL = "https://app.gosms.eu/oauth/v2/token";
+const GOSMS_MESSAGES_URL = "https://app.gosms.eu/api/v1/messages";
+const SMS_MAX_LENGTH = 160;
+
+const formatDateForSms = (dateIso: string): string => {
+  const [year, month, day] = dateIso.split("-");
+  if (!year || !month || !day) return dateIso;
+  return `${day}.${month}.${year}`;
+};
+
+const toAsciiSms = (value: string): string =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\x20-\x7E]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const truncateWithDots = (value: string, maxLength: number): string => {
+  if (value.length <= maxLength) return value;
+  if (maxLength <= 3) return value.slice(0, maxLength);
+  return `${value.slice(0, maxLength - 3)}...`;
+};
+
+const buildAppointmentConfirmationSms = (appointment: {
+  date: string;
+  time: string;
+  service: string;
+}) => {
+  const dateText = toAsciiSms(formatDateForSms(appointment.date));
+  const timeText = toAsciiSms(appointment.time);
+  const prefix = `FlekCuts: Objednavka potvrzena ${dateText} ${timeText}. Sluzba: `;
+  const suffix = `. Uprava: flekcuts.cz`;
+  const maxServiceLength = Math.max(0, SMS_MAX_LENGTH - prefix.length - suffix.length);
+  const serviceText = truncateWithDots(toAsciiSms(appointment.service), maxServiceLength);
+  const message = `${prefix}${serviceText}${suffix}`;
+  return truncateWithDots(message, SMS_MAX_LENGTH);
+};
+
+const parseResponseJson = async <T>(response: Response): Promise<T | null> => {
+  const raw = await response.text();
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return null;
+  }
+};
+
+const getGoSmsAccessToken = async (): Promise<string> => {
+  const clientId = process.env.GOSMS_CLIENT_ID;
+  const clientSecret = process.env.GOSMS_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    throw new Error("Missing GOSMS_CLIENT_ID or GOSMS_CLIENT_SECRET");
+  }
+
+  const body = new URLSearchParams({
+    client_id: clientId,
+    client_secret: clientSecret,
+    grant_type: "client_credentials",
+  });
+
+  const tokenResponse = await fetch(GOSMS_TOKEN_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+    },
+    body: body.toString(),
+  });
+
+  const tokenJson = await parseResponseJson<GoSmsTokenResponse & GoSmsSendResponse>(tokenResponse);
+  if (!tokenResponse.ok || !tokenJson?.access_token) {
+    const detail = tokenJson?.error_description || tokenJson?.message || tokenJson?.error;
+    throw new Error(
+      `GoSMS token request failed (${tokenResponse.status})${detail ? `: ${detail}` : ""}`,
+    );
+  }
+
+  return tokenJson.access_token;
+};
+
+export const sendAppointmentConfirmationSms = internalAction({
+  args: {
+    appointmentId: v.id("appointments"),
+  },
+  handler: async (ctx, args): Promise<SmsResult> => {
+    const rawChannelId = process.env.GOSMS_CHANNEL_ID;
+    const channelId = rawChannelId ? Number(rawChannelId) : NaN;
+    if (!Number.isFinite(channelId)) {
+      throw new Error("Missing or invalid GOSMS_CHANNEL_ID");
+    }
+
+    const appointment = await ctx.runQuery(internal.notifications.getById, {
+      id: args.appointmentId,
+    });
+    if (!appointment) {
+      throw new Error("Appointment not found");
+    }
+    if (!appointment.customerPhone) {
+      throw new Error("Missing customerPhone on appointment");
+    }
+
+    const accessToken = await getGoSmsAccessToken();
+    const smsMessage = buildAppointmentConfirmationSms({
+      date: appointment.date,
+      time: appointment.time,
+      service: appointment.service,
+    });
+
+    const smsResponse = await fetch(GOSMS_MESSAGES_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        message: smsMessage,
+        recipients: [appointment.customerPhone],
+        channel: Math.floor(channelId),
+      }),
+    });
+
+    const smsJson = await parseResponseJson<GoSmsSendResponse>(smsResponse);
+    if (!smsResponse.ok) {
+      const detail = smsJson?.error_description || smsJson?.message || smsJson?.error;
+      throw new Error(
+        `GoSMS send failed (${smsResponse.status})${detail ? `: ${detail}` : ""}`,
+      );
+    }
+
+    if (smsJson?.recipients?.invalid?.length) {
+      throw new Error(`GoSMS rejected recipient: ${smsJson.recipients.invalid.join(", ")}`);
+    }
+
+    console.log("✅ Confirmation SMS sent", {
+      appointmentId: args.appointmentId,
+      recipientPhone: appointment.customerPhone,
+      link: smsJson?.link,
+    });
+
+    return {
+      success: true,
+      message: "Confirmation SMS sent",
+      link: smsJson?.link,
+    };
+  },
+});
+
 // Send appointment confirmation email
 export const sendAppointmentConfirmation = internalAction({
   args: {

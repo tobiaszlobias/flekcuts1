@@ -439,6 +439,16 @@ export const createAppointment = mutation({
       console.error("❌ Failed to schedule confirmation email:", error);
     }
 
+    // Auto-send confirmation SMS (independent of admin status changes)
+    try {
+      await ctx.scheduler.runAfter(0, internal.notifications.sendAppointmentConfirmationSms, {
+        appointmentId,
+      });
+      console.log("✅ Confirmation SMS scheduled for:", appointmentId);
+    } catch (error) {
+      console.error("❌ Failed to schedule confirmation SMS:", error);
+    }
+
     return appointmentId;
   },
 });
@@ -545,6 +555,15 @@ export const createAnonymousAppointment = mutation({
       console.log("✅ Anonymous confirmation email scheduled for:", appointmentId);
     } catch (error) {
       console.error("❌ Failed to schedule anonymous confirmation email:", error);
+    }
+
+    try {
+      await ctx.scheduler.runAfter(0, internal.notifications.sendAppointmentConfirmationSms, {
+        appointmentId,
+      });
+      console.log("✅ Anonymous confirmation SMS scheduled for:", appointmentId);
+    } catch (error) {
+      console.error("❌ Failed to schedule anonymous confirmation SMS:", error);
     }
 
     return appointmentId;
