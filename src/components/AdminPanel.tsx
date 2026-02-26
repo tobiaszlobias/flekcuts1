@@ -107,7 +107,7 @@ export default function AdminPanel() {
   const createInternalBlock = useMutation(api.admin.createInternalBlock);
   const deleteInternalBlock = useMutation(api.admin.deleteInternalBlock);
 
-  const [mode, setMode] = useState<"overview" | "manage">("overview");
+  const [mode, setMode] = useState<"overview" | "manage" | "history">("overview");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [appointmentToDeleteId, setAppointmentToDeleteId] = useState<Id<"appointments"> | null>(null);
   const [showVacationUi, setShowVacationUi] = useState(false);
@@ -429,34 +429,62 @@ export default function AdminPanel() {
       return timeToMinutes(a.time) - timeToMinutes(b.time);
     });
 
-  const appointmentsByDate = sortedAppointments.reduce<Record<string, typeof sortedAppointments>>(
-    (acc, apt) => {
+  const groupAppointmentsByDate = (list: typeof sortedAppointments) =>
+    list.reduce<Record<string, typeof sortedAppointments>>((acc, apt) => {
       (acc[apt.date] ||= []).push(apt);
       return acc;
-    },
-    {}
-  );
+    }, {});
 
-  const blocksByDate = sortedInternalBlocks.reduce<Record<string, typeof sortedInternalBlocks>>(
-    (acc, blk) => {
+  const groupBlocksByDate = (list: typeof sortedInternalBlocks) =>
+    list.reduce<Record<string, typeof sortedInternalBlocks>>((acc, blk) => {
       (acc[blk.date] ||= []).push(blk);
       return acc;
-    },
-    {}
-  );
+    }, {});
 
+  const appointmentsByDate = groupAppointmentsByDate(sortedAppointments);
+  const blocksByDate = groupBlocksByDate(sortedInternalBlocks);
   const dateKeys = Array.from(
     new Set([...Object.keys(appointmentsByDate), ...Object.keys(blocksByDate)])
   ).sort((a, b) => a.localeCompare(b));
 
+  const isPastSlot = (date: string, time: string) =>
+    date < nowPrague.date || (date === nowPrague.date && timeToMinutes(time) < nowPrague.minutes);
+
   const upcomingAppointments = sortedAppointments.filter((a) => a.date >= nowPrague.date);
   const upcomingBlocks = sortedInternalBlocks.filter((b) => b.date >= nowPrague.date);
-  const displayDateKeys =
-    mode === "overview" ? dateKeys.filter((d) => d >= nowPrague.date) : dateKeys;
-  const isListEmpty =
+  const editableAppointments = sortedAppointments.filter((a) => !isPastSlot(a.date, a.time));
+  const editableBlocks = sortedInternalBlocks.filter((b) => !isPastSlot(b.date, b.time));
+  const historyAppointments = sortedAppointments.filter((a) => isPastSlot(a.date, a.time));
+  const historyBlocks = sortedInternalBlocks.filter((b) => isPastSlot(b.date, b.time));
+
+  const appointmentsForMode =
     mode === "overview"
-      ? upcomingAppointments.length === 0 && upcomingBlocks.length === 0
-      : sortedAppointments.length === 0 && sortedInternalBlocks.length === 0;
+      ? upcomingAppointments
+      : mode === "manage"
+        ? editableAppointments
+        : historyAppointments;
+  const blocksForMode =
+    mode === "overview" ? upcomingBlocks : mode === "manage" ? editableBlocks : historyBlocks;
+  const appointmentsByDateForMode =
+    mode === "overview"
+      ? appointmentsByDate
+      : mode === "manage"
+        ? groupAppointmentsByDate(editableAppointments)
+        : groupAppointmentsByDate(historyAppointments);
+  const blocksByDateForMode =
+    mode === "overview"
+      ? blocksByDate
+      : mode === "manage"
+        ? groupBlocksByDate(editableBlocks)
+        : groupBlocksByDate(historyBlocks);
+  const modeDateKeys = Array.from(
+    new Set([...Object.keys(appointmentsByDateForMode), ...Object.keys(blocksByDateForMode)])
+  ).sort((a, b) => a.localeCompare(b));
+  const displayDateKeys =
+    mode === "overview" ? modeDateKeys.filter((d) => d >= nowPrague.date) : modeDateKeys;
+  const isListEmpty = appointmentsForMode.length === 0 && blocksForMode.length === 0;
+  const modeLabel =
+    mode === "overview" ? "Přehled" : mode === "manage" ? "Upravit" : "Historie";
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
@@ -491,6 +519,18 @@ export default function AdminPanel() {
               } px-4 py-2 rounded-full text-sm font-medium transition-colors`}
             >
               Upravit
+            </Button>
+            <Button
+              onClick={() => {
+                setMode("history");
+              }}
+              className={`font-montserrat ${
+                mode === "history"
+                  ? "bg-[#FF6B35] hover:bg-[#E5572C] text-white shadow-sm"
+                  : "bg-white border-2 border-gray-300 text-gray-700 hover:border-[#FF6B35] hover:bg-gray-50"
+              } px-4 py-2 rounded-full text-sm font-medium transition-colors`}
+            >
+              Historie
             </Button>
             <Button
               onClick={() => setShowVacationUi((v) => !v)}
@@ -900,13 +940,9 @@ export default function AdminPanel() {
 	        <div>
 	          <div className="flex items-center justify-between mb-4">
 	            <h3 className="font-montserrat text-xl font-bold text-gray-900">
-	              {mode === "overview" ? "Přehled" : "Upravit"}{" "}
+	              {modeLabel}{" "}
 	              <span className="font-montserrat text-sm font-medium text-gray-500">
-	                (
-	                {(mode === "overview" ? upcomingAppointments.length : sortedAppointments.length)}{" "}
-	                objednávek,{" "}
-	                {(mode === "overview" ? upcomingBlocks.length : sortedInternalBlocks.length)}{" "}
-	                blokací)
+	                ({appointmentsForMode.length} objednávek, {blocksForMode.length} blokací)
 	              </span>
 	            </h3>
 		          </div>
@@ -920,15 +956,17 @@ export default function AdminPanel() {
 	                <p className="font-montserrat text-gray-600">
 	                  {mode === "overview"
 	                    ? "Žádné budoucí položky"
-	                    : "Žádné položky k zobrazení"}
+	                    : mode === "manage"
+	                      ? "Žádné aktuální ani budoucí položky"
+	                      : "Historie je prázdná"}
 	                </p>
 	              </div>
 	            ) : (
 	              displayDateKeys.map((date) => (
 	                <div key={date} className="space-y-2">
 	                  {(() => {
-	                    const dayAppointments = appointmentsByDate[date] || [];
-	                    const dayBlocks = blocksByDate[date] || [];
+		                    const dayAppointments = appointmentsByDateForMode[date] || [];
+		                    const dayBlocks = blocksByDateForMode[date] || [];
 	                    const totalCount = dayAppointments.length + dayBlocks.length;
                     const doneCount = dayAppointments.filter((a) => a.status === "confirmed").length;
                     return (
@@ -966,8 +1004,8 @@ export default function AdminPanel() {
                   })()}
 
                   {(() => {
-                    const dayAppointments = appointmentsByDate[date] || [];
-                    const dayBlocks = blocksByDate[date] || [];
+	                    const dayAppointments = appointmentsByDateForMode[date] || [];
+	                    const dayBlocks = blocksByDateForMode[date] || [];
                     const items: Array<
                       | { kind: "appointment"; value: (typeof sortedAppointments)[number] }
                       | { kind: "block"; value: (typeof sortedInternalBlocks)[number] }
@@ -981,8 +1019,7 @@ export default function AdminPanel() {
                         const block = item.value;
                         const isToday = date === nowPrague.date;
                         const blockMinutes = timeToMinutes(block.time);
-                        const isPast =
-                          date < nowPrague.date || (isToday && blockMinutes < nowPrague.minutes);
+	                        const isPast = isPastSlot(date, block.time);
                         const timingLabel = isPast ? "Po termínu" : "Před termínem";
                         const timingChrome = isPast
                           ? "border-gray-200 bg-white text-gray-700"
@@ -1025,7 +1062,7 @@ export default function AdminPanel() {
                               </div>
 
                               <div className="flex justify-end gap-2">
-                                {mode === "manage" && (
+	                                {mode !== "overview" && (
                                   <Button
                                     onClick={() => handleDeleteInternalBlock(block._id)}
                                     variant="outline"
@@ -1044,9 +1081,7 @@ export default function AdminPanel() {
                       const appointment = item.value;
                     const isToday = date === nowPrague.date;
                     const appointmentMinutes = timeToMinutes(appointment.time);
-                    const isPast =
-                      date < nowPrague.date ||
-                      (isToday && appointmentMinutes < nowPrague.minutes);
+	                    const isPast = isPastSlot(date, appointment.time);
                     const timingLabel = isPast ? "Po termínu" : "Před termínem";
                     const timingChrome =
                       isPast && appointment.status === "pending"
