@@ -26,6 +26,7 @@ import {
   deriveServiceSelection,
   formatServiceNameForDisplay,
 } from "@/lib/services";
+import { isAnnouncementActive } from "@/components/AnnouncementBanner";
 import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 
 type Vacation = {
@@ -1191,6 +1192,14 @@ const Booking = () => {
               <p className="text-[#FF6B35] font-medium">
                 ✅ Služba &quot;{bookingForm.service}&quot; byla automaticky
                 vybrána!{" "}
+              </p>
+            </div>
+          )}
+
+          {isAnnouncementActive() && (
+            <div className="relative mt-5 rounded-2xl border border-[#FF6B35]/35 bg-[linear-gradient(135deg,#FFE8DA_0%,#FFF3EC_50%,#FFFFFF_100%)] p-4 text-left shadow-[0_18px_42px_rgba(255,107,53,0.16)]">
+              <p className="font-montserrat text-sm font-semibold leading-relaxed text-gray-900 sm:text-base">
+                Od 1. dubna 2026 platí nová nabídka služeb, ceny a otevírací doba.
               </p>
             </div>
           )}

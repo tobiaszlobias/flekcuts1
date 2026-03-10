@@ -7,6 +7,7 @@ import Services from "@/components/Services";
 import Gallery from "@/components/Gallery";
 import Booking from "@/components/Booking";
 import Footer from "@/components/Footer";
+import AnnouncementBanner from "@/components/AnnouncementBanner";
 import UserAppointments from "@/components/UserAppointments";
 import AdminPanel from "@/components/AdminPanel";
 import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
@@ -300,6 +301,7 @@ export default function Home() {
               <AdminPanel />
             ) : (
               <>
+                <AnnouncementBanner />
                 <Hero />
                 <Services />
                 <Gallery />
@@ -315,6 +317,7 @@ export default function Home() {
               showInitialSkeleton ? "opacity-0 pointer-events-none" : "opacity-100"
             }`}
           >
+            <AnnouncementBanner />
             <Hero />
             <Services />
             <Gallery />
