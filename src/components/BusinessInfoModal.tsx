@@ -68,11 +68,11 @@ const BusinessInfoModal: React.FC<BusinessInfoModalProps> = ({
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 Provozní doba
               </h3>
-              <p>Pondělí: 9:00–11:45, 13:00–17:00</p>
-              <p>Úterý: 9:00–11:45, 13:00–17:00</p>
-              <p>Středa: 9:00–11:45, 13:00–17:00</p>
-              <p>Čtvrtek: 13:00–19:30</p>
-              <p>Pátek: 9:00–11:45, 13:00–17:00</p>
+              <p>Pondělí: 7:30-15:30</p>
+              <p>Úterý: 9:00-16:00, 17:00-21:00</p>
+              <p>Středa: 7:30-15:30</p>
+              <p>Čtvrtek: 9:00-16:00, 17:00-21:00</p>
+              <p>Pátek: 7:30-15:30</p>
               <p>Sobota: zavřeno</p>
               <p>Neděle: zavřeno</p>
             </div>

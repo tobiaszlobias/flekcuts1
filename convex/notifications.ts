@@ -66,6 +66,21 @@ const truncateWithDots = (value: string, maxLength: number): string => {
   return `${value.slice(0, maxLength - 3)}...`;
 };
 
+const SERVICE_NAME_ALIASES: Record<string, string> = {
+  Fade: "Panský střih",
+  "Klasický střih": "Panský střih",
+  "Dětský střih - fade": "Dětský střih",
+  "Dětský střih - klasický": "Dětský střih",
+  "Dětský střih - do ztracena": "Dětský střih",
+  Kompletka: "Kompletní servis",
+  "Vlasy do ztracena + Vousy": "Kompletní servis",
+};
+
+const formatServiceName = (serviceName: string): string => {
+  const normalized = serviceName.trim();
+  return SERVICE_NAME_ALIASES[normalized] || normalized;
+};
+
 const buildAppointmentConfirmationSms = (appointment: {
   date: string;
   time: string;
@@ -76,7 +91,10 @@ const buildAppointmentConfirmationSms = (appointment: {
   const prefix = `FlekCuts: Objednavka potvrzena ${dateText} ${timeText}. Sluzba: `;
   const suffix = `. Uprava: flekcuts.cz`;
   const maxServiceLength = Math.max(0, SMS_MAX_LENGTH - prefix.length - suffix.length);
-  const serviceText = truncateWithDots(toAsciiSms(appointment.service), maxServiceLength);
+  const serviceText = truncateWithDots(
+    toAsciiSms(formatServiceName(appointment.service)),
+    maxServiceLength
+  );
   const message = `${prefix}${serviceText}${suffix}`;
   return truncateWithDots(message, SMS_MAX_LENGTH);
 };

@@ -24,6 +24,7 @@ import {
   BOOKING_DROPDOWN_SERVICES,
   deriveServiceFromName,
   deriveServiceSelection,
+  formatServiceNameForDisplay,
 } from "@/lib/services";
 import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 
@@ -197,7 +198,9 @@ const BookingConfirmationModal = ({
             <div className="grid grid-cols-2 gap-y-3 gap-x-4">
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">Služba</p>
-                <p className="text-sm font-medium text-gray-900 mt-1">{bookingDetails.service}</p>
+                <p className="text-sm font-medium text-gray-900 mt-1">
+                  {formatServiceNameForDisplay(bookingDetails.service)}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">Cena</p>
@@ -775,21 +778,18 @@ const Booking = () => {
     value !== null && value !== undefined;
 
   const serviceOptions = [
-    "Fade",
-    "Klasický střih",
-    "Dětský střih - fade",
-    "Dětský střih - klasický",
+    "Panský střih",
+    "Dětský střih",
     "Vousy",
-    "Mytí vlasů",
-    "Kompletka",
+    "Kompletní servis",
   ]
     .map((name) => BOOKING_DROPDOWN_SERVICES.find((s) => s.name === name))
     .filter(isDefined);
 
   const derivedSelection = deriveServiceSelection({
     baseName: bookingForm.service,
-    addBeard: bookingForm.addBeard,
-    addWash: bookingForm.addWash,
+    addBeard: false,
+    addWash: false,
   });
 
   const getOpenSlotsForDate = (selectedDate: string): string[] => {
@@ -797,26 +797,21 @@ const Booking = () => {
     const date = new Date(selectedDate + "T00:00:00");
     const dayOfWeek = date.getDay();
 
-    // Working hours with a lunch break on Mon/Tue/Wed/Fri: 09:00-11:45, 13:00-17:00
-    // Thu: 13:00-19:30
+    // Working hours:
+    // Mon/Wed/Fri: 07:30-15:30
+    // Tue/Thu:     09:00-16:00, 17:00-21:00
     const schedule: Record<number, Array<[number, number]>> = {
-      1: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ],
+      1: [[7 * 60 + 30, 15 * 60 + 30]],
       2: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
+        [9 * 60, 16 * 60],
+        [17 * 60, 21 * 60],
       ],
-      3: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
+      3: [[7 * 60 + 30, 15 * 60 + 30]],
+      4: [
+        [9 * 60, 16 * 60],
+        [17 * 60, 21 * 60],
       ],
-      4: [[13 * 60, 19 * 60 + 30]],
-      5: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ],
+      5: [[7 * 60 + 30, 15 * 60 + 30]],
     };
 
     const periods = schedule[dayOfWeek as keyof typeof schedule] || [];
@@ -828,23 +823,17 @@ const Booking = () => {
     const date = new Date(selectedDate + "T00:00:00");
     const dayOfWeek = date.getDay();
     const schedule: Record<number, Array<[number, number]>> = {
-      1: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ],
+      1: [[7 * 60 + 30, 15 * 60 + 30]],
       2: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
+        [9 * 60, 16 * 60],
+        [17 * 60, 21 * 60],
       ],
-      3: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
+      3: [[7 * 60 + 30, 15 * 60 + 30]],
+      4: [
+        [9 * 60, 16 * 60],
+        [17 * 60, 21 * 60],
       ],
-      4: [[13 * 60, 19 * 60 + 30]],
-      5: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ],
+      5: [[7 * 60 + 30, 15 * 60 + 30]],
     };
     return schedule[dayOfWeek as keyof typeof schedule] || [];
   };
@@ -1124,31 +1113,14 @@ const Booking = () => {
     setBookingForm((prev) => {
       const next = { ...prev, [field]: value } as BookingForm;
       if (field === "service") {
-        const baseName = value;
-        const isKompletka = baseName === "Kompletka";
-        next.addBeard = isKompletka ? false : prev.addBeard && baseName !== "Vousy";
-        next.addWash = isKompletka ? false : prev.addWash && baseName !== "Mytí vlasů";
+        next.addBeard = false;
+        next.addWash = false;
       }
       return next;
     });
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-  };
-
-  const setAddon = (addon: "beard" | "wash", enabled: boolean) => {
-    setBookingForm((prev) => {
-      const base = prev.service;
-      if (!base) return prev;
-      if (base === "Kompletka") return prev;
-      if (addon === "beard" && base === "Vousy") return prev;
-      if (addon === "wash" && base === "Mytí vlasů") return prev;
-      return {
-        ...prev,
-        addBeard: addon === "beard" ? enabled : prev.addBeard,
-        addWash: addon === "wash" ? enabled : prev.addWash,
-      };
-    });
   };
 
   const handlePhoneChange = (value: string) => {
@@ -1343,7 +1315,7 @@ const Booking = () => {
                   <SelectContent>
                     {serviceOptions.map((service) => (
                       <SelectItem key={service.id} value={service.name}>
-                        {service.name} - {service.priceCzk} Kč
+                        {service.name} - od {service.priceCzk} Kč
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1354,54 +1326,12 @@ const Booking = () => {
 
                 <div className="mt-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-700 font-medium">Přidat</p>
-                    {!!bookingForm.service && bookingForm.service !== "Kompletka" && (
-                      <p className="text-xs text-gray-500">
-                        Celkem: {derivedSelection.priceCzk} Kč •{" "}
-                        {derivedSelection.durationMinutes} min
-                      </p>
-                    )}
+                    <p className="text-sm text-gray-700 font-medium">Shrnutí služby</p>
                   </div>
 
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setAddon("beard", !bookingForm.addBeard)}
-                      disabled={
-                        !bookingForm.service ||
-                        bookingForm.service === "Kompletka" ||
-                        bookingForm.service === "Vousy"
-                      }
-                      className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
-                        bookingForm.addBeard
-                          ? "border-[#FF6B35] bg-[#FF6B35]/10 text-[#FF6B35] font-medium"
-                          : "border-gray-300 text-gray-700 hover:border-[#FF6B35]"
-                      } disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed`}
-                    >
-                      Vousy (+150 Kč)
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setAddon("wash", !bookingForm.addWash)}
-                      disabled={
-                        !bookingForm.service ||
-                        bookingForm.service === "Kompletka" ||
-                        bookingForm.service === "Mytí vlasů"
-                      }
-                      className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
-                        bookingForm.addWash
-                          ? "border-[#FF6B35] bg-[#FF6B35]/10 text-[#FF6B35] font-medium"
-                          : "border-gray-300 text-gray-700 hover:border-[#FF6B35]"
-                      } disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed`}
-                    >
-                      Mytí vlasů (+100 Kč)
-                    </button>
-                  </div>
-
-                  {bookingForm.service === "Kompletka" && (
+                  {!!bookingForm.service && (
                     <p className="text-xs text-gray-500 mt-2">
-                      Kompletka už zahrnuje vousy i mytí vlasů.
+                      Cena od {derivedSelection.priceCzk} Kč • {derivedSelection.durationMinutes} min
                     </p>
                   )}
                 </div>

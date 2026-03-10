@@ -30,9 +30,9 @@ export const metadata: Metadata = {
       ? "https://flekcuts.cz" // Replace with your actual domain when you have one
       : "http://localhost:3000",
   ),
-  title: "FlekCuts - Moderní holičství v Bruntále | Fade, Střihy, Vousy",
+  title: "FlekCuts - Moderní holičství v Bruntále | Panský střih, Vousy",
   description:
-    "Profesionální holičství FlekCuts v Bruntále. Fade střihy, klasické střihy, úprava vousů, dětské střihy. Online objednávky na Zámeckém náměstí 19. ☎️ +420 778 779 938",
+    "Profesionální holičství FlekCuts v Bruntále. Panský střih, dětský střih, úprava vousů a kompletní servis. Online objednávky na Zámeckém náměstí 19. ☎️ +420 778 779 938",
   keywords: [
     "holičství Bruntál",
     "barber shop Bruntál",
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     siteName: "FlekCuts",
     title: "FlekCuts - Moderní holičství v Bruntále",
     description:
-      "Profesionální fade střihy, úprava vousů a péče o vlasy v Bruntále. Online objednávky 24/7.",
+      "Profesionální pánské střihy, úprava vousů a kompletní servis v Bruntále. Online objednávky 24/7.",
     images: [
       {
         url: "/logo.png",
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "FlekCuts - Moderní holičství v Bruntále",
     description:
-      "Profesionální fade střihy, úprava vousů a péče o vlasy v Bruntále. Online objednávky 24/7.",
+      "Profesionální pánské střihy, úprava vousů a kompletní servis v Bruntále. Online objednávky 24/7.",
     images: ["/logo.png"],
   },
   other: {
@@ -111,7 +111,7 @@ export default function RootLayout({
               "@type": "HairSalon",
               name: "FlekCuts",
               description:
-                "Profesionální holičství specializující se na fade střihy, klasické střihy a úpravu vousů",
+                "Profesionální holičství specializující se na pánské střihy, dětské střihy a úpravu vousů",
               url:
                 process.env.NODE_ENV === "production"
                   ? "https://flekcuts.cz"
@@ -133,24 +133,24 @@ export default function RootLayout({
               openingHoursSpecification: [
                 {
                   "@type": "OpeningHoursSpecification",
-                  dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Friday"],
+                  dayOfWeek: ["Monday", "Wednesday", "Friday"],
+                  opens: "07:30",
+                  closes: "15:30",
+                },
+                {
+                  "@type": "OpeningHoursSpecification",
+                  dayOfWeek: ["Tuesday", "Thursday"],
                   opens: "09:00",
-                  closes: "11:45",
+                  closes: "16:00",
                 },
                 {
                   "@type": "OpeningHoursSpecification",
-                  dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Friday"],
-                  opens: "13:00",
-                  closes: "17:00",
-                },
-                {
-                  "@type": "OpeningHoursSpecification",
-                  dayOfWeek: "Thursday",
-                  opens: "13:00",
-                  closes: "19:30",
+                  dayOfWeek: ["Tuesday", "Thursday"],
+                  opens: "17:00",
+                  closes: "21:00",
                 },
               ],
-              priceRange: "150-500 CZK",
+              priceRange: "200-600 CZK",
               paymentAccepted: "Cash, Card",
               currenciesAccepted: "CZK",
             }),

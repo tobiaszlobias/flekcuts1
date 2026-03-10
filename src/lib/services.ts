@@ -9,119 +9,77 @@ export type ServiceOption = {
   components?: string[];
 };
 
-const HAIRCUTS: ServiceOption[] = [
-  { id: "fade", name: "Fade", priceCzk: 350, durationMinutes: 45, kind: "haircut" },
+const CURRENT_SERVICES: ServiceOption[] = [
   {
-    id: "classic",
-    name: "Klasický střih",
-    priceCzk: 250,
-    durationMinutes: 30,
+    id: "mens-cut",
+    name: "Panský střih",
+    priceCzk: 320,
+    durationMinutes: 60,
     kind: "haircut",
   },
   {
-    id: "kids-fade",
-    name: "Dětský střih - fade",
-    priceCzk: 250,
-    durationMinutes: 45,
+    id: "kids-cut",
+    name: "Dětský střih",
+    priceCzk: 280,
+    durationMinutes: 60,
     kind: "haircut",
   },
   {
-    id: "kids-classic",
-    name: "Dětský střih - klasický",
+    id: "complete-service",
+    name: "Kompletní servis",
+    priceCzk: 550,
+    durationMinutes: 90,
+    kind: "package",
+  },
+  {
+    id: "beard",
+    name: "Vousy",
     priceCzk: 200,
-    durationMinutes: 30,
-    kind: "haircut",
-  },
-];
-
-const ADDONS: ServiceOption[] = [
-  { id: "beard", name: "Vousy", priceCzk: 150, durationMinutes: 15, kind: "addon" },
-  {
-    id: "wash",
-    name: "Mytí vlasů",
-    priceCzk: 100,
-    durationMinutes: 10,
+    durationMinutes: 15,
     kind: "addon",
   },
 ];
 
-const PACKAGES: ServiceOption[] = [
-  {
-    id: "package-complete",
-    name: "Kompletka",
-    priceCzk: 500,
-    durationMinutes: 70,
-    kind: "package",
-  },
-];
+const LEGACY_NAME_ALIASES: Record<string, string> = {
+  Fade: "Panský střih",
+  "Klasický střih": "Panský střih",
+  "Dětský střih - fade": "Dětský střih",
+  "Dětský střih - klasický": "Dětský střih",
+  "Dětský střih - do ztracena": "Dětský střih",
+  Kompletka: "Kompletní servis",
+  "Vlasy do ztracena + Vousy": "Kompletní servis",
+};
 
-export const SERVICE_OPTIONS: ServiceOption[] = [...HAIRCUTS, ...PACKAGES, ...ADDONS];
+export const SERVICE_OPTIONS: ServiceOption[] = CURRENT_SERVICES;
 
-export const BOOKING_DROPDOWN_SERVICES: ServiceOption[] = [
-  ...HAIRCUTS,
-  ...ADDONS,
-  ...PACKAGES,
-];
+export const BOOKING_DROPDOWN_SERVICES: ServiceOption[] = CURRENT_SERVICES;
 
-const NAME_ALIASES: Record<string, string> = {
-  "Dětský střih - do ztracena": "Dětský střih - klasický",
+export const getCanonicalServiceName = (name: string): string => {
+  const normalized = name.trim();
+  if (!normalized) return normalized;
+  return LEGACY_NAME_ALIASES[normalized] || normalized;
+};
+
+export const formatServiceNameForDisplay = (name: string): string => {
+  return getCanonicalServiceName(name);
 };
 
 export const getServiceOptionByName = (name: string): ServiceOption | undefined => {
-  const direct = SERVICE_OPTIONS.find((s) => s.name === name);
-  if (direct) return direct;
-  const alias = NAME_ALIASES[name];
-  if (!alias) return undefined;
-  return SERVICE_OPTIONS.find((s) => s.name === alias);
+  const canonicalName = getCanonicalServiceName(name);
+  return SERVICE_OPTIONS.find((service) => service.name === canonicalName);
 };
-
-const includesBeard = (serviceName: string) => serviceName.includes("+ Vousy");
-const includesWash = (serviceName: string) => serviceName.includes("+ Mytí vlasů");
 
 export const deriveServiceFromName = (
   serviceName: string
 ): { durationMinutes: number; priceCzk: number; baseName: string } => {
-  const normalized = serviceName.trim();
+  const canonicalName = getCanonicalServiceName(serviceName);
+  const service = getServiceOptionByName(canonicalName);
 
-  // Legacy naming (kept for existing bookings)
-  if (normalized === "Vlasy do ztracena + Vousy") {
-    return { baseName: "Fade", durationMinutes: 65, priceCzk: 350 + 150 };
-  }
-
-  const baseName = normalized.split("+")[0]?.trim() || normalized;
-  const base = getServiceOptionByName(baseName);
-  const beard = getServiceOptionByName("Vousy");
-  const wash = getServiceOptionByName("Mytí vlasů");
-
-  let durationMinutes = base?.durationMinutes ?? 30;
-  let priceCzk = base?.priceCzk ?? 0;
-
-  const beardSelected = baseName !== "Vousy" && includesBeard(normalized);
-  const washSelected = baseName !== "Mytí vlasů" && includesWash(normalized);
-
-  if (baseName === "Kompletka") {
-    return {
-      baseName: "Kompletka",
-      durationMinutes: base?.durationMinutes ?? 70,
-      priceCzk: base?.priceCzk ?? 500,
-    };
-  }
-
-  if (beardSelected) {
-    priceCzk += beard?.priceCzk ?? 0;
-    durationMinutes += beard?.durationMinutes ?? 15;
-    if (baseName === "Fade") {
-      // Special-case per your list: Fade + Vousy = 65 min.
-      durationMinutes = 65;
-    }
-  }
-
-  if (washSelected) {
-    priceCzk += wash?.priceCzk ?? 0;
-    durationMinutes += wash?.durationMinutes ?? 10;
-  }
-
-  return { baseName, durationMinutes, priceCzk };
+  return {
+    baseName: canonicalName,
+    durationMinutes: service?.durationMinutes ?? 30,
+    priceCzk: service?.priceCzk ?? 0,
+  };
 };
 
 export const deriveServiceSelection = (args: {
@@ -129,22 +87,13 @@ export const deriveServiceSelection = (args: {
   addBeard: boolean;
   addWash: boolean;
 }): { displayName: string; durationMinutes: number; priceCzk: number } => {
-  const baseName = args.baseName.trim();
-  if (!baseName) return { displayName: "", durationMinutes: 0, priceCzk: 0 };
+  const canonicalName = getCanonicalServiceName(args.baseName);
+  if (!canonicalName) return { displayName: "", durationMinutes: 0, priceCzk: 0 };
 
-  if (baseName === "Kompletka") {
-    const base = getServiceOptionByName("Kompletka");
-    return {
-      displayName: "Kompletka",
-      durationMinutes: base?.durationMinutes ?? 70,
-      priceCzk: base?.priceCzk ?? 500,
-    };
-  }
-
-  let displayName = baseName;
-  if (args.addBeard && baseName !== "Vousy") displayName += " + Vousy";
-  if (args.addWash && baseName !== "Mytí vlasů") displayName += " + Mytí vlasů";
-
-  const derived = deriveServiceFromName(displayName);
-  return { displayName, durationMinutes: derived.durationMinutes, priceCzk: derived.priceCzk };
+  const derived = deriveServiceFromName(canonicalName);
+  return {
+    displayName: canonicalName,
+    durationMinutes: derived.durationMinutes,
+    priceCzk: derived.priceCzk,
+  };
 };

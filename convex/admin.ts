@@ -31,40 +31,29 @@ const parseTimeToMinutes = (time: string): number => {
 
 const overlaps = (a1: number, a2: number, b1: number, b2: number) => a1 < b2 && b1 < a2;
 
-const deriveServiceDurationMinutes = (serviceName: string): number => {
+const SERVICE_NAME_ALIASES: Record<string, string> = {
+  Fade: "Panský střih",
+  "Klasický střih": "Panský střih",
+  "Dětský střih - fade": "Dětský střih",
+  "Dětský střih - klasický": "Dětský střih",
+  "Dětský střih - do ztracena": "Dětský střih",
+  Kompletka: "Kompletní servis",
+  "Vlasy do ztracena + Vousy": "Kompletní servis",
+};
+
+const normalizeServiceName = (serviceName: string): string => {
   const normalized = serviceName.trim();
+  return SERVICE_NAME_ALIASES[normalized] || normalized;
+};
 
-  if (normalized === "Fade") return 45;
-  if (normalized === "Klasický střih") return 30;
-  if (normalized === "Dětský střih - fade") return 45;
-  if (normalized === "Dětský střih - klasický") return 30;
-  if (normalized === "Dětský střih - do ztracena") return 30;
+const deriveServiceDurationMinutes = (serviceName: string): number => {
+  const normalized = normalizeServiceName(serviceName);
+
+  if (normalized === "Panský střih") return 60;
+  if (normalized === "Dětský střih") return 60;
   if (normalized === "Vousy") return 15;
-  if (normalized === "Mytí vlasů") return 10;
-  if (normalized === "Kompletka") return 70;
-  if (normalized === "Vlasy do ztracena + Vousy") return 65;
-
-  const hasBeard = normalized.includes("+ Vousy");
-  const hasWash = normalized.includes("+ Mytí vlasů");
-
-  let base: number | null = null;
-  if (normalized.startsWith("Fade")) base = 45;
-  if (normalized.startsWith("Klasický střih")) base = 30;
-  if (normalized.startsWith("Dětský střih - fade")) base = 45;
-  if (normalized.startsWith("Dětský střih - klasický")) base = 30;
-  if (normalized.startsWith("Vousy")) base = 15;
-  if (normalized.startsWith("Mytí vlasů")) base = 10;
-
-  if (base === null) return 30;
-
-  if (normalized.startsWith("Fade") && hasBeard) {
-    base = 65;
-  } else if (hasBeard) {
-    base += 15;
-  }
-
-  if (hasWash) base += 10;
-  return base;
+  if (normalized === "Kompletní servis") return 90;
+  return 30;
 };
 
 // Get all appointments for admin view

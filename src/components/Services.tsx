@@ -10,7 +10,7 @@ const Services = () => {
   type ServiceCard = {
     name: string;
     description: string;
-    price: number;
+    price: string;
     imageUrl?: string;
     preselectServiceName?: string;
   };
@@ -41,45 +41,33 @@ const Services = () => {
 
   const featuredServices: ServiceCard[] = [
     {
-      name: "Fade",
-      description: "Precizní přechody od nuly s dokonalým vyblednutím",
-      price: 350,
+      name: "Panský střih",
+      description: "Střih po konzultaci s klientem, mytí vlasů, styling na závěr (45-60 min)",
+      price: "320-420",
       imageUrl: "/fade.png",
-      preselectServiceName: "Fade",
+      preselectServiceName: "Panský střih",
     },
     {
-      name: "Klasický střih",
-      description: "Elegantní střih s plynulými přechody do ztracena",
-      price: 250,
-      imageUrl: "/klasicky.jpg",
-      preselectServiceName: "Klasický střih",
+      name: "Dětský střih",
+      description: "Střih po konzultaci s klientem, mytí, styling na závěr (30-60 min.)",
+      price: "280-380",
+      imageUrl: "/haircut6.png",
+      preselectServiceName: "Dětský střih",
     },
   ];
 
   const otherServices: ServiceCard[] = [
     {
-      name: "Dětský střih",
-      description: "Speciální péče pro děti do 10 let v příjemném prostředí",
-      price: 250,
-      preselectServiceName: "Dětský střih - klasický",
+      name: "Kompletní servis",
+      description: "Kompletní péče - střih vlasů a úprava vousů po konzultaci s klientem, mytí vlasů, úprava obočí a styling na závěr (60-90 min).",
+      price: "550-600",
+      preselectServiceName: "Kompletní servis",
     },
     {
       name: "Vousy",
-      description: "Profesionální úprava a konturování vousů břitvou",
-      price: 150,
+      description: "Precizní úprava vousů po konzultaci s klientem",
+      price: "200",
       preselectServiceName: "Vousy",
-    },
-    {
-      name: "Mytí vlasů",
-      description: "Relaxační mytí s kvalitním šamponem a kondicionérem",
-      price: 100,
-      preselectServiceName: "Mytí vlasů",
-    },
-    {
-      name: "Kompletka",
-      description: "Kompletní péče - střih, vousy, obočí a mytí vlasů",
-      price: 500,
-      preselectServiceName: "Kompletka",
     },
   ];
 
@@ -181,11 +169,11 @@ const Services = () => {
                 transition: 'opacity 0.5s ease-out, transform 0.5s ease-out',
                 visibility: visibleItems.has(index) ? 'visible' : 'hidden'
               }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleServiceClick(service.name);
-              }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleServiceClick(service.preselectServiceName || service.name);
+                }}
             >
               <div
                 className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 relative active:scale-95"

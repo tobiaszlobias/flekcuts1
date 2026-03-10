@@ -7,6 +7,7 @@ import { SignInButton, useUser } from "@clerk/nextjs";
 import { useCallback, useEffect, useState } from "react";
 import { Calendar, Clock, Scissors, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatServiceNameForDisplay } from "@/lib/services";
 
 const parseAppointmentDateTime = (date: string, time: string): Date | null => {
   // date: YYYY-MM-DD, time: H:MM or HH:MM
@@ -353,7 +354,7 @@ export default function UserAppointments() {
                             <div className="flex items-center gap-2 mb-2">
                               <Scissors className="w-5 h-5 text-[#FF6B35]" />
                               <h3 className="font-crimson italic text-2xl font-bold text-gray-900">
-                                {appointment.service}
+                                {formatServiceNameForDisplay(appointment.service)}
                               </h3>
                             </div>
                           </div>
@@ -468,7 +469,7 @@ export default function UserAppointments() {
                             <div className="flex items-center gap-2 mb-2">
                               <Scissors className="w-4 h-4 text-gray-500" />
                               <h3 className="font-crimson italic text-xl font-bold text-gray-700">
-                                {appointment.service}
+                                {formatServiceNameForDisplay(appointment.service)}
                               </h3>
                             </div>
                             {appointment.status === "cancelled" && (

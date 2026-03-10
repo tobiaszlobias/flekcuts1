@@ -8,11 +8,11 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [externalEnabled, setExternalEnabled] = useState(false);
   const openingHours = [
-    { day: "Pondělí", hours: "9:00 - 11:45, 13:00 - 17:00" },
-    { day: "Úterý", hours: "9:00 - 11:45, 13:00 - 17:00" },
-    { day: "Středa", hours: "9:00 - 11:45, 13:00 - 17:00" },
-    { day: "Čtvrtek", hours: "13:00 - 19:30" },
-    { day: "Pátek", hours: "9:00 - 11:45, 13:00 - 17:00" },
+    { day: "Pondělí", hours: "7:30 - 15:30" },
+    { day: "Úterý", hours: "9:00 - 16:00, 17:00 - 21:00" },
+    { day: "Středa", hours: "7:30 - 15:30" },
+    { day: "Čtvrtek", hours: "9:00 - 16:00, 17:00 - 21:00" },
+    { day: "Pátek", hours: "7:30 - 15:30" },
     { day: "Sobota", hours: "Zavřeno", isClosed: true },
     { day: "Neděle", hours: "Zavřeno", isClosed: true },
   ];
@@ -262,41 +262,42 @@ const CurrentStatus = () => {
 
       switch (currentDay) {
         case 1: // Monday
-        case 2: // Tuesday
         case 3: // Wednesday
         case 5: // Friday
-          if (
-            (currentTime >= 900 && currentTime <= 1145) ||
-            (currentTime >= 1300 && currentTime <= 1700)
-          ) {
+          if (currentTime >= 730 && currentTime < 1530) {
+            isOpen = true;
+            message = "Nyní otevřeno";
+          } else if (currentTime < 730) {
+            message = "Otevřeno od 7:30";
+          } else {
+            if (currentDay === 5) {
+              message = "Zavřeno - otevřeno v pondělí od 7:30";
+            } else if (currentDay === 1 || currentDay === 3) {
+              message = "Zavřeno - otevřeno zítra od 9:00";
+            }
+          }
+          break;
+
+        case 2: // Tuesday
+        case 4: // Thursday
+          if ((currentTime >= 900 && currentTime < 1600) || (currentTime >= 1700 && currentTime < 2100)) {
             isOpen = true;
             message = "Nyní otevřeno";
           } else if (currentTime < 900) {
             message = "Otevřeno od 9:00";
-          } else if (currentTime > 1145 && currentTime < 1300) {
-            message = "Polední pauza - otevřeno od 13:00";
+          } else if (currentTime >= 1600 && currentTime < 1700) {
+            message = "Pauza - otevřeno od 17:00";
           } else {
-            message = "Zavřeno - otevřeno zítra od 9:00";
-          }
-          break;
-
-        case 4: // Thursday
-          if (currentTime >= 1300 && currentTime <= 1930) {
-            isOpen = true;
-            message = "Nyní otevřeno";
-          } else if (currentTime < 1300) {
-            message = "Otevřeno od 13:00";
-          } else {
-            message = "Zavřeno - otevřeno zítra od 9:00";
+            message = "Zavřeno - otevřeno zítra od 7:30";
           }
           break;
 
         case 6: // Saturday
-          message = "Zavřeno - otevřeno v pondělí od 9:00";
+          message = "Zavřeno - otevřeno v pondělí od 7:30";
           break;
 
         case 0: // Sunday
-          message = "Zavřeno - otevřeno zítra od 9:00";
+          message = "Zavřeno - otevřeno zítra od 7:30";
           break;
       }
 

@@ -17,7 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BOOKING_DROPDOWN_SERVICES, deriveServiceSelection } from "@/lib/services";
+import {
+  BOOKING_DROPDOWN_SERVICES,
+  deriveServiceSelection,
+  formatServiceNameForDisplay,
+} from "@/lib/services";
 import {
   Calendar,
   Clock,
@@ -247,8 +251,8 @@ export default function AdminPanel() {
 
     const derived = deriveServiceSelection({
       baseName,
-      addBeard: internalBlockForm.addBeard,
-      addWash: internalBlockForm.addWash,
+      addBeard: false,
+      addWash: false,
     });
 
     setIsSavingInternalBlock(true);
@@ -831,27 +835,6 @@ export default function AdminPanel() {
                         </SelectContent>
                       </Select>
 
-                      <label className="inline-flex items-center gap-2 text-sm text-gray-700">
-                        <input
-                          type="checkbox"
-                          checked={internalBlockForm.addBeard}
-                          onChange={(e) =>
-                            setInternalBlockForm((p) => ({ ...p, addBeard: e.target.checked }))
-                          }
-                        />
-                        Vousy
-                      </label>
-
-                      <label className="inline-flex items-center gap-2 text-sm text-gray-700">
-                        <input
-                          type="checkbox"
-                          checked={internalBlockForm.addWash}
-                          onChange={(e) =>
-                            setInternalBlockForm((p) => ({ ...p, addWash: e.target.checked }))
-                          }
-                        />
-                        Mytí
-                      </label>
                     </div>
                   </div>
 
@@ -1107,7 +1090,7 @@ export default function AdminPanel() {
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
                                 <span className="font-montserrat text-sm font-semibold text-gray-900 truncate">
-                                  {appointment.service}
+                                  {formatServiceNameForDisplay(appointment.service)}
                                 </span>
                                 <span
                                   className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${timingChrome}`}
@@ -1195,7 +1178,7 @@ export default function AdminPanel() {
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <h4 className="font-crimson italic text-xl font-bold text-gray-900 leading-snug">
-                                  {appointment.service}
+                                  {formatServiceNameForDisplay(appointment.service)}
                                 </h4>
                                 <div className="mt-1 flex items-center gap-2">
                                   <span
