@@ -378,6 +378,7 @@ const CompactDateTimePicker = ({
   bookedTimes,
   vacations,
   isLoadingAvailability = false,
+  isTemporarilyUnavailable = false,
 }: {
   selectedDate: string;
   selectedTime: string;
@@ -387,6 +388,7 @@ const CompactDateTimePicker = ({
   bookedTimes: string[];
   vacations: Vacation[];
   isLoadingAvailability?: boolean;
+  isTemporarilyUnavailable?: boolean;
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showTimeSlots, setShowTimeSlots] = useState(!!selectedDate);
@@ -604,7 +606,14 @@ const CompactDateTimePicker = ({
             Dostupné časy - {formatDate(selectedDate)}
           </h4>
 
-          {isLoadingAvailability ? (
+          {isTemporarilyUnavailable ? (
+            <div className="py-6 text-center text-sm text-gray-600">
+              <span>
+                Rezervační systém je momentálně dočasně nedostupný. Zkuste to
+                prosím za chvíli.
+              </span>
+            </div>
+          ) : isLoadingAvailability ? (
             <div className="flex items-center justify-center gap-2 py-6 text-sm text-gray-600">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400" />
               <span>Načítám dostupné časy…</span>
@@ -713,6 +722,7 @@ const CompactDateTimePicker = ({
 
 const Booking = () => {
   const { isSignedIn } = useAuth();
+  const isTemporarilyUnavailable = true;
   const [bookingForm, setBookingForm] = useState<BookingForm>({
     name: "",
     email: "",
@@ -1430,6 +1440,7 @@ const Booking = () => {
                     bookedTimes={bookedTimes}
                     vacations={vacations}
                     isLoadingAvailability={isAvailabilityLoading}
+                    isTemporarilyUnavailable={isTemporarilyUnavailable}
                   />
                 </div>
 
@@ -1460,7 +1471,7 @@ const Booking = () => {
 
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isTemporarilyUnavailable}
                 className="w-full font-montserrat bg-[#FF6B35] hover:!bg-[#FF6B35] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-105 active:scale-99 transition-all duration-200 relative overflow-visible group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
               >
                 {isSubmitting ? (
