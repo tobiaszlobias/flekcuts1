@@ -1417,9 +1417,10 @@ const Booking = () => {
                   )}
                   {bookingForm.service && bookingForm.service !== "Kompletka" && (
                     <p className="text-xs text-gray-500 mt-2">
-                      Mytí hlavy je možné po domluvě na místě za 30 Kč. Pro úpravu vousů zvolte službu "Kompletka".
+                      Mytí hlavy je možné po domluvě na místě za 30 Kč. Pro úpravu vousů zvolte službu &quot;Kompletka&quot;.
                     </p>
                   )}
+
 
 
                 </div>
