@@ -10,7 +10,7 @@ export type ServiceOption = {
 };
 
 const HAIRCUTS: ServiceOption[] = [
-  { id: "fade", name: "Fade", priceCzk: 350, durationMinutes: 45, kind: "haircut" },
+  { id: "fade", name: "Fade", priceCzk: 390, durationMinutes: 45, kind: "haircut" },
   {
     id: "classic",
     name: "Klasický střih",
@@ -21,14 +21,14 @@ const HAIRCUTS: ServiceOption[] = [
   {
     id: "kids-fade",
     name: "Dětský střih - fade",
-    priceCzk: 250,
+    priceCzk: 320,
     durationMinutes: 45,
     kind: "haircut",
   },
   {
     id: "kids-classic",
     name: "Dětský střih - klasický",
-    priceCzk: 200,
+    priceCzk: 250,
     durationMinutes: 30,
     kind: "haircut",
   },
@@ -55,13 +55,13 @@ const PACKAGES: ServiceOption[] = [
   },
 ];
 
-// New prices for May 1st onwards
-const MAY_PRICES: Record<string, number> = {
-  fade: 390,
+// Legacy prices for April (before May 1st)
+const APRIL_PRICES: Record<string, number> = {
+  fade: 350,
   classic: 250,
-  "kids-fade": 320,
-  "kids-classic": 250,
-  "package-complete": 500, // Starting price, will show as range in UI
+  "kids-fade": 250,
+  "kids-classic": 200,
+  "package-complete": 500,
 };
 
 export const SERVICE_OPTIONS: ServiceOption[] = [...HAIRCUTS, ...PACKAGES, ...ADDONS];
@@ -95,20 +95,21 @@ export const deriveServiceFromName = (
   const durationMinutes = base?.durationMinutes ?? 30;
   let priceCzk = base?.priceCzk ?? 0;
 
-  // Apply May pricing if date is May 1st or later
+  // Apply legacy April pricing if date is before May 1st
   if (dateString && base) {
     const appDate = new Date(dateString + "T00:00:00");
-    const mayFirst = new Date("2026-05-01T00:00:00"); // Current year is 2026 in session
-    if (appDate >= mayFirst) {
-      const newPrice = MAY_PRICES[base.id];
-      if (newPrice !== undefined) {
-        priceCzk = newPrice;
+    const mayFirst = new Date("2026-05-01T00:00:00");
+    if (appDate < mayFirst) {
+      const oldPrice = APRIL_PRICES[base.id];
+      if (oldPrice !== undefined) {
+        priceCzk = oldPrice;
       }
     }
   }
 
   return { baseName, durationMinutes, priceCzk };
 };
+
 
 export const formatServiceNameForDisplay = (name: string): string => {
   return name.trim();

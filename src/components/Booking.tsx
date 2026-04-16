@@ -1255,9 +1255,9 @@ const Booking = () => {
 
           {/* New Price Notice - Visible until May 7th */}
           {new Date() < new Date("2026-05-07T00:00:00") && (
-            <div className="mt-8 animate-fade-in-up">
-              <div className="inline-block bg-[#FF6B35]/10 border border-[#FF6B35]/30 rounded-2xl px-5 py-3 text-left">
-                <p className="text-[#FF6B35] font-montserrat font-semibold text-sm sm:text-base flex items-start gap-3">
+            <div className="mt-8 animate-fade-in-up flex justify-center">
+              <div className="inline-block bg-[#FF6B35]/10 border border-[#FF6B35]/30 rounded-2xl px-5 py-3 text-center max-w-[90%] sm:max-w-md">
+                <p className="text-[#FF6B35] font-montserrat font-semibold text-sm sm:text-base flex items-center justify-center gap-3">
                   <span className="text-xl leading-none">📢</span>
                   <span>
                     Od 1. května 2026 platí nový ceník. Při výběru květnového termínu uvidíte již aktualizované ceny.
@@ -1267,6 +1267,7 @@ const Booking = () => {
             </div>
           )}
         </div>
+
 
 
 
@@ -1388,12 +1389,22 @@ const Booking = () => {
                     <SelectValue placeholder="Vyberte službu" />
                   </SelectTrigger>
                   <SelectContent>
-                    {serviceOptions.map((service) => (
-                      <SelectItem key={service.id} value={service.name}>
-                        {service.name} - {service.priceCzk} Kč
-                      </SelectItem>
-                    ))}
+                    {serviceOptions.map((service) => {
+                      const dynamicPrice = deriveServiceFromName(service.name, bookingForm.date).priceCzk;
+                      // Format name for dropdown to match the Services section
+                      let displayName = service.name;
+                      if (displayName === "Dětský střih - fade") displayName = "Dětský střih - Fade";
+                      if (displayName === "Dětský střih - klasický") displayName = "Dětský střih - Klasický";
+
+                      return (
+                        <SelectItem key={service.id} value={service.name}>
+                          {displayName} - {dynamicPrice}{service.name === "Kompletka" && (!bookingForm.date || bookingForm.date >= "2026-05-01") ? "-650" : ""} Kč
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
+
+
                 </Select>
                 {errors.service && (
                   <p className="text-[#FF6B35] text-sm mt-1">{errors.service}</p>
