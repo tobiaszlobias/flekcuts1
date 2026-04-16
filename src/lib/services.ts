@@ -110,6 +110,10 @@ export const deriveServiceFromName = (
   return { baseName, durationMinutes, priceCzk };
 };
 
+export const formatServiceNameForDisplay = (name: string): string => {
+  return name.trim();
+};
+
 export const deriveServiceSelection = (args: {
   baseName: string;
   addBeard: boolean;
