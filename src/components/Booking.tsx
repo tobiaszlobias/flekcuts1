@@ -1270,7 +1270,21 @@ const Booking = () => {
               </p>
             </div>
           )}
+
+          {/* New Price Notice - Visible until May 7th */}
+          {new Date() < new Date("2026-05-07T00:00:00") && (
+            <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg text-left">
+              <p className="text-orange-800 text-sm font-medium flex items-start gap-2">
+                <span className="text-lg">📢</span>
+                <span>
+                  Upozornění: Od 1. května 2026 platí nový ceník. Při výběru květnového termínu uvidíte již aktualizované ceny.
+                </span>
+              </p>
+            </div>
+          )}
         </div>
+
+
 
         <Card
           className="rounded-xl border-0 shadow-lg"

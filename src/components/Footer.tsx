@@ -252,57 +252,68 @@ const CurrentStatus = () => {
   }>({ isOpen: false, message: "" });
 
   useEffect(() => {
-    const updateStatus = () => {
-      const now = new Date();
-      const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
-      const currentTime = now.getHours() * 100 + now.getMinutes(); // HHMM format
+      const updateStatus = () => {
+        const now = new Date();
+        const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        const currentTime = now.getHours() * 100 + now.getMinutes(); // HHMM format
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        const dateString = `${year}-${month}-${day}`;
 
-      let isOpen = false;
-      let message = "";
+        let isOpen = false;
+        let message = "";
 
-      switch (currentDay) {
-        case 1: // Monday
-        case 3: // Wednesday
-        case 5: // Friday
-          if (currentTime >= 730 && currentTime < 1530) {
-            isOpen = true;
-            message = "Nyní otevřeno";
-          } else if (currentTime < 730) {
-            message = "Otevřeno od 7:30";
-          } else {
-            if (currentDay === 5) {
-              message = "Zavřeno - otevřeno v pondělí od 7:30";
-            } else if (currentDay === 1 || currentDay === 3) {
-              message = "Zavřeno - otevřeno zítra od 9:00";
-            }
+        // Get working periods for today
+        let periods: Array<{ start: number; end: number }> = [];
+
+        // 1. Special Schedule for Apr 20 - Apr 24, 2026
+        if (dateString >= "2026-04-20" && dateString <= "2026-04-24") {
+          periods = [
+            { start: 900, end: 1100 },
+            { start: 1300, end: 1700 },
+            { start: 1730, end: 2100 },
+          ];
+        } 
+        // 2. New Schedule from May 1st, 2026
+        else if (dateString >= "2026-05-01") {
+          if (currentDay === 1 || currentDay === 3 || currentDay === 5) {
+            periods = [{ start: 730, end: 1530 }];
+          } else if (currentDay === 2 || currentDay === 4) {
+            periods = [{ start: 900, end: 2100 }];
           }
-          break;
-
-        case 2: // Tuesday
-        case 4: // Thursday
-          if ((currentTime >= 900 && currentTime < 1600) || (currentTime >= 1700 && currentTime < 2100)) {
-            isOpen = true;
-            message = "Nyní otevřeno";
-          } else if (currentTime < 900) {
-            message = "Otevřeno od 9:00";
-          } else if (currentTime >= 1600 && currentTime < 1700) {
-            message = "Pauza - otevřeno od 17:00";
-          } else {
-            message = "Zavřeno - otevřeno zítra od 7:30";
+        }
+        // 3. Default Schedule
+        else {
+          if (currentDay === 1 || currentDay === 2 || currentDay === 3 || currentDay === 5) {
+            periods = [
+              { start: 900, end: 1145 },
+              { start: 1300, end: 1700 },
+            ];
+          } else if (currentDay === 4) {
+            periods = [{ start: 1300, end: 1930 }];
           }
-          break;
+        }
 
-        case 6: // Saturday
-          message = "Zavřeno - otevřeno v pondělí od 7:30";
-          break;
+        const currentPeriod = periods.find(p => currentTime >= p.start && currentTime < p.end);
+        
+        if (currentPeriod) {
+          isOpen = true;
+          message = "Nyní otevřeno";
+        } else {
+          // Find next period today
+          const nextToday = periods.find(p => p.start > currentTime);
+          if (nextToday) {
+            const h = Math.floor(nextToday.start / 100);
+            const m = String(nextToday.start % 100).padStart(2, "0");
+            message = `Pauza - otevřeno od ${h}:${m}`;
+          } else {
+            message = "Nyní zavřeno";
+          }
+        }
 
-        case 0: // Sunday
-          message = "Zavřeno - otevřeno zítra od 7:30";
-          break;
-      }
-
-      setCurrentStatus({ isOpen, message });
-    };
+        setCurrentStatus({ isOpen, message });
+      };
 
     updateStatus();
     const interval = setInterval(updateStatus, 60000); // Update every minute
