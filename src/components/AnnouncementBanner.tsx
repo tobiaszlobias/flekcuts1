@@ -1,7 +1,7 @@
 "use client";
 
 const ANNOUNCEMENT_START = new Date("2026-03-10T00:00:00+01:00");
-const ANNOUNCEMENT_END = new Date("2026-05-07T00:00:00+02:00");
+const ANNOUNCEMENT_END = new Date("2026-05-30T00:00:00+02:00");
 
 export const isAnnouncementActive = () => {
   const now = new Date();

@@ -1253,12 +1253,12 @@ const Booking = () => {
             </div>
           )}
 
-          {/* New Price Notice - Visible until May 7th */}
-          {new Date() < new Date("2026-05-07T00:00:00") && (
-            <div className="mt-8 animate-fade-in-up flex justify-center">
-              <div className="inline-block bg-[#FF6B35]/10 border border-[#FF6B35]/30 rounded-2xl px-5 py-3 text-center max-w-[90%] sm:max-w-md">
-                <p className="text-[#FF6B35] font-montserrat font-semibold text-sm sm:text-base flex items-center justify-center gap-3">
-                  <span className="text-xl leading-none">📢</span>
+          {/* New Price Notice - Visible until May 30th */}
+          {new Date() < new Date("2026-05-30T00:00:00") && (
+            <div className="mt-8 animate-fade-in-up">
+              <div className="w-full bg-[#FF6B35]/5 border border-[#FF6B35]/20 rounded-2xl px-6 py-5 text-center">
+                <p className="text-[#FF6B35] font-montserrat font-semibold text-sm sm:text-base flex items-center justify-center gap-3 leading-relaxed">
+                  <span className="text-xl flex-shrink-0">📢</span>
                   <span>
                     Od 1. května 2026 platí nový ceník. Při výběru květnového termínu uvidíte již aktualizované ceny.
                   </span>
@@ -1267,6 +1267,7 @@ const Booking = () => {
             </div>
           )}
         </div>
+
 
 
 
