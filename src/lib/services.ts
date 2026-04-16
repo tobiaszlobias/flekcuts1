@@ -9,91 +9,121 @@ export type ServiceOption = {
   components?: string[];
 };
 
-const CURRENT_SERVICES: ServiceOption[] = [
+const HAIRCUTS: ServiceOption[] = [
+  { id: "fade", name: "Fade", priceCzk: 350, durationMinutes: 45, kind: "haircut" },
   {
-    id: "mens-cut",
-    name: "Panský střih",
-    priceCzk: 320,
-    durationMinutes: 60,
+    id: "classic",
+    name: "Klasický střih",
+    priceCzk: 250,
+    durationMinutes: 30,
     kind: "haircut",
   },
   {
-    id: "kids-cut",
-    name: "Dětský střih",
-    priceCzk: 280,
-    durationMinutes: 60,
+    id: "kids-fade",
+    name: "Dětský střih - fade",
+    priceCzk: 250,
+    durationMinutes: 45,
     kind: "haircut",
   },
   {
-    id: "complete-service",
-    name: "Kompletní servis",
-    priceCzk: 550,
-    durationMinutes: 90,
-    kind: "package",
-  },
-  {
-    id: "beard",
-    name: "Vousy",
+    id: "kids-classic",
+    name: "Dětský střih - klasický",
     priceCzk: 200,
-    durationMinutes: 15,
+    durationMinutes: 30,
+    kind: "haircut",
+  },
+];
+
+const ADDONS: ServiceOption[] = [
+  { id: "beard", name: "Vousy", priceCzk: 150, durationMinutes: 15, kind: "addon" },
+  {
+    id: "wash",
+    name: "Mytí vlasů",
+    priceCzk: 100,
+    durationMinutes: 10,
     kind: "addon",
   },
 ];
 
-const LEGACY_NAME_ALIASES: Record<string, string> = {
-  Fade: "Panský střih",
-  "Klasický střih": "Panský střih",
-  "Dětský střih - fade": "Dětský střih",
-  "Dětský střih - klasický": "Dětský střih",
-  "Dětský střih - do ztracena": "Dětský střih",
-  Kompletka: "Kompletní servis",
-  "Vlasy do ztracena + Vousy": "Kompletní servis",
+const PACKAGES: ServiceOption[] = [
+  {
+    id: "package-complete",
+    name: "Kompletka",
+    priceCzk: 500,
+    durationMinutes: 70,
+    kind: "package",
+  },
+];
+
+// New prices for May 1st onwards
+const MAY_PRICES: Record<string, number> = {
+  fade: 390,
+  classic: 250,
+  "kids-fade": 320,
+  "kids-classic": 250,
+  "package-complete": 500, // Starting price, will show as range in UI
 };
 
-export const SERVICE_OPTIONS: ServiceOption[] = CURRENT_SERVICES;
+export const SERVICE_OPTIONS: ServiceOption[] = [...HAIRCUTS, ...PACKAGES, ...ADDONS];
 
-export const BOOKING_DROPDOWN_SERVICES: ServiceOption[] = CURRENT_SERVICES;
+export const BOOKING_DROPDOWN_SERVICES: ServiceOption[] = [
+  ...HAIRCUTS,
+  ...PACKAGES,
+];
 
-export const getCanonicalServiceName = (name: string): string => {
-  const normalized = name.trim();
-  if (!normalized) return normalized;
-  return LEGACY_NAME_ALIASES[normalized] || normalized;
-};
-
-export const formatServiceNameForDisplay = (name: string): string => {
-  return getCanonicalServiceName(name);
+const NAME_ALIASES: Record<string, string> = {
+  "Dětský střih - do ztracena": "Dětský střih - fade",
+  "Dětský střih - klasický": "Dětský střih - klasický",
 };
 
 export const getServiceOptionByName = (name: string): ServiceOption | undefined => {
-  const canonicalName = getCanonicalServiceName(name);
-  return SERVICE_OPTIONS.find((service) => service.name === canonicalName);
+  const direct = SERVICE_OPTIONS.find((s) => s.name === name);
+  if (direct) return direct;
+  const alias = NAME_ALIASES[name];
+  if (!alias) return undefined;
+  return SERVICE_OPTIONS.find((s) => s.name === alias);
 };
 
 export const deriveServiceFromName = (
-  serviceName: string
+  serviceName: string,
+  dateString?: string
 ): { durationMinutes: number; priceCzk: number; baseName: string } => {
-  const canonicalName = getCanonicalServiceName(serviceName);
-  const service = getServiceOptionByName(canonicalName);
+  const normalized = serviceName.trim();
+  const baseName = normalized.split("+")[0]?.trim() || normalized;
+  const base = getServiceOptionByName(baseName);
 
-  return {
-    baseName: canonicalName,
-    durationMinutes: service?.durationMinutes ?? 30,
-    priceCzk: service?.priceCzk ?? 0,
-  };
+  let durationMinutes = base?.durationMinutes ?? 30;
+  let priceCzk = base?.priceCzk ?? 0;
+
+  // Apply May pricing if date is May 1st or later
+  if (dateString && base) {
+    const appDate = new Date(dateString + "T00:00:00");
+    const mayFirst = new Date("2026-05-01T00:00:00"); // Current year is 2026 in session
+    if (appDate >= mayFirst) {
+      const newPrice = MAY_PRICES[base.id];
+      if (newPrice !== undefined) {
+        priceCzk = newPrice;
+      }
+    }
+  }
+
+  return { baseName, durationMinutes, priceCzk };
 };
 
 export const deriveServiceSelection = (args: {
   baseName: string;
   addBeard: boolean;
   addWash: boolean;
+  date?: string;
 }): { displayName: string; durationMinutes: number; priceCzk: number } => {
-  const canonicalName = getCanonicalServiceName(args.baseName);
-  if (!canonicalName) return { displayName: "", durationMinutes: 0, priceCzk: 0 };
+  const baseName = args.baseName.trim();
+  if (!baseName) return { displayName: "", durationMinutes: 0, priceCzk: 0 };
 
-  const derived = deriveServiceFromName(canonicalName);
+  const derived = deriveServiceFromName(baseName, args.date);
   return {
-    displayName: canonicalName,
+    displayName: baseName,
     durationMinutes: derived.durationMinutes,
     priceCzk: derived.priceCzk,
   };
 };
+

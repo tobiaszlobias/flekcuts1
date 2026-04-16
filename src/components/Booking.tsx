@@ -24,9 +24,7 @@ import {
   BOOKING_DROPDOWN_SERVICES,
   deriveServiceFromName,
   deriveServiceSelection,
-  formatServiceNameForDisplay,
 } from "@/lib/services";
-import { isAnnouncementActive } from "@/components/AnnouncementBanner";
 import { useBodyScrollLock } from "@/lib/useBodyScrollLock";
 
 type Vacation = {
@@ -199,9 +197,7 @@ const BookingConfirmationModal = ({
             <div className="grid grid-cols-2 gap-y-3 gap-x-4">
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">Služba</p>
-                <p className="text-sm font-medium text-gray-900 mt-1">
-                  {formatServiceNameForDisplay(bookingDetails.service)}
-                </p>
+                <p className="text-sm font-medium text-gray-900 mt-1">{bookingDetails.service}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">Cena</p>
@@ -382,7 +378,6 @@ const CompactDateTimePicker = ({
   bookedTimes,
   vacations,
   isLoadingAvailability = false,
-  isTemporarilyUnavailable = false,
 }: {
   selectedDate: string;
   selectedTime: string;
@@ -392,7 +387,6 @@ const CompactDateTimePicker = ({
   bookedTimes: string[];
   vacations: Vacation[];
   isLoadingAvailability?: boolean;
-  isTemporarilyUnavailable?: boolean;
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showTimeSlots, setShowTimeSlots] = useState(!!selectedDate);
@@ -610,14 +604,7 @@ const CompactDateTimePicker = ({
             Dostupné časy - {formatDate(selectedDate)}
           </h4>
 
-          {isTemporarilyUnavailable ? (
-            <div className="py-6 text-center text-sm text-gray-600">
-              <span>
-                Rezervační systém je momentálně dočasně nedostupný. Zkuste to
-                prosím za chvíli.
-              </span>
-            </div>
-          ) : isLoadingAvailability ? (
+          {isLoadingAvailability ? (
             <div className="flex items-center justify-center gap-2 py-6 text-sm text-gray-600">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400" />
               <span>Načítám dostupné časy…</span>
@@ -726,7 +713,6 @@ const CompactDateTimePicker = ({
 
 const Booking = () => {
   const { isSignedIn } = useAuth();
-  const isTemporarilyUnavailable = true;
   const [bookingForm, setBookingForm] = useState<BookingForm>({
     name: "",
     email: "",
@@ -789,40 +775,72 @@ const Booking = () => {
     value !== null && value !== undefined;
 
   const serviceOptions = [
-    "Panský střih",
-    "Dětský střih",
+    "Fade",
+    "Klasický střih",
+    "Dětský střih - fade",
+    "Dětský střih - klasický",
     "Vousy",
-    "Kompletní servis",
+    "Mytí vlasů",
+    "Kompletka",
   ]
     .map((name) => BOOKING_DROPDOWN_SERVICES.find((s) => s.name === name))
     .filter(isDefined);
 
   const derivedSelection = deriveServiceSelection({
     baseName: bookingForm.service,
-    addBeard: false,
-    addWash: false,
+    addBeard: bookingForm.addBeard,
+    addWash: bookingForm.addWash,
+    date: bookingForm.date,
   });
 
   const getOpenSlotsForDate = (selectedDate: string): string[] => {
     if (!selectedDate) return [];
     const date = new Date(selectedDate + "T00:00:00");
     const dayOfWeek = date.getDay();
+    const dateString = selectedDate;
 
-    // Working hours:
-    // Mon/Wed/Fri: 07:30-15:30
-    // Tue/Thu:     09:00-16:00, 17:00-21:00
+    // Special Schedule for Apr 20 - Apr 24, 2026
+    if (dateString >= "2026-04-20" && dateString <= "2026-04-24") {
+      const schedule: Array<[number, number]> = [
+        [9 * 60, 11 * 60],
+        [13 * 60, 17 * 60],
+        [17 * 60 + 30, 21 * 60],
+      ];
+      return schedule.flatMap(([start, end]) => generateSlots(start, end, SLOT_MINUTES));
+    }
+
+    // New Schedule from May 1st, 2026
+    if (dateString >= "2026-05-01") {
+      const schedule: Record<number, Array<[number, number]>> = {
+        1: [[7 * 60 + 30, 15 * 60 + 30]], // Mon
+        2: [[9 * 60, 21 * 60]],          // Tue
+        3: [[7 * 60 + 30, 15 * 60 + 30]], // Wed
+        4: [[9 * 60, 21 * 60]],          // Thu
+        5: [[7 * 60 + 30, 15 * 60 + 30]], // Fri
+      };
+      const periods = schedule[dayOfWeek as keyof typeof schedule] || [];
+      return periods.flatMap(([start, end]) => generateSlots(start, end, SLOT_MINUTES));
+    }
+
+    // Default Schedule (Existing)
     const schedule: Record<number, Array<[number, number]>> = {
-      1: [[7 * 60 + 30, 15 * 60 + 30]],
+      1: [
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
+      ],
       2: [
-        [9 * 60, 16 * 60],
-        [17 * 60, 21 * 60],
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
       ],
-      3: [[7 * 60 + 30, 15 * 60 + 30]],
-      4: [
-        [9 * 60, 16 * 60],
-        [17 * 60, 21 * 60],
+      3: [
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
       ],
-      5: [[7 * 60 + 30, 15 * 60 + 30]],
+      4: [[13 * 60, 19 * 60 + 30]],
+      5: [
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
+      ],
     };
 
     const periods = schedule[dayOfWeek as keyof typeof schedule] || [];
@@ -833,21 +851,51 @@ const Booking = () => {
     if (!selectedDate) return [];
     const date = new Date(selectedDate + "T00:00:00");
     const dayOfWeek = date.getDay();
+    const dateString = selectedDate;
+
+    // Special Schedule for Apr 20 - Apr 24, 2026
+    if (dateString >= "2026-04-20" && dateString <= "2026-04-24") {
+      return [
+        [9 * 60, 11 * 60],
+        [13 * 60, 17 * 60],
+        [17 * 60 + 30, 21 * 60],
+      ];
+    }
+
+    // New Schedule from May 1st, 2026
+    if (dateString >= "2026-05-01") {
+      const schedule: Record<number, Array<[number, number]>> = {
+        1: [[7 * 60 + 30, 15 * 60 + 30]], // Mon
+        2: [[9 * 60, 21 * 60]],          // Tue
+        3: [[7 * 60 + 30, 15 * 60 + 30]], // Wed
+        4: [[9 * 60, 21 * 60]],          // Thu
+        5: [[7 * 60 + 30, 15 * 60 + 30]], // Fri
+      };
+      return schedule[dayOfWeek as keyof typeof schedule] || [];
+    }
+
     const schedule: Record<number, Array<[number, number]>> = {
-      1: [[7 * 60 + 30, 15 * 60 + 30]],
+      1: [
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
+      ],
       2: [
-        [9 * 60, 16 * 60],
-        [17 * 60, 21 * 60],
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
       ],
-      3: [[7 * 60 + 30, 15 * 60 + 30]],
-      4: [
-        [9 * 60, 16 * 60],
-        [17 * 60, 21 * 60],
+      3: [
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
       ],
-      5: [[7 * 60 + 30, 15 * 60 + 30]],
+      4: [[13 * 60, 19 * 60 + 30]],
+      5: [
+        [9 * 60, 11 * 60 + 45],
+        [13 * 60, 17 * 60],
+      ],
     };
     return schedule[dayOfWeek as keyof typeof schedule] || [];
   };
+
 
   const openSlots = getOpenSlotsForDate(bookingForm.date);
   const workingPeriods = getWorkingPeriodsForDate(bookingForm.date);
@@ -1124,14 +1172,31 @@ const Booking = () => {
     setBookingForm((prev) => {
       const next = { ...prev, [field]: value } as BookingForm;
       if (field === "service") {
-        next.addBeard = false;
-        next.addWash = false;
+        const baseName = value;
+        const isKompletka = baseName === "Kompletka";
+        next.addBeard = isKompletka ? false : prev.addBeard && baseName !== "Vousy";
+        next.addWash = isKompletka ? false : prev.addWash && baseName !== "Mytí vlasů";
       }
       return next;
     });
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
+  };
+
+  const setAddon = (addon: "beard" | "wash", enabled: boolean) => {
+    setBookingForm((prev) => {
+      const base = prev.service;
+      if (!base) return prev;
+      if (base === "Kompletka") return prev;
+      if (addon === "beard" && base === "Vousy") return prev;
+      if (addon === "wash" && base === "Mytí vlasů") return prev;
+      return {
+        ...prev,
+        addBeard: addon === "beard" ? enabled : prev.addBeard,
+        addWash: addon === "wash" ? enabled : prev.addWash,
+      };
+    });
   };
 
   const handlePhoneChange = (value: string) => {
@@ -1202,14 +1267,6 @@ const Booking = () => {
               <p className="text-[#FF6B35] font-medium">
                 ✅ Služba &quot;{bookingForm.service}&quot; byla automaticky
                 vybrána!{" "}
-              </p>
-            </div>
-          )}
-
-          {isAnnouncementActive() && (
-            <div className="relative mt-5 rounded-2xl border border-[#FF6B35]/35 bg-[linear-gradient(135deg,#FFE8DA_0%,#FFF3EC_50%,#FFFFFF_100%)] p-4 text-left shadow-[0_18px_42px_rgba(255,107,53,0.16)]">
-              <p className="font-montserrat text-sm font-semibold leading-relaxed text-gray-900 sm:text-base">
-                Od 1. dubna 2026 platí nová nabídka služeb, ceny a otevírací doba.
               </p>
             </div>
           )}
@@ -1334,7 +1391,7 @@ const Booking = () => {
                   <SelectContent>
                     {serviceOptions.map((service) => (
                       <SelectItem key={service.id} value={service.name}>
-                        {service.name} - od {service.priceCzk} Kč
+                        {service.name} - {service.priceCzk} Kč
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1345,16 +1402,30 @@ const Booking = () => {
 
                 <div className="mt-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-700 font-medium">Shrnutí služby</p>
+                    <p className="text-sm text-gray-700 font-medium">Podrobnosti</p>
+                    {!!bookingForm.service && (
+                      <p className="text-xs text-gray-500">
+                        {derivedSelection.priceCzk}{bookingForm.service === "Kompletka" ? "-650" : ""} Kč •{" "}
+                        {derivedSelection.durationMinutes} min
+                      </p>
+                    )}
                   </div>
 
-                  {!!bookingForm.service && (
+                  {bookingForm.service === "Kompletka" && (
                     <p className="text-xs text-gray-500 mt-2">
-                      Cena od {derivedSelection.priceCzk} Kč • {derivedSelection.durationMinutes} min
+                      Kompletka zahrnuje střih, vousy i mytí vlasů. Cena se může lišit podle náročnosti (500-650 Kč).
                     </p>
                   )}
+                  {bookingForm.service && bookingForm.service !== "Kompletka" && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      Mytí hlavy je možné po domluvě na místě za 30 Kč. Pro úpravu vousů zvolte službu "Kompletka".
+                    </p>
+                  )}
+
+
                 </div>
               </div>
+
 
               <div
                 ref={(el) => {
@@ -1379,7 +1450,6 @@ const Booking = () => {
                     bookedTimes={bookedTimes}
                     vacations={vacations}
                     isLoadingAvailability={isAvailabilityLoading}
-                    isTemporarilyUnavailable={isTemporarilyUnavailable}
                   />
                 </div>
 
@@ -1410,7 +1480,7 @@ const Booking = () => {
 
               <Button
                 type="submit"
-                disabled={isSubmitting || isTemporarilyUnavailable}
+                disabled={isSubmitting}
                 className="w-full font-montserrat bg-[#FF6B35] hover:!bg-[#FF6B35] text-white !border-none px-12 rounded-full text-xl sm:text-2xl hover:scale-105 active:scale-99 transition-all duration-200 relative overflow-visible group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed h-[60px] sm:h-[64px] flex items-center justify-center shadow-none outline-none focus:outline-none focus-visible:ring-0"
               >
                 {isSubmitting ? (

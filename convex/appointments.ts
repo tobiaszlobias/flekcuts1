@@ -161,19 +161,39 @@ type Interval = { start: number; end: number };
 
 const getWorkingHoursForDate = (dateString: string): Interval[] => {
   // Working hours (Prague local):
-  // Mon/Wed/Fri: 07:30-15:30
-  // Tue/Thu:     09:00-16:00, 17:00-21:00
+  // Mon/Wed/Fri: 09:00–11:45, 13:00–17:00
+  // Tue:         09:00–11:45, 13:00–17:00
+  // Thu:         13:00–19:30
   // Sat/Sun: closed
   const weekday = getWeekdayIndexInPrague(dateString);
-  const monWedFri: Interval[] = [
-    { start: 7 * 60 + 30, end: 15 * 60 + 30 },
+
+  // Special Schedule for Apr 20 - Apr 24, 2026
+  if (dateString >= "2026-04-20" && dateString <= "2026-04-24") {
+    return [
+      { start: 9 * 60, end: 11 * 60 },
+      { start: 13 * 60, end: 17 * 60 },
+      { start: 17 * 60 + 30, end: 21 * 60 },
+    ];
+  }
+
+  // New Schedule from May 1st, 2026
+  if (dateString >= "2026-05-01") {
+    if (weekday === 1 || weekday === 3 || weekday === 5) {
+      return [{ start: 7 * 60 + 30, end: 15 * 60 + 30 }];
+    }
+    if (weekday === 2 || weekday === 4) {
+      return [{ start: 9 * 60, end: 21 * 60 }];
+    }
+    return [];
+  }
+
+  const monTueWedFri: Interval[] = [
+    { start: 9 * 60, end: 11 * 60 + 45 },
+    { start: 13 * 60, end: 17 * 60 },
   ];
-  const tueThu: Interval[] = [
-    { start: 9 * 60, end: 16 * 60 },
-    { start: 17 * 60, end: 21 * 60 },
-  ];
-  if (weekday === 1 || weekday === 3 || weekday === 5) return monWedFri;
-  if (weekday === 2 || weekday === 4) return tueThu;
+
+  if (weekday === 1 || weekday === 2 || weekday === 3 || weekday === 5) return monTueWedFri;
+  if (weekday === 4) return [{ start: 13 * 60, end: 19 * 60 + 30 }];
   return [];
 };
 
@@ -183,21 +203,6 @@ const isWithinWorkingHours = (dateString: string, start: number, end: number): b
 };
 
 const overlaps = (a1: number, a2: number, b1: number, b2: number) => a1 < b2 && b1 < a2;
-
-const SERVICE_NAME_ALIASES: Record<string, string> = {
-  Fade: "Panský střih",
-  "Klasický střih": "Panský střih",
-  "Dětský střih - fade": "Dětský střih",
-  "Dětský střih - klasický": "Dětský střih",
-  "Dětský střih - do ztracena": "Dětský střih",
-  Kompletka: "Kompletní servis",
-  "Vlasy do ztracena + Vousy": "Kompletní servis",
-};
-
-const normalizeServiceName = (serviceName: string): string => {
-  const normalized = serviceName.trim();
-  return SERVICE_NAME_ALIASES[normalized] || normalized;
-};
 
 const getVacationIntervalsForDate = async (ctx: any, date: string): Promise<Interval[]> => {
   const vacations = await ctx.db.query("vacations").collect();
@@ -218,13 +223,40 @@ const getVacationIntervalsForDate = async (ctx: any, date: string): Promise<Inte
 };
 
 const deriveServiceDurationMinutes = (serviceName: string): number => {
-  const normalized = normalizeServiceName(serviceName);
+  const normalized = serviceName.trim();
+  const lower = normalized.toLowerCase();
 
-  if (normalized === "Panský střih") return 60;
-  if (normalized === "Dětský střih") return 60;
+  if (normalized === "Fade") return 45;
+  if (normalized === "Klasický střih") return 30;
+  if (lower.includes("dětský") && lower.includes("fade")) return 45;
+  if (lower.includes("dětský") && (lower.includes("klasik") || lower.includes("klasický"))) return 30;
   if (normalized === "Vousy") return 15;
-  if (normalized === "Kompletní servis") return 90;
-  return 30;
+  if (normalized === "Mytí vlasů") return 10;
+  if (normalized === "Kompletka") return 70;
+  if (normalized === "Vlasy do ztracena + Vousy") return 65;
+
+  const hasBeard = normalized.includes("+ Vousy");
+  const hasWash = normalized.includes("+ Mytí vlasů");
+
+  let base: number | null = null;
+  if (normalized.startsWith("Fade")) base = 45;
+  if (normalized.startsWith("Klasický střih")) base = 30;
+  if (lower.includes("dětský") && lower.includes("fade")) base = 45;
+  if (lower.includes("dětský") && (lower.includes("klasik") || lower.includes("klasický"))) base = 30;
+  if (normalized.startsWith("Vousy")) base = 15;
+  if (normalized.startsWith("Mytí vlasů")) base = 10;
+
+
+  if (base === null) return 30;
+
+  if (normalized.startsWith("Fade") && hasBeard) {
+    base = 65;
+  } else if (hasBeard) {
+    base += 15;
+  }
+
+  if (hasWash) base += 10;
+  return base;
 };
 
 // 🆕 NEW: Link anonymous appointments to authenticated user
