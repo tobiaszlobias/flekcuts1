@@ -1184,21 +1184,6 @@ const Booking = () => {
     }
   };
 
-  const setAddon = (addon: "beard" | "wash", enabled: boolean) => {
-    setBookingForm((prev) => {
-      const base = prev.service;
-      if (!base) return prev;
-      if (base === "Kompletka") return prev;
-      if (addon === "beard" && base === "Vousy") return prev;
-      if (addon === "wash" && base === "Mytí vlasů") return prev;
-      return {
-        ...prev,
-        addBeard: addon === "beard" ? enabled : prev.addBeard,
-        addWash: addon === "wash" ? enabled : prev.addWash,
-      };
-    });
-  };
-
   const handlePhoneChange = (value: string) => {
     const formatted = formatPhoneInput(value);
     setBookingForm((prev) => ({ ...prev, phone: formatted }));
@@ -1567,6 +1552,31 @@ const Booking = () => {
           100% {
             transform: rotate(360deg);
           }
+        }
+
+        .animate-shimmer {
+          animation: shimmer 4s ease-in-out infinite;
+        }
+
+        .animate-border-rotate {
+          animation: borderRotate 6s linear infinite;
+          pointer-events: none;
+        }
+
+        .group:hover .animate-shimmer {
+          animation: shimmer 1.5s ease-in-out infinite;
+        }
+
+        .group:hover .animate-border-rotate {
+          animation: borderRotate 2s linear infinite;
+        }
+      `}</style>
+    </section>
+  );
+};
+
+export default Booking;
+         }
         }
 
         .animate-shimmer {

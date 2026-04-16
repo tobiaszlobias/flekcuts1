@@ -92,7 +92,7 @@ export const deriveServiceFromName = (
   const baseName = normalized.split("+")[0]?.trim() || normalized;
   const base = getServiceOptionByName(baseName);
 
-  let durationMinutes = base?.durationMinutes ?? 30;
+  const durationMinutes = base?.durationMinutes ?? 30;
   let priceCzk = base?.priceCzk ?? 0;
 
   // Apply May pricing if date is May 1st or later
