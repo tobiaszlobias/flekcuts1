@@ -127,12 +127,8 @@ const BookingConfirmationModal = ({
     });
   };
 
-  const getServicePrice = (serviceName: string): number => {
-    return deriveServiceFromName(serviceName).priceCzk || 0;
-  };
-
-  const getServiceDurationMinutes = (serviceName: string): number => {
-    return deriveServiceFromName(serviceName).durationMinutes || 0;
+  const getServicePrice = (serviceName: string, date: string): number => {
+    return deriveServiceFromName(serviceName, date).priceCzk || 0;
   };
 
   if (!isOpen || !isMounted) return null;
@@ -201,7 +197,7 @@ const BookingConfirmationModal = ({
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">Cena</p>
-                <p className="text-sm font-medium text-gray-900 mt-1">{getServicePrice(bookingDetails.service)} Kč</p>
+                <p className="text-sm font-medium text-gray-900 mt-1">{getServicePrice(bookingDetails.service, bookingDetails.date)} Kč</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">Datum</p>
@@ -214,9 +210,10 @@ const BookingConfirmationModal = ({
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">Délka</p>
                 <p className="text-sm font-medium text-gray-900 mt-1">
-                  {getServiceDurationMinutes(bookingDetails.service)} min
+                  {deriveServiceFromName(bookingDetails.service, bookingDetails.date).durationMinutes} min
                 </p>
               </div>
+
             </div>
 
             <div className="border-t border-gray-200 pt-3 space-y-2">
