@@ -17,7 +17,7 @@ const AnnouncementBanner = () => {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
         <div className="relative rounded-2xl border border-[#FF6B35]/35 bg-[linear-gradient(135deg,rgba(255,255,255,0.96)_0%,rgba(255,244,238,0.98)_100%)] px-5 py-4 shadow-[0_18px_44px_rgba(255,107,53,0.18)] backdrop-blur-sm sm:px-6">
           <p className="font-montserrat text-sm font-semibold leading-relaxed text-gray-900 sm:text-base">
-            Od 1. dubna 2026 platí nová nabídka služeb, ceny a otevírací doba.
+            Od 1. května 2026 platí nová nabídka služeb, ceny a otevírací doba.
           </p>
         </div>
       </div>

@@ -65,7 +65,7 @@ const Services = () => {
     },
 
     {
-      name: "Dětský střih - Klasik",
+      name: "Dětský střih - Klasický",
       description: "Stylový střih s důrazem na detail a pohodlí vašeho dítěte",
       price: 250,
       preselectServiceName: "Dětský střih - klasický",
