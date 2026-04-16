@@ -1576,28 +1576,3 @@ const Booking = () => {
 };
 
 export default Booking;
-         }
-        }
-
-        .animate-shimmer {
-          animation: shimmer 4s ease-in-out infinite;
-        }
-
-        .animate-border-rotate {
-          animation: borderRotate 6s linear infinite;
-          pointer-events: none;
-        }
-
-        .group:hover .animate-shimmer {
-          animation: shimmer 1.5s ease-in-out infinite;
-        }
-
-        .group:hover .animate-border-rotate {
-          animation: borderRotate 2s linear infinite;
-        }
-      `}</style>
-    </section>
-  );
-};
-
-export default Booking;
