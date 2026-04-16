@@ -43,7 +43,7 @@ const Services = () => {
     {
       name: "Fade",
       description: "Precizní přechody od nuly s dokonalým vyblednutím",
-      price: 350,
+      price: 390,
       imageUrl: "/fade.png",
       preselectServiceName: "Fade",
     },
@@ -51,37 +51,35 @@ const Services = () => {
       name: "Klasický střih",
       description: "Elegantní střih s plynulými přechody do ztracena",
       price: 250,
-      imageUrl: "/klasicky.jpg",
       preselectServiceName: "Klasický střih",
     },
   ];
 
+
   const otherServices: ServiceCard[] = [
     {
-      name: "Dětský střih",
+      name: "Dětský střih - Fade",
       description: "Speciální péče pro děti do 10 let v příjemném prostředí",
+      price: 320,
+      preselectServiceName: "Dětský střih - fade",
+    },
+
+    {
+      name: "Dětský střih - Klasik",
+      description: "Stylový střih s důrazem na detail a pohodlí vašeho dítěte",
       price: 250,
       preselectServiceName: "Dětský střih - klasický",
     },
     {
-      name: "Vousy",
-      description: "Profesionální úprava a konturování vousů břitvou",
-      price: 150,
-      preselectServiceName: "Vousy",
-    },
-    {
-      name: "Mytí vlasů",
-      description: "Relaxační mytí s kvalitním šamponem a kondicionérem",
-      price: 100,
-      preselectServiceName: "Mytí vlasů",
-    },
-    {
       name: "Kompletka",
-      description: "Kompletní péče - střih, vousy, obočí a mytí vlasů",
+      description: "Kompletní servis pro dokonalý refresh – střih, úprava vousů a mytí vlasů",
       price: 500,
       preselectServiceName: "Kompletka",
     },
   ];
+
+
+
 
   useEffect(() => {
     const items = itemRefs.current.slice();
@@ -223,26 +221,28 @@ const Services = () => {
                   </div>
 
 	                  {/* Image */}
-	                  <div className="relative w-full h-48 md:w-1/2 md:h-80 overflow-hidden bg-custom-orange">
-	                    {service.imageUrl ? (
+	                  {service.imageUrl && (
+	                    <div className="relative w-full h-48 md:w-1/2 md:h-80 overflow-hidden bg-custom-orange">
 	                      <Image
 	                        src={service.imageUrl}
 	                        alt={service.name}
 	                        fill
 	                        sizes="(max-width: 768px) 100vw, 50vw"
-	                        className="object-contain"
+	                        className="object-contain scale-[1.65] -translate-y-12 pointer-events-none select-none"
+	                        draggable={false}
 	                        priority={index === 0}
 	                      />
-	                    ) : null}
-	                  </div>
+	                    </div>
+	                  )}
 	                </div>
 	              </div>
+
 	            </div>
 	          ))}
         </div>
 
         {/* Other Services - Compact Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {otherServices.map((service, index) => {
             const actualIndex = featuredServices.length + index;
             return (
@@ -276,7 +276,7 @@ const Services = () => {
                   </p>
                   <div className="flex items-center justify-between mt-auto">
                     <span className="font-montserrat text-3xl font-bold text-[#FF6B35]">
-                      {service.price} Kč
+                      {service.name === "Kompletka" ? "500-650" : service.price} Kč
                     </span>
                     <span className="font-crimson italic text-[#FF6B35] text-2xl font-medium">
                       →
@@ -287,8 +287,26 @@ const Services = () => {
             );
           })}
         </div>
+
+        {/* Note about extra services */}
+        <div 
+          className="mt-12 text-center"
+          style={{
+            opacity: isSectionVisible ? 1 : 0,
+            transform: isSectionVisible ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'opacity 0.4s ease-out 0.6s, transform 0.4s ease-out 0.6s',
+            visibility: isSectionVisible ? 'visible' : 'hidden'
+          }}
+        >
+          <p className="font-montserrat text-gray-500 text-sm sm:text-base italic">
+            * Mytí vlasů je možné po domluvě na místě za 30 Kč, pokud budete chtít nebo to bude potřeba.
+          </p>
+        </div>
+
+
       </div>
     </section>
+
   );
 };
 

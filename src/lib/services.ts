@@ -55,16 +55,25 @@ const PACKAGES: ServiceOption[] = [
   },
 ];
 
+// New prices for May 1st onwards
+const MAY_PRICES: Record<string, number> = {
+  fade: 390,
+  classic: 250,
+  "kids-fade": 320,
+  "kids-classic": 250,
+  "package-complete": 500, // Starting price, will show as range in UI
+};
+
 export const SERVICE_OPTIONS: ServiceOption[] = [...HAIRCUTS, ...PACKAGES, ...ADDONS];
 
 export const BOOKING_DROPDOWN_SERVICES: ServiceOption[] = [
   ...HAIRCUTS,
-  ...ADDONS,
   ...PACKAGES,
 ];
 
 const NAME_ALIASES: Record<string, string> = {
-  "Dětský střih - do ztracena": "Dětský střih - klasický",
+  "Dětský střih - do ztracena": "Dětský střih - fade",
+  "Dětský střih - klasický": "Dětský střih - klasický",
 };
 
 export const getServiceOptionByName = (name: string): ServiceOption | undefined => {
@@ -75,50 +84,27 @@ export const getServiceOptionByName = (name: string): ServiceOption | undefined 
   return SERVICE_OPTIONS.find((s) => s.name === alias);
 };
 
-const includesBeard = (serviceName: string) => serviceName.includes("+ Vousy");
-const includesWash = (serviceName: string) => serviceName.includes("+ Mytí vlasů");
-
 export const deriveServiceFromName = (
-  serviceName: string
+  serviceName: string,
+  dateString?: string
 ): { durationMinutes: number; priceCzk: number; baseName: string } => {
   const normalized = serviceName.trim();
-
-  // Legacy naming (kept for existing bookings)
-  if (normalized === "Vlasy do ztracena + Vousy") {
-    return { baseName: "Fade", durationMinutes: 65, priceCzk: 350 + 150 };
-  }
-
   const baseName = normalized.split("+")[0]?.trim() || normalized;
   const base = getServiceOptionByName(baseName);
-  const beard = getServiceOptionByName("Vousy");
-  const wash = getServiceOptionByName("Mytí vlasů");
 
   let durationMinutes = base?.durationMinutes ?? 30;
   let priceCzk = base?.priceCzk ?? 0;
 
-  const beardSelected = baseName !== "Vousy" && includesBeard(normalized);
-  const washSelected = baseName !== "Mytí vlasů" && includesWash(normalized);
-
-  if (baseName === "Kompletka") {
-    return {
-      baseName: "Kompletka",
-      durationMinutes: base?.durationMinutes ?? 70,
-      priceCzk: base?.priceCzk ?? 500,
-    };
-  }
-
-  if (beardSelected) {
-    priceCzk += beard?.priceCzk ?? 0;
-    durationMinutes += beard?.durationMinutes ?? 15;
-    if (baseName === "Fade") {
-      // Special-case per your list: Fade + Vousy = 65 min.
-      durationMinutes = 65;
+  // Apply May pricing if date is May 1st or later
+  if (dateString && base) {
+    const appDate = new Date(dateString + "T00:00:00");
+    const mayFirst = new Date("2026-05-01T00:00:00"); // Current year is 2026 in session
+    if (appDate >= mayFirst) {
+      const newPrice = MAY_PRICES[base.id];
+      if (newPrice !== undefined) {
+        priceCzk = newPrice;
+      }
     }
-  }
-
-  if (washSelected) {
-    priceCzk += wash?.priceCzk ?? 0;
-    durationMinutes += wash?.durationMinutes ?? 10;
   }
 
   return { baseName, durationMinutes, priceCzk };
@@ -128,23 +114,16 @@ export const deriveServiceSelection = (args: {
   baseName: string;
   addBeard: boolean;
   addWash: boolean;
+  date?: string;
 }): { displayName: string; durationMinutes: number; priceCzk: number } => {
   const baseName = args.baseName.trim();
   if (!baseName) return { displayName: "", durationMinutes: 0, priceCzk: 0 };
 
-  if (baseName === "Kompletka") {
-    const base = getServiceOptionByName("Kompletka");
-    return {
-      displayName: "Kompletka",
-      durationMinutes: base?.durationMinutes ?? 70,
-      priceCzk: base?.priceCzk ?? 500,
-    };
-  }
-
-  let displayName = baseName;
-  if (args.addBeard && baseName !== "Vousy") displayName += " + Vousy";
-  if (args.addWash && baseName !== "Mytí vlasů") displayName += " + Mytí vlasů";
-
-  const derived = deriveServiceFromName(displayName);
-  return { displayName, durationMinutes: derived.durationMinutes, priceCzk: derived.priceCzk };
+  const derived = deriveServiceFromName(baseName, args.date);
+  return {
+    displayName: baseName,
+    durationMinutes: derived.durationMinutes,
+    priceCzk: derived.priceCzk,
+  };
 };
+

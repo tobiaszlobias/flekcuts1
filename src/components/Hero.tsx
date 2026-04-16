@@ -191,7 +191,17 @@ const Hero = () => {
 		        </div>
 
         <div className="max-w-7xl mx-auto text-center relative z-10">
+          {/* Price Change Notice */}
+          <div className="mb-8 animate-fade-in-up">
+            <div className="inline-block bg-[#FF6B35]/10 border border-[#FF6B35]/30 rounded-full px-6 py-2">
+              <p className="text-[#FF6B35] font-montserrat font-semibold text-sm sm:text-base">
+                📢 Od 1. května změna cen. Zkontrolujte prosím nový ceník.
+              </p>
+            </div>
+          </div>
+
           {/* Main Heading - Largest (Golden Ratio Base) */}
+
           <h1 className="font-crimson font-extrabold italic text-6xl sm:text-7xl lg:text-8xl xl:text-9xl text-gray-900 mb-6 leading-tight animate-fade-in-up">
             Zase to přerostlo?
           </h1>

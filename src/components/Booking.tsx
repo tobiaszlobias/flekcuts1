@@ -790,15 +790,39 @@ const Booking = () => {
     baseName: bookingForm.service,
     addBeard: bookingForm.addBeard,
     addWash: bookingForm.addWash,
+    date: bookingForm.date,
   });
 
   const getOpenSlotsForDate = (selectedDate: string): string[] => {
     if (!selectedDate) return [];
     const date = new Date(selectedDate + "T00:00:00");
     const dayOfWeek = date.getDay();
+    const dateString = selectedDate;
 
-    // Working hours with a lunch break on Mon/Tue/Wed/Fri: 09:00-11:45, 13:00-17:00
-    // Thu: 13:00-19:30
+    // Special Schedule for Apr 20 - Apr 24, 2026
+    if (dateString >= "2026-04-20" && dateString <= "2026-04-24") {
+      const schedule: Array<[number, number]> = [
+        [9 * 60, 11 * 60],
+        [13 * 60, 17 * 60],
+        [17 * 60 + 30, 21 * 60],
+      ];
+      return schedule.flatMap(([start, end]) => generateSlots(start, end, SLOT_MINUTES));
+    }
+
+    // New Schedule from May 1st, 2026
+    if (dateString >= "2026-05-01") {
+      const schedule: Record<number, Array<[number, number]>> = {
+        1: [[7 * 60 + 30, 15 * 60 + 30]], // Mon
+        2: [[9 * 60, 21 * 60]],          // Tue
+        3: [[7 * 60 + 30, 15 * 60 + 30]], // Wed
+        4: [[9 * 60, 21 * 60]],          // Thu
+        5: [[7 * 60 + 30, 15 * 60 + 30]], // Fri
+      };
+      const periods = schedule[dayOfWeek as keyof typeof schedule] || [];
+      return periods.flatMap(([start, end]) => generateSlots(start, end, SLOT_MINUTES));
+    }
+
+    // Default Schedule (Existing)
     const schedule: Record<number, Array<[number, number]>> = {
       1: [
         [9 * 60, 11 * 60 + 45],
@@ -827,6 +851,29 @@ const Booking = () => {
     if (!selectedDate) return [];
     const date = new Date(selectedDate + "T00:00:00");
     const dayOfWeek = date.getDay();
+    const dateString = selectedDate;
+
+    // Special Schedule for Apr 20 - Apr 24, 2026
+    if (dateString >= "2026-04-20" && dateString <= "2026-04-24") {
+      return [
+        [9 * 60, 11 * 60],
+        [13 * 60, 17 * 60],
+        [17 * 60 + 30, 21 * 60],
+      ];
+    }
+
+    // New Schedule from May 1st, 2026
+    if (dateString >= "2026-05-01") {
+      const schedule: Record<number, Array<[number, number]>> = {
+        1: [[7 * 60 + 30, 15 * 60 + 30]], // Mon
+        2: [[9 * 60, 21 * 60]],          // Tue
+        3: [[7 * 60 + 30, 15 * 60 + 30]], // Wed
+        4: [[9 * 60, 21 * 60]],          // Thu
+        5: [[7 * 60 + 30, 15 * 60 + 30]], // Fri
+      };
+      return schedule[dayOfWeek as keyof typeof schedule] || [];
+    }
+
     const schedule: Record<number, Array<[number, number]>> = {
       1: [
         [9 * 60, 11 * 60 + 45],
@@ -848,6 +895,7 @@ const Booking = () => {
     };
     return schedule[dayOfWeek as keyof typeof schedule] || [];
   };
+
 
   const openSlots = getOpenSlotsForDate(bookingForm.date);
   const workingPeriods = getWorkingPeriodsForDate(bookingForm.date);
@@ -1354,58 +1402,30 @@ const Booking = () => {
 
                 <div className="mt-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-700 font-medium">Přidat</p>
-                    {!!bookingForm.service && bookingForm.service !== "Kompletka" && (
+                    <p className="text-sm text-gray-700 font-medium">Podrobnosti</p>
+                    {!!bookingForm.service && (
                       <p className="text-xs text-gray-500">
-                        Celkem: {derivedSelection.priceCzk} Kč •{" "}
+                        {derivedSelection.priceCzk}{bookingForm.service === "Kompletka" ? "-650" : ""} Kč •{" "}
                         {derivedSelection.durationMinutes} min
                       </p>
                     )}
                   </div>
 
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setAddon("beard", !bookingForm.addBeard)}
-                      disabled={
-                        !bookingForm.service ||
-                        bookingForm.service === "Kompletka" ||
-                        bookingForm.service === "Vousy"
-                      }
-                      className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
-                        bookingForm.addBeard
-                          ? "border-[#FF6B35] bg-[#FF6B35]/10 text-[#FF6B35] font-medium"
-                          : "border-gray-300 text-gray-700 hover:border-[#FF6B35]"
-                      } disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed`}
-                    >
-                      Vousy (+150 Kč)
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setAddon("wash", !bookingForm.addWash)}
-                      disabled={
-                        !bookingForm.service ||
-                        bookingForm.service === "Kompletka" ||
-                        bookingForm.service === "Mytí vlasů"
-                      }
-                      className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
-                        bookingForm.addWash
-                          ? "border-[#FF6B35] bg-[#FF6B35]/10 text-[#FF6B35] font-medium"
-                          : "border-gray-300 text-gray-700 hover:border-[#FF6B35]"
-                      } disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed`}
-                    >
-                      Mytí vlasů (+100 Kč)
-                    </button>
-                  </div>
-
                   {bookingForm.service === "Kompletka" && (
                     <p className="text-xs text-gray-500 mt-2">
-                      Kompletka už zahrnuje vousy i mytí vlasů.
+                      Kompletka zahrnuje střih, vousy i mytí vlasů. Cena se může lišit podle náročnosti (500-650 Kč).
                     </p>
                   )}
+                  {bookingForm.service && bookingForm.service !== "Kompletka" && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      Mytí hlavy je možné po domluvě na místě za 30 Kč. Pro úpravu vousů zvolte službu "Kompletka".
+                    </p>
+                  )}
+
+
                 </div>
               </div>
+
 
               <div
                 ref={(el) => {

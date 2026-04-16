@@ -166,10 +166,32 @@ const getWorkingHoursForDate = (dateString: string): Interval[] => {
   // Thu:         13:00–19:30
   // Sat/Sun: closed
   const weekday = getWeekdayIndexInPrague(dateString);
+
+  // Special Schedule for Apr 20 - Apr 24, 2026
+  if (dateString >= "2026-04-20" && dateString <= "2026-04-24") {
+    return [
+      { start: 9 * 60, end: 11 * 60 },
+      { start: 13 * 60, end: 17 * 60 },
+      { start: 17 * 60 + 30, end: 21 * 60 },
+    ];
+  }
+
+  // New Schedule from May 1st, 2026
+  if (dateString >= "2026-05-01") {
+    if (weekday === 1 || weekday === 3 || weekday === 5) {
+      return [{ start: 7 * 60 + 30, end: 15 * 60 + 30 }];
+    }
+    if (weekday === 2 || weekday === 4) {
+      return [{ start: 9 * 60, end: 21 * 60 }];
+    }
+    return [];
+  }
+
   const monTueWedFri: Interval[] = [
     { start: 9 * 60, end: 11 * 60 + 45 },
     { start: 13 * 60, end: 17 * 60 },
   ];
+
   if (weekday === 1 || weekday === 2 || weekday === 3 || weekday === 5) return monTueWedFri;
   if (weekday === 4) return [{ start: 13 * 60, end: 19 * 60 + 30 }];
   return [];
@@ -202,12 +224,12 @@ const getVacationIntervalsForDate = async (ctx: any, date: string): Promise<Inte
 
 const deriveServiceDurationMinutes = (serviceName: string): number => {
   const normalized = serviceName.trim();
+  const lower = normalized.toLowerCase();
 
   if (normalized === "Fade") return 45;
   if (normalized === "Klasický střih") return 30;
-  if (normalized === "Dětský střih - fade") return 45;
-  if (normalized === "Dětský střih - klasický") return 30;
-  if (normalized === "Dětský střih - do ztracena") return 30;
+  if (lower.includes("dětský") && lower.includes("fade")) return 45;
+  if (lower.includes("dětský") && (lower.includes("klasik") || lower.includes("klasický"))) return 30;
   if (normalized === "Vousy") return 15;
   if (normalized === "Mytí vlasů") return 10;
   if (normalized === "Kompletka") return 70;
@@ -219,10 +241,11 @@ const deriveServiceDurationMinutes = (serviceName: string): number => {
   let base: number | null = null;
   if (normalized.startsWith("Fade")) base = 45;
   if (normalized.startsWith("Klasický střih")) base = 30;
-  if (normalized.startsWith("Dětský střih - fade")) base = 45;
-  if (normalized.startsWith("Dětský střih - klasický")) base = 30;
+  if (lower.includes("dětský") && lower.includes("fade")) base = 45;
+  if (lower.includes("dětský") && (lower.includes("klasik") || lower.includes("klasický"))) base = 30;
   if (normalized.startsWith("Vousy")) base = 15;
   if (normalized.startsWith("Mytí vlasů")) base = 10;
+
 
   if (base === null) return 30;
 
