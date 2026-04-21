@@ -632,9 +632,16 @@ const CompactDateTimePicker = ({
                 };
 
                 const displayedTimes = (() => {
-                  if (!selectedTime) return availableStartTimes;
-                  if (availableStartTimes.includes(selectedTime)) return availableStartTimes;
-                  return [selectedTime, ...availableStartTimes];
+                  const base = (() => {
+                    if (!selectedTime) return availableStartTimes;
+                    if (availableStartTimes.includes(selectedTime)) return availableStartTimes;
+                    return [selectedTime, ...availableStartTimes];
+                  })();
+
+                  // Only show times that are either available for selection, 
+                  // or are already booked by someone else. 
+                  // This hides times that would bleed into breaks/closing.
+                  return base.filter(t => availableStartTimes.includes(t) || bookedTimes.includes(t));
                 })()
                   .slice()
                   .sort((a, b) => timeToMinutes(a) - timeToMinutes(b));
@@ -717,7 +724,7 @@ const Booking = () => {
     notes: "",
     date: "",
     time: "",
-    service: "",
+    service: "Fade",
     addBeard: false,
     addWash: false,
   });
