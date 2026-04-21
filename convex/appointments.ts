@@ -161,39 +161,28 @@ type Interval = { start: number; end: number };
 
 const getWorkingHoursForDate = (dateString: string): Interval[] => {
   // Working hours (Prague local):
-  // Mon/Wed/Fri: 09:00–11:45, 13:00–17:00
-  // Tue:         09:00–11:45, 13:00–17:00
-  // Thu:         13:00–19:30
+  // Mon/Wed/Fri: 07:30–11:00, 12:00–15:30
+  // Tue/Thu:     09:00–12:00, 13:00–16:00, 17:00–21:00
   // Sat/Sun: closed
   const weekday = getWeekdayIndexInPrague(dateString);
 
-  // Special Schedule for Apr 20 - Apr 24, 2026
-  if (dateString >= "2026-04-20" && dateString <= "2026-04-24") {
+  // Mon, Wed, Fri
+  if (weekday === 1 || weekday === 3 || weekday === 5) {
     return [
-      { start: 9 * 60, end: 11 * 60 },
-      { start: 13 * 60, end: 17 * 60 },
-      { start: 17 * 60 + 30, end: 21 * 60 },
+      { start: 7 * 60 + 30, end: 11 * 60 },
+      { start: 12 * 60, end: 15 * 60 + 30 },
     ];
   }
 
-  // New Schedule from May 1st, 2026
-  if (dateString >= "2026-05-01") {
-    if (weekday === 1 || weekday === 3 || weekday === 5) {
-      return [{ start: 7 * 60 + 30, end: 15 * 60 + 30 }];
-    }
-    if (weekday === 2 || weekday === 4) {
-      return [{ start: 9 * 60, end: 21 * 60 }];
-    }
-    return [];
+  // Tue, Thu
+  if (weekday === 2 || weekday === 4) {
+    return [
+      { start: 9 * 60, end: 12 * 60 },
+      { start: 13 * 60, end: 16 * 60 },
+      { start: 17 * 60, end: 21 * 60 },
+    ];
   }
 
-  const monTueWedFri: Interval[] = [
-    { start: 9 * 60, end: 11 * 60 + 45 },
-    { start: 13 * 60, end: 17 * 60 },
-  ];
-
-  if (weekday === 1 || weekday === 2 || weekday === 3 || weekday === 5) return monTueWedFri;
-  if (weekday === 4) return [{ start: 13 * 60, end: 19 * 60 + 30 }];
   return [];
 };
 

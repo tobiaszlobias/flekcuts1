@@ -8,11 +8,11 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [externalEnabled, setExternalEnabled] = useState(false);
   const openingHours = [
-    { day: "Pondělí", hours: "7:30 - 15:30" },
-    { day: "Úterý", hours: "9:00 - 16:00, 17:00 - 21:00" },
-    { day: "Středa", hours: "7:30 - 15:30" },
-    { day: "Čtvrtek", hours: "9:00 - 16:00, 17:00 - 21:00" },
-    { day: "Pátek", hours: "7:30 - 15:30" },
+    { day: "Pondělí", hours: "7:30 - 11:00, 12:00 - 15:30" },
+    { day: "Úterý", hours: "9:00 - 12:00, 13:00 - 16:00, 17:00 - 21:00" },
+    { day: "Středa", hours: "7:30 - 11:00, 12:00 - 15:30" },
+    { day: "Čtvrtek", hours: "9:00 - 12:00, 13:00 - 16:00, 17:00 - 21:00" },
+    { day: "Pátek", hours: "7:30 - 11:00, 12:00 - 15:30" },
     { day: "Sobota", hours: "Zavřeno", isClosed: true },
     { day: "Neděle", hours: "Zavřeno", isClosed: true },
   ];
@@ -267,32 +267,20 @@ const CurrentStatus = () => {
         // Get working periods for today
         let periods: Array<{ start: number; end: number }> = [];
 
-        // 1. Special Schedule for Apr 20 - Apr 24, 2026
-        if (dateString >= "2026-04-20" && dateString <= "2026-04-24") {
+        // Mon, Wed, Fri
+        if (currentDay === 1 || currentDay === 3 || currentDay === 5) {
           periods = [
-            { start: 900, end: 1100 },
-            { start: 1300, end: 1700 },
-            { start: 1730, end: 2100 },
+            { start: 730, end: 1100 },
+            { start: 1200, end: 1530 },
           ];
         } 
-        // 2. New Schedule from May 1st, 2026
-        else if (dateString >= "2026-05-01") {
-          if (currentDay === 1 || currentDay === 3 || currentDay === 5) {
-            periods = [{ start: 730, end: 1530 }];
-          } else if (currentDay === 2 || currentDay === 4) {
-            periods = [{ start: 900, end: 2100 }];
-          }
-        }
-        // 3. Default Schedule
-        else {
-          if (currentDay === 1 || currentDay === 2 || currentDay === 3 || currentDay === 5) {
-            periods = [
-              { start: 900, end: 1145 },
-              { start: 1300, end: 1700 },
-            ];
-          } else if (currentDay === 4) {
-            periods = [{ start: 1300, end: 1930 }];
-          }
+        // Tue, Thu
+        else if (currentDay === 2 || currentDay === 4) {
+          periods = [
+            { start: 900, end: 1200 },
+            { start: 1300, end: 1600 },
+            { start: 1700, end: 2100 },
+          ];
         }
 
         const currentPeriod = periods.find(p => currentTime >= p.start && currentTime < p.end);

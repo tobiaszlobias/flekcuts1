@@ -794,103 +794,51 @@ const Booking = () => {
     if (!selectedDate) return [];
     const date = new Date(selectedDate + "T00:00:00");
     const dayOfWeek = date.getDay();
-    const dateString = selectedDate;
 
-    // Special Schedule for Apr 20 - Apr 24, 2026
-    if (dateString >= "2026-04-20" && dateString <= "2026-04-24") {
-      const schedule: Array<[number, number]> = [
-        [9 * 60, 11 * 60],
-        [13 * 60, 17 * 60],
-        [17 * 60 + 30, 21 * 60],
+    let schedule: Array<[number, number]> = [];
+
+    // Mon, Wed, Fri
+    if (dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5) {
+      schedule = [
+        [7 * 60 + 30, 11 * 60],
+        [12 * 60, 15 * 60 + 30],
       ];
-      return schedule.flatMap(([start, end]) => generateSlots(start, end, SLOT_MINUTES));
+    }
+    // Tue, Thu
+    else if (dayOfWeek === 2 || dayOfWeek === 4) {
+      schedule = [
+        [9 * 60, 12 * 60],
+        [13 * 60, 16 * 60],
+        [17 * 60, 21 * 60],
+      ];
     }
 
-    // New Schedule from May 1st, 2026
-    if (dateString >= "2026-05-01") {
-      const schedule: Record<number, Array<[number, number]>> = {
-        1: [[7 * 60 + 30, 15 * 60 + 30]], // Mon
-        2: [[9 * 60, 21 * 60]],          // Tue
-        3: [[7 * 60 + 30, 15 * 60 + 30]], // Wed
-        4: [[9 * 60, 21 * 60]],          // Thu
-        5: [[7 * 60 + 30, 15 * 60 + 30]], // Fri
-      };
-      const periods = schedule[dayOfWeek as keyof typeof schedule] || [];
-      return periods.flatMap(([start, end]) => generateSlots(start, end, SLOT_MINUTES));
-    }
-
-    // Default Schedule (Existing)
-    const schedule: Record<number, Array<[number, number]>> = {
-      1: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ],
-      2: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ],
-      3: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ],
-      4: [[13 * 60, 19 * 60 + 30]],
-      5: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ],
-    };
-
-    const periods = schedule[dayOfWeek as keyof typeof schedule] || [];
-    return periods.flatMap(([start, end]) => generateSlots(start, end, SLOT_MINUTES));
+    return schedule.flatMap(([start, end]) => generateSlots(start, end, SLOT_MINUTES));
   };
 
   const getWorkingPeriodsForDate = (selectedDate: string): Array<[number, number]> => {
     if (!selectedDate) return [];
     const date = new Date(selectedDate + "T00:00:00");
     const dayOfWeek = date.getDay();
-    const dateString = selectedDate;
 
-    // Special Schedule for Apr 20 - Apr 24, 2026
-    if (dateString >= "2026-04-20" && dateString <= "2026-04-24") {
+    // Mon, Wed, Fri
+    if (dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5) {
       return [
-        [9 * 60, 11 * 60],
-        [13 * 60, 17 * 60],
-        [17 * 60 + 30, 21 * 60],
+        [7 * 60 + 30, 11 * 60],
+        [12 * 60, 15 * 60 + 30],
       ];
     }
 
-    // New Schedule from May 1st, 2026
-    if (dateString >= "2026-05-01") {
-      const schedule: Record<number, Array<[number, number]>> = {
-        1: [[7 * 60 + 30, 15 * 60 + 30]], // Mon
-        2: [[9 * 60, 21 * 60]],          // Tue
-        3: [[7 * 60 + 30, 15 * 60 + 30]], // Wed
-        4: [[9 * 60, 21 * 60]],          // Thu
-        5: [[7 * 60 + 30, 15 * 60 + 30]], // Fri
-      };
-      return schedule[dayOfWeek as keyof typeof schedule] || [];
+    // Tue, Thu
+    if (dayOfWeek === 2 || dayOfWeek === 4) {
+      return [
+        [9 * 60, 12 * 60],
+        [13 * 60, 16 * 60],
+        [17 * 60, 21 * 60],
+      ];
     }
 
-    const schedule: Record<number, Array<[number, number]>> = {
-      1: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ],
-      2: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ],
-      3: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ],
-      4: [[13 * 60, 19 * 60 + 30]],
-      5: [
-        [9 * 60, 11 * 60 + 45],
-        [13 * 60, 17 * 60],
-      ],
-    };
-    return schedule[dayOfWeek as keyof typeof schedule] || [];
+    return [];
   };
 
 
