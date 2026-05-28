@@ -7,15 +7,26 @@ import { openConsentSettings, readConsent } from "@/lib/consent";
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [externalEnabled, setExternalEnabled] = useState(false);
-  const openingHours = [
-    { day: "Pondělí", hours: "7:30 - 11:00, 12:00 - 15:30" },
-    { day: "Úterý", hours: "9:00 - 12:00, 13:00 - 16:00, 17:00 - 21:00" },
-    { day: "Středa", hours: "7:30 - 11:00, 12:00 - 15:30" },
-    { day: "Čtvrtek", hours: "9:00 - 12:00, 13:00 - 16:00, 17:00 - 21:00" },
-    { day: "Pátek", hours: "7:30 - 11:00, 12:00 - 15:30" },
-    { day: "Sobota", hours: "Zavřeno", isClosed: true },
-    { day: "Neděle", hours: "Zavřeno", isClosed: true },
-  ];
+  const isNewSchedule = new Date() >= new Date("2026-06-01T00:00:00");
+  const openingHours = isNewSchedule
+    ? [
+        { day: "Pondělí", hours: "9:00 - 11:00, 13:00 - 17:00" },
+        { day: "Úterý", hours: "9:00 - 11:00, 13:00 - 17:00" },
+        { day: "Středa", hours: "9:00 - 11:00, 13:00 - 17:00" },
+        { day: "Čtvrtek", hours: "9:00 - 11:00, 13:00 - 17:00" },
+        { day: "Pátek", hours: "9:00 - 11:00, 13:00 - 17:00" },
+        { day: "Sobota", hours: "Zavřeno", isClosed: true },
+        { day: "Neděle", hours: "Zavřeno", isClosed: true },
+      ]
+    : [
+        { day: "Pondělí", hours: "7:30 - 11:00, 12:00 - 15:30" },
+        { day: "Úterý", hours: "9:00 - 12:00, 13:00 - 16:00, 17:00 - 21:00" },
+        { day: "Středa", hours: "7:30 - 11:00, 12:00 - 15:30" },
+        { day: "Čtvrtek", hours: "9:00 - 12:00, 13:00 - 16:00, 17:00 - 21:00" },
+        { day: "Pátek", hours: "7:30 - 11:00, 12:00 - 15:30" },
+        { day: "Sobota", hours: "Zavřeno", isClosed: true },
+        { day: "Neděle", hours: "Zavřeno", isClosed: true },
+      ];
 
   const handleDirectionsClick = () => {
     const address = "Zámecké náměstí 19, Bruntál";
@@ -256,31 +267,33 @@ const CurrentStatus = () => {
         const now = new Date();
         const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
         const currentTime = now.getHours() * 100 + now.getMinutes(); // HHMM format
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const day = String(now.getDate()).padStart(2, "0");
-        const dateString = `${year}-${month}-${day}`;
+        const isNewSchedule = now >= new Date("2026-06-01T00:00:00");
 
         let isOpen = false;
         let message = "";
 
-        // Get working periods for today
         let periods: Array<{ start: number; end: number }> = [];
 
-        // Mon, Wed, Fri
-        if (currentDay === 1 || currentDay === 3 || currentDay === 5) {
-          periods = [
-            { start: 730, end: 1100 },
-            { start: 1200, end: 1530 },
-          ];
-        } 
-        // Tue, Thu
-        else if (currentDay === 2 || currentDay === 4) {
-          periods = [
-            { start: 900, end: 1200 },
-            { start: 1300, end: 1600 },
-            { start: 1700, end: 2100 },
-          ];
+        if (isNewSchedule) {
+          if (currentDay >= 1 && currentDay <= 5) {
+            periods = [
+              { start: 900, end: 1100 },
+              { start: 1300, end: 1700 },
+            ];
+          }
+        } else {
+          if (currentDay === 1 || currentDay === 3 || currentDay === 5) {
+            periods = [
+              { start: 730, end: 1100 },
+              { start: 1200, end: 1530 },
+            ];
+          } else if (currentDay === 2 || currentDay === 4) {
+            periods = [
+              { start: 900, end: 1200 },
+              { start: 1300, end: 1600 },
+              { start: 1700, end: 2100 },
+            ];
+          }
         }
 
         const currentPeriod = periods.find(p => currentTime >= p.start && currentTime < p.end);

@@ -804,20 +804,19 @@ const Booking = () => {
 
     let schedule: Array<[number, number]> = [];
 
+    const isNewSchedule = selectedDate >= "2026-06-01";
+
     // Mon, Wed, Fri
     if (dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5) {
-      schedule = [
-        [7 * 60 + 30, 11 * 60],
-        [12 * 60, 15 * 60 + 30],
-      ];
+      schedule = isNewSchedule
+        ? [[9 * 60, 11 * 60], [13 * 60, 17 * 60]]
+        : [[7 * 60 + 30, 11 * 60], [12 * 60, 15 * 60 + 30]];
     }
     // Tue, Thu
     else if (dayOfWeek === 2 || dayOfWeek === 4) {
-      schedule = [
-        [9 * 60, 12 * 60],
-        [13 * 60, 16 * 60],
-        [17 * 60, 21 * 60],
-      ];
+      schedule = isNewSchedule
+        ? [[9 * 60, 11 * 60], [13 * 60, 17 * 60]]
+        : [[9 * 60, 12 * 60], [13 * 60, 16 * 60], [17 * 60, 21 * 60]];
     }
 
     return schedule.flatMap(([start, end]) => generateSlots(start, end, SLOT_MINUTES));
@@ -828,21 +827,20 @@ const Booking = () => {
     const date = new Date(selectedDate + "T00:00:00");
     const dayOfWeek = date.getDay();
 
+    const isNewSchedule = selectedDate >= "2026-06-01";
+
     // Mon, Wed, Fri
     if (dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5) {
-      return [
-        [7 * 60 + 30, 11 * 60],
-        [12 * 60, 15 * 60 + 30],
-      ];
+      return isNewSchedule
+        ? [[9 * 60, 11 * 60], [13 * 60, 17 * 60]]
+        : [[7 * 60 + 30, 11 * 60], [12 * 60, 15 * 60 + 30]];
     }
 
     // Tue, Thu
     if (dayOfWeek === 2 || dayOfWeek === 4) {
-      return [
-        [9 * 60, 12 * 60],
-        [13 * 60, 16 * 60],
-        [17 * 60, 21 * 60],
-      ];
+      return isNewSchedule
+        ? [[9 * 60, 11 * 60], [13 * 60, 17 * 60]]
+        : [[9 * 60, 12 * 60], [13 * 60, 16 * 60], [17 * 60, 21 * 60]];
     }
 
     return [];

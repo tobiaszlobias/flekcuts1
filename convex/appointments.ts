@@ -166,21 +166,20 @@ const getWorkingHoursForDate = (dateString: string): Interval[] => {
   // Sat/Sun: closed
   const weekday = getWeekdayIndexInPrague(dateString);
 
+  const isNewSchedule = dateString >= "2026-06-01";
+
   // Mon, Wed, Fri
   if (weekday === 1 || weekday === 3 || weekday === 5) {
-    return [
-      { start: 7 * 60 + 30, end: 11 * 60 },
-      { start: 12 * 60, end: 15 * 60 + 30 },
-    ];
+    return isNewSchedule
+      ? [{ start: 9 * 60, end: 11 * 60 }, { start: 13 * 60, end: 17 * 60 }]
+      : [{ start: 7 * 60 + 30, end: 11 * 60 }, { start: 12 * 60, end: 15 * 60 + 30 }];
   }
 
   // Tue, Thu
   if (weekday === 2 || weekday === 4) {
-    return [
-      { start: 9 * 60, end: 12 * 60 },
-      { start: 13 * 60, end: 16 * 60 },
-      { start: 17 * 60, end: 21 * 60 },
-    ];
+    return isNewSchedule
+      ? [{ start: 9 * 60, end: 11 * 60 }, { start: 13 * 60, end: 17 * 60 }]
+      : [{ start: 9 * 60, end: 12 * 60 }, { start: 13 * 60, end: 16 * 60 }, { start: 17 * 60, end: 21 * 60 }];
   }
 
   return [];
