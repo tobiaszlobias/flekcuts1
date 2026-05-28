@@ -43,20 +43,7 @@ const formatPrettyDate = (date: string): string => {
   });
 };
 
-const SERVICE_NAME_ALIASES: Record<string, string> = {
-  Fade: "Panský střih",
-  "Klasický střih": "Panský střih",
-  "Dětský střih - fade": "Dětský střih",
-  "Dětský střih - klasický": "Dětský střih",
-  "Dětský střih - do ztracena": "Dětský střih",
-  Kompletka: "Kompletní servis",
-  "Vlasy do ztracena + Vousy": "Kompletní servis",
-};
-
-const formatServiceName = (serviceName: string): string => {
-  const normalized = serviceName.trim();
-  return SERVICE_NAME_ALIASES[normalized] || normalized;
-};
+const formatServiceName = (serviceName: string): string => serviceName.trim();
 
 const renderEmail = (args: {
   title: string;
@@ -149,12 +136,16 @@ const renderEmail = (args: {
 };
 
 const deriveServiceDurationMinutes = (serviceName: string): number => {
-  const normalized = formatServiceName(serviceName);
+  const normalized = serviceName.trim();
+  const lower = normalized.toLowerCase();
 
-  if (normalized === "Panský střih") return 60;
-  if (normalized === "Dětský střih") return 60;
+  if (normalized === "Fade") return 45;
+  if (normalized === "Klasický střih") return 30;
+  if (lower.includes("dětský") && lower.includes("fade")) return 45;
+  if (lower.includes("dětský")) return 30;
   if (normalized === "Vousy") return 15;
-  if (normalized === "Kompletní servis") return 90;
+  if (normalized === "Mytí vlasů") return 10;
+  if (normalized === "Kompletka") return 70;
   return 30;
 };
 

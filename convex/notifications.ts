@@ -66,20 +66,7 @@ const truncateWithDots = (value: string, maxLength: number): string => {
   return `${value.slice(0, maxLength - 3)}...`;
 };
 
-const SERVICE_NAME_ALIASES: Record<string, string> = {
-  Fade: "Panský střih",
-  "Klasický střih": "Panský střih",
-  "Dětský střih - fade": "Dětský střih",
-  "Dětský střih - klasický": "Dětský střih",
-  "Dětský střih - do ztracena": "Dětský střih",
-  Kompletka: "Kompletní servis",
-  "Vlasy do ztracena + Vousy": "Kompletní servis",
-};
-
-const formatServiceName = (serviceName: string): string => {
-  const normalized = serviceName.trim();
-  return SERVICE_NAME_ALIASES[normalized] || normalized;
-};
+const formatServiceName = (serviceName: string): string => serviceName.trim();
 
 const buildAppointmentConfirmationSms = (appointment: {
   date: string;
@@ -528,6 +515,163 @@ export const getAppointmentsNeedingReminders = internalQuery({
     }
 
     return appointmentsNeedingReminders;
+  },
+});
+
+const buildAppointmentReminderSms = (appointment: {
+  date: string;
+  time: string;
+  service: string;
+}) => {
+  const dateText = toAsciiSms(formatDateForSms(appointment.date));
+  const timeText = toAsciiSms(appointment.time);
+  const prefix = `FlekCuts: Pripominame vasi rezervaci zitra v ${timeText} (${dateText}). Sluzba: `;
+  const suffix = `. Budu se tesit.`;
+  const maxServiceLength = Math.max(0, SMS_MAX_LENGTH - prefix.length - suffix.length);
+  const serviceText = truncateWithDots(
+    toAsciiSms(formatServiceName(appointment.service)),
+    maxServiceLength
+  );
+  return truncateWithDots(`${prefix}${serviceText}${suffix}`, SMS_MAX_LENGTH);
+};
+
+export const sendAppointmentReminderSms = internalAction({
+  args: {
+    appointmentId: v.id("appointments"),
+  },
+  handler: async (ctx, args): Promise<SmsResult> => {
+    const rawChannelId = process.env.GOSMS_CHANNEL_ID;
+    const channelId = rawChannelId ? Number(rawChannelId) : NaN;
+    if (!Number.isFinite(channelId)) {
+      throw new Error("Missing or invalid GOSMS_CHANNEL_ID");
+    }
+
+    const appointment = await ctx.runQuery(internal.notifications.getById, {
+      id: args.appointmentId,
+    });
+    if (!appointment) {
+      throw new Error("Appointment not found");
+    }
+    if (!appointment.customerPhone) {
+      throw new Error("Missing customerPhone on appointment");
+    }
+
+    const accessToken = await getGoSmsAccessToken();
+    const smsMessage = buildAppointmentReminderSms({
+      date: appointment.date,
+      time: appointment.time,
+      service: appointment.service,
+    });
+
+    const smsResponse = await fetch(GOSMS_MESSAGES_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        message: smsMessage,
+        recipients: [appointment.customerPhone],
+        channel: Math.floor(channelId),
+      }),
+    });
+
+    const smsJson = await parseResponseJson<GoSmsSendResponse>(smsResponse);
+    if (!smsResponse.ok) {
+      const detail = smsJson?.error_description || smsJson?.message || smsJson?.error;
+      throw new Error(
+        `GoSMS send failed (${smsResponse.status})${detail ? `: ${detail}` : ""}`,
+      );
+    }
+
+    if (smsJson?.recipients?.invalid?.length) {
+      throw new Error(`GoSMS rejected recipient: ${smsJson.recipients.invalid.join(", ")}`);
+    }
+
+    console.log("✅ Reminder SMS sent", {
+      appointmentId: args.appointmentId,
+      recipientPhone: appointment.customerPhone,
+      link: smsJson?.link,
+    });
+
+    return {
+      success: true,
+      message: "Reminder SMS sent",
+      link: smsJson?.link,
+    };
+  },
+});
+
+export const getAppointmentsNeedingSmSReminders = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowDate = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}`;
+
+    const appointments = await ctx.db
+      .query("appointments")
+      .withIndex("by_date", (q) => q.eq("date", tomorrowDate))
+      .filter((q) => q.neq(q.field("status"), "cancelled"))
+      .collect();
+
+    const needingReminders = [];
+    for (const appointment of appointments) {
+      const logs = await ctx.db
+        .query("emailLogs")
+        .withIndex("by_appointment", (q) => q.eq("appointmentId", appointment._id))
+        .filter((q) => q.eq(q.field("emailType"), "sms_reminder"))
+        .filter((q) => q.eq(q.field("status"), "sent"))
+        .collect();
+
+      if (logs.length === 0) {
+        needingReminders.push(appointment);
+      }
+    }
+
+    return needingReminders;
+  },
+});
+
+export const sendDailySmsReminders = internalAction({
+  args: {},
+  handler: async (ctx): Promise<{ totalChecked: number; successCount: number; failureCount: number }> => {
+    const appointments = await ctx.runQuery(
+      internal.notifications.getAppointmentsNeedingSmSReminders,
+    );
+
+    console.log(`Found ${appointments.length} appointments needing SMS reminders`);
+
+    let successCount = 0;
+    let failureCount = 0;
+
+    for (const appointment of appointments) {
+      try {
+        await ctx.runAction(internal.notifications.sendAppointmentReminderSms, {
+          appointmentId: appointment._id,
+        });
+        await ctx.runMutation(internal.notifications.logEmailSent, {
+          appointmentId: appointment._id,
+          emailType: "sms_reminder",
+          recipientEmail: appointment.customerEmail,
+          status: "sent",
+        });
+        successCount++;
+      } catch (error) {
+        await ctx.runMutation(internal.notifications.logEmailSent, {
+          appointmentId: appointment._id,
+          emailType: "sms_reminder",
+          recipientEmail: appointment.customerEmail,
+          status: "failed",
+          errorMessage: error instanceof Error ? error.message : "Unknown error",
+        });
+        failureCount++;
+        console.error(`Failed to send SMS reminder for ${appointment._id}:`, error);
+      }
+    }
+
+    return { totalChecked: appointments.length, successCount, failureCount };
   },
 });
 

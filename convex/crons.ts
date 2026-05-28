@@ -11,4 +11,12 @@ crons.interval(
   {}
 );
 
+// SMS připomínka den před termínem — každý den ve 13:00 Prague (= 11:00 UTC v létě)
+crons.cron(
+  "sendDailySmsReminders",
+  "0 11 * * *",
+  internal.notifications.sendDailySmsReminders,
+  {}
+);
+
 export default crons;
