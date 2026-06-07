@@ -809,13 +809,13 @@ const Booking = () => {
     // Mon, Wed, Fri
     if (dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5) {
       schedule = isNewSchedule
-        ? [[9 * 60, 11 * 60], [13 * 60, 17 * 60]]
+        ? [[9 * 60, 12 * 60], [13 * 60, 17 * 60]]
         : [[7 * 60 + 30, 11 * 60], [12 * 60, 15 * 60 + 30]];
     }
     // Tue, Thu
     else if (dayOfWeek === 2 || dayOfWeek === 4) {
       schedule = isNewSchedule
-        ? [[9 * 60, 11 * 60], [13 * 60, 17 * 60]]
+        ? [[9 * 60, 12 * 60], [13 * 60, 17 * 60]]
         : [[9 * 60, 12 * 60], [13 * 60, 16 * 60], [17 * 60, 21 * 60]];
     }
 
@@ -832,14 +832,14 @@ const Booking = () => {
     // Mon, Wed, Fri
     if (dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5) {
       return isNewSchedule
-        ? [[9 * 60, 11 * 60], [13 * 60, 17 * 60]]
+        ? [[9 * 60, 12 * 60], [13 * 60, 17 * 60]]
         : [[7 * 60 + 30, 11 * 60], [12 * 60, 15 * 60 + 30]];
     }
 
     // Tue, Thu
     if (dayOfWeek === 2 || dayOfWeek === 4) {
       return isNewSchedule
-        ? [[9 * 60, 11 * 60], [13 * 60, 17 * 60]]
+        ? [[9 * 60, 12 * 60], [13 * 60, 17 * 60]]
         : [[9 * 60, 12 * 60], [13 * 60, 16 * 60], [17 * 60, 21 * 60]];
     }
 

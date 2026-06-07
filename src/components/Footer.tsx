@@ -10,11 +10,11 @@ const Footer = () => {
   const isNewSchedule = new Date() >= new Date("2026-06-01T00:00:00");
   const openingHours = isNewSchedule
     ? [
-        { day: "Pondělí", hours: "9:00 - 11:00, 13:00 - 17:00" },
-        { day: "Úterý", hours: "9:00 - 11:00, 13:00 - 17:00" },
-        { day: "Středa", hours: "9:00 - 11:00, 13:00 - 17:00" },
-        { day: "Čtvrtek", hours: "9:00 - 11:00, 13:00 - 17:00" },
-        { day: "Pátek", hours: "9:00 - 11:00, 13:00 - 17:00" },
+        { day: "Pondělí", hours: "9:00 - 12:00, 13:00 - 17:00" },
+        { day: "Úterý", hours: "9:00 - 12:00, 13:00 - 17:00" },
+        { day: "Středa", hours: "9:00 - 12:00, 13:00 - 17:00" },
+        { day: "Čtvrtek", hours: "9:00 - 12:00, 13:00 - 17:00" },
+        { day: "Pátek", hours: "9:00 - 12:00, 13:00 - 17:00" },
         { day: "Sobota", hours: "Zavřeno", isClosed: true },
         { day: "Neděle", hours: "Zavřeno", isClosed: true },
       ]
@@ -277,7 +277,7 @@ const CurrentStatus = () => {
         if (isNewSchedule) {
           if (currentDay >= 1 && currentDay <= 5) {
             periods = [
-              { start: 900, end: 1100 },
+              { start: 900, end: 1200 },
               { start: 1300, end: 1700 },
             ];
           }

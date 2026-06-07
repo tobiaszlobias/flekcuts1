@@ -133,33 +133,15 @@ export default function RootLayout({
               openingHoursSpecification: [
                 {
                   "@type": "OpeningHoursSpecification",
-                  dayOfWeek: ["Monday", "Wednesday", "Friday"],
-                  opens: "07:30",
-                  closes: "11:00",
-                },
-                {
-                  "@type": "OpeningHoursSpecification",
-                  dayOfWeek: ["Monday", "Wednesday", "Friday"],
-                  opens: "12:00",
-                  closes: "15:30",
-                },
-                {
-                  "@type": "OpeningHoursSpecification",
-                  dayOfWeek: ["Tuesday", "Thursday"],
+                  dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
                   opens: "09:00",
                   closes: "12:00",
                 },
                 {
                   "@type": "OpeningHoursSpecification",
-                  dayOfWeek: ["Tuesday", "Thursday"],
+                  dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
                   opens: "13:00",
-                  closes: "16:00",
-                },
-                {
-                  "@type": "OpeningHoursSpecification",
-                  dayOfWeek: ["Tuesday", "Thursday"],
-                  opens: "17:00",
-                  closes: "21:00",
+                  closes: "17:00",
                 },
               ],
               priceRange: "200-600 CZK",
