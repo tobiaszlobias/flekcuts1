@@ -6,6 +6,15 @@ import Navbar from "@/components/Navbar";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { csCZ } from "@clerk/localizations";
+
+const clerkLocalization = {
+  ...csCZ,
+  unstable__errors: {
+    ...csCZ.unstable__errors,
+    form_identifier_not_found:
+      "Účet s tímto e-mailem jsme nenašli. Aktualizovali jsme přihlašování — pokud jste se dříve registrovali, založte si prosím účet znovu, vaše objednávky zůstanou zachovány.",
+  },
+};
 import { Toaster } from "sonner";
 import AnalyticsGate from "@/components/AnalyticsGate";
 import ConsentBanner from "@/components/ConsentBanner";
@@ -155,7 +164,7 @@ export default function RootLayout({
       </head>
       <body>
         <ClerkProvider
-          localization={csCZ}
+          localization={clerkLocalization}
           appearance={{
             layout: {
               socialButtonsPlacement: "bottom",

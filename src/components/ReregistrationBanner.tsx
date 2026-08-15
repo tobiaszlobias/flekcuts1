@@ -27,12 +27,11 @@ const ReregistrationBanner = () => {
 
   return createPortal(
     <SignedOut>
-      <div className="fixed inset-x-0 top-0 z-[2147483645] border-b border-[#FF6B35]/30 bg-[#FFF4EE]">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 sm:px-6 lg:px-8">
-          <div className="flex-1 font-montserrat text-sm text-gray-800">
+      <div className="fixed inset-x-0 top-0 z-[2147483645] flex h-16 items-center border-b border-[#FF6B35]/30 bg-[#FFF4EE]">
+        <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
+          <div className="flex-1 truncate font-montserrat text-sm text-gray-800">
             <span className="font-semibold text-gray-900">Aktualizovali jsme přihlašování.</span>{" "}
-            Pokud jste se dříve registrovali, založte si prosím účet znovu se
-            stejným e-mailem — vaše dosavadní objednávky zůstanou zachovány.
+            Registrujte se prosím znovu — objednávky zůstanou zachovány.
           </div>
           <button
             onClick={close}
