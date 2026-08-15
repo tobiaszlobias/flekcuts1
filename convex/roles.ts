@@ -18,10 +18,20 @@ export const createUserRole = mutation({
       .first();
 
     if (!existingRole) {
+      const email = identity.email ? normalizeEmail(identity.email) : "unknown@email.com";
+
+      // If this email was an admin under a previous (e.g. pre-migration) userId,
+      // carry the admin role over to the new account.
+      const priorAdmin = await ctx.db
+        .query("userRoles")
+        .withIndex("by_email", (q: any) => q.eq("email", email))
+        .filter((q: any) => q.eq(q.field("role"), "admin"))
+        .first();
+
       await ctx.db.insert("userRoles", {
         userId: identity.subject,
-        role: "user",
-        email: identity.email ? normalizeEmail(identity.email) : "unknown@email.com",
+        role: priorAdmin ? "admin" : "user",
+        email,
       });
     }
   },

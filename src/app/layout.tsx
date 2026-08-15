@@ -19,7 +19,6 @@ import { Toaster } from "sonner";
 import AnalyticsGate from "@/components/AnalyticsGate";
 import ConsentBanner from "@/components/ConsentBanner";
 import ClerkModalScrollLock from "@/components/ClerkModalScrollLock";
-import ReregistrationBanner from "@/components/ReregistrationBanner";
 
 const crimson = Crimson_Text({
   weight: ["400", "600", "700"],
@@ -249,7 +248,6 @@ export default function RootLayout({
         >
           <ConvexClientProvider>
             <ClerkModalScrollLock />
-            <ReregistrationBanner />
             <Navbar />
             {children}
             <Toaster />
