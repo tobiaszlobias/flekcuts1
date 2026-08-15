@@ -5,10 +5,12 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
+import { csCZ } from "@clerk/localizations";
 import { Toaster } from "sonner";
 import AnalyticsGate from "@/components/AnalyticsGate";
 import ConsentBanner from "@/components/ConsentBanner";
 import ClerkModalScrollLock from "@/components/ClerkModalScrollLock";
+import ReregistrationBanner from "@/components/ReregistrationBanner";
 
 const crimson = Crimson_Text({
   weight: ["400", "600", "700"],
@@ -153,6 +155,7 @@ export default function RootLayout({
       </head>
       <body>
         <ClerkProvider
+          localization={csCZ}
           appearance={{
             layout: {
               socialButtonsPlacement: "bottom",
@@ -237,6 +240,7 @@ export default function RootLayout({
         >
           <ConvexClientProvider>
             <ClerkModalScrollLock />
+            <ReregistrationBanner />
             <Navbar />
             {children}
             <Toaster />
