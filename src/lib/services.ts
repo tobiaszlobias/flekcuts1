@@ -12,6 +12,13 @@ export type ServiceOption = {
 const HAIRCUTS: ServiceOption[] = [
   { id: "fade", name: "Fade", priceCzk: 390, durationMinutes: 45, kind: "haircut" },
   {
+    id: "scissor-cut",
+    name: "Střih nůžkami",
+    priceCzk: 350,
+    durationMinutes: 45,
+    kind: "haircut",
+  },
+  {
     id: "classic",
     name: "Klasický střih",
     priceCzk: 250,

@@ -50,6 +50,7 @@ const deriveServiceDurationMinutes = (serviceName: string): number => {
   const normalized = normalizeServiceName(serviceName);
 
   if (normalized === "Panský střih") return 60;
+  if (normalized === "Střih nůžkami") return 45;
   if (normalized === "Dětský střih") return 60;
   if (normalized === "Vousy") return 15;
   if (normalized === "Kompletní servis") return 90;

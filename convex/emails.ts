@@ -141,6 +141,7 @@ const deriveServiceDurationMinutes = (serviceName: string): number => {
 
   if (normalized === "Fade") return 45;
   if (normalized === "Klasický střih") return 30;
+  if (normalized === "Střih nůžkami") return 45;
   if (lower.includes("dětský") && lower.includes("fade")) return 45;
   if (lower.includes("dětský")) return 30;
   if (normalized === "Vousy") return 15;

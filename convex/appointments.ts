@@ -216,6 +216,7 @@ const deriveServiceDurationMinutes = (serviceName: string): number => {
 
   if (normalized === "Fade") return 45;
   if (normalized === "Klasický střih") return 30;
+  if (normalized === "Střih nůžkami") return 45;
   if (lower.includes("dětský") && lower.includes("fade")) return 45;
   if (lower.includes("dětský") && (lower.includes("klasik") || lower.includes("klasický"))) return 30;
   if (normalized === "Vousy") return 15;
@@ -229,6 +230,7 @@ const deriveServiceDurationMinutes = (serviceName: string): number => {
   let base: number | null = null;
   if (normalized.startsWith("Fade")) base = 45;
   if (normalized.startsWith("Klasický střih")) base = 30;
+  if (normalized.startsWith("Střih nůžkami")) base = 45;
   if (lower.includes("dětský") && lower.includes("fade")) base = 45;
   if (lower.includes("dětský") && (lower.includes("klasik") || lower.includes("klasický"))) base = 30;
   if (normalized.startsWith("Vousy")) base = 15;

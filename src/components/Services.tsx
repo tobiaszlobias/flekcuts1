@@ -48,6 +48,12 @@ const Services = () => {
       preselectServiceName: "Fade",
     },
     {
+      name: "Střih nůžkami",
+      description: "Precizní ruční střih nůžkami pro delší vlasy a mod cuty",
+      price: 350,
+      preselectServiceName: "Střih nůžkami",
+    },
+    {
       name: "Klasický střih",
       description: "Elegantní střih s plynulými přechody do ztracena",
       price: 250,

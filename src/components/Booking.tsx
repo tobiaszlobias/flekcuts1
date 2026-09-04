@@ -780,6 +780,7 @@ const Booking = () => {
 
   const serviceOptions = [
     "Fade",
+    "Střih nůžkami",
     "Klasický střih",
     "Dětský střih - fade",
     "Dětský střih - klasický",
