@@ -5,14 +5,29 @@ const Gallery = () => {
   // Replace these with your actual image paths
   const images = [
     "/haircut1.png",
-    "/haircut2.png",
+    "/haircut2.jpeg",
     "/haircut3.png",
     "/haircut4.png",
     "/haircut5.png",
-    "/haircut6.png",
-    "/haircut7.png",
-    "/haircut8.png",
+    "/haircut6.jpeg",
+    "/haircut7.jpeg",
+    "/haircut8.jpeg",
+    "/haircut9.jpeg",
+    "/haircut10.jpg",
   ];
+
+  // Nové fotky (bílé pozadí, poměr 3:4). Karta je na šířku, tak je zobrazíme
+  // celé (contain — bílé okraje splynou s bílou kartou) a mírně přiblížíme
+  // s ohniskem výš, aby účes vyplnil co nejvíc plochy.
+  const newPhotos = new Set([
+    "/haircut2.jpeg",
+    "/haircut6.jpeg",
+    "/haircut7.jpeg",
+    "/haircut8.jpeg",
+    "/haircut9.jpeg",
+    "/haircut10.jpg",
+  ]);
+  const newPhotoStyle = { transform: "scale(1.22)", objectPosition: "50% 18%" } as const;
 
   // Triple the images for seamless infinite scroll
   const allImages = [...images, ...images, ...images];
@@ -79,8 +94,8 @@ const Gallery = () => {
       if (!isPaused) {
         // Speed: slower on mobile for smoother experience
         const isMobileDevice = window.innerWidth < 640;
-        const baseTime = isMobileDevice ? 60000 : 45000; // Mobile: 60s, Desktop: 45s
-        const slowTime = isMobileDevice ? 150000 : 120000; // Mobile: 150s, Desktop: 120s
+        const baseTime = isMobileDevice ? 42000 : 30000; // Mobile: 42s, Desktop: 30s
+        const slowTime = isMobileDevice ? 105000 : 80000; // Mobile: 105s, Desktop: 80s
         const speed = isSlowed ? totalWidth / slowTime : totalWidth / baseTime;
         positionRef.current += speed * deltaTime;
 
@@ -200,30 +215,27 @@ const Gallery = () => {
 	          {allImages.map((image, index) => (
 	            <div
 	              key={index}
-	              className="relative flex-shrink-0 w-64 h-48 sm:w-[20rem] sm:h-64 lg:w-[24rem] lg:h-80 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg select-none bg-custom-orange"
+	              className={`relative flex-shrink-0 w-64 h-48 sm:w-[20rem] sm:h-64 lg:w-[24rem] lg:h-80 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg select-none ${
+	                newPhotos.has(image) ? "bg-white" : "bg-custom-orange"
+	              }`}
 	            >
 	              <Image
 	                src={image}
 	                alt={`Střih ${(index % images.length) + 1}`}
 	                fill
 	                sizes="(max-width: 640px) 256px, (max-width: 1024px) 320px, 384px"
+	                style={newPhotos.has(image) ? newPhotoStyle : undefined}
 	                className={`w-full h-full ${
-	                  (index % images.length) === 0
-	                    ? "object-contain object-[50%_20%] scale-[1.16]"
-                    : (index % images.length) === 1
-                      ? "object-contain scale-[1.06]"
+	                  newPhotos.has(image)
+	                    ? "object-contain"
+                    : (index % images.length) === 0
+                      ? "object-contain object-[50%_20%] scale-[1.16]"
                     : (index % images.length) === 2
                       ? "object-contain scale-[1.02]"
                     : (index % images.length) === 3
                       ? "object-contain scale-[1.12]"
                     : (index % images.length) === 4
                       ? "object-contain scale-[1.10]"
-                    : (index % images.length) === 5
-                      ? "object-contain scale-[1.06]"
-                    : (index % images.length) === 6
-                      ? "object-contain scale-[1.10]"
-                    : (index % images.length) === 7
-                      ? "object-contain scale-[1.06]"
                       : "object-cover"
                 }`}
 	                draggable={false}
