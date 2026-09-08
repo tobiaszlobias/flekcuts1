@@ -32,8 +32,8 @@ const Gallery = () => {
   const newPhotoOverrides: Record<string, React.CSSProperties> = {
     "/haircut6.jpeg": { transform: "scale(1.06)", objectPosition: "50% 32%" },
     "/haircut7.jpeg": { transform: "scale(1.3)", objectPosition: "50% 18%" },
-    "/haircut2.jpeg": { transform: "scale(1.45)", objectPosition: "62% 2%" },
-    "/haircut8.jpeg": { transform: "scale(1.4)", objectPosition: "50% 3%" },
+    "/haircut2.jpeg": { transform: "scale(1.45) translateY(-6%)", objectPosition: "62% 0%" },
+    "/haircut8.jpeg": { transform: "scale(1.44) translateY(-4%)", objectPosition: "50% 0%" },
     "/haircut10.jpg": { transform: "scale(1.35)", objectPosition: "50% 18%" },
   };
 
