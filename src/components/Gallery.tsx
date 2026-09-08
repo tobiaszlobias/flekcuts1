@@ -30,9 +30,10 @@ const Gallery = () => {
   const newPhotoStyle = { transform: "scale(1.22)", objectPosition: "50% 18%" } as const;
   // Výjimky s vlastním nastavením (jiné přiblížení / ohnisko).
   const newPhotoOverrides: Record<string, React.CSSProperties> = {
-    "/haircut6.jpeg": { transform: "scale(1.12)", objectPosition: "50% 32%" },
-    "/haircut2.jpeg": { transform: "scale(1.45)", objectPosition: "62% 6%" },
-    "/haircut8.jpeg": { transform: "scale(1.4)", objectPosition: "50% 8%" },
+    "/haircut6.jpeg": { transform: "scale(1.06)", objectPosition: "50% 32%" },
+    "/haircut7.jpeg": { transform: "scale(1.3)", objectPosition: "50% 18%" },
+    "/haircut2.jpeg": { transform: "scale(1.45)", objectPosition: "62% 2%" },
+    "/haircut8.jpeg": { transform: "scale(1.4)", objectPosition: "50% 3%" },
     "/haircut10.jpg": { transform: "scale(1.35)", objectPosition: "50% 18%" },
   };
 
