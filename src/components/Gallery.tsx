@@ -102,8 +102,8 @@ const Gallery = () => {
       if (!isPaused) {
         // Speed: slower on mobile for smoother experience
         const isMobileDevice = window.innerWidth < 640;
-        const baseTime = isMobileDevice ? 42000 : 30000; // Mobile: 42s, Desktop: 30s
-        const slowTime = isMobileDevice ? 105000 : 80000; // Mobile: 105s, Desktop: 80s
+        const baseTime = isMobileDevice ? 42000 : 38000; // Mobile: 42s, Desktop: 38s
+        const slowTime = isMobileDevice ? 105000 : 100000; // Mobile: 105s, Desktop: 100s
         const speed = isSlowed ? totalWidth / slowTime : totalWidth / baseTime;
         positionRef.current += speed * deltaTime;
 
