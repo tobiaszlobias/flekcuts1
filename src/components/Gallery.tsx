@@ -28,6 +28,13 @@ const Gallery = () => {
     "/haircut10.jpg",
   ]);
   const newPhotoStyle = { transform: "scale(1.22)", objectPosition: "50% 18%" } as const;
+  // Výjimky s vlastním nastavením (jiné přiblížení / ohnisko).
+  const newPhotoOverrides: Record<string, React.CSSProperties> = {
+    "/haircut6.jpeg": { transform: "scale(1.12)", objectPosition: "50% 32%" },
+    "/haircut2.jpeg": { transform: "scale(1.45)", objectPosition: "62% 6%" },
+    "/haircut8.jpeg": { transform: "scale(1.4)", objectPosition: "50% 8%" },
+    "/haircut10.jpg": { transform: "scale(1.35)", objectPosition: "50% 18%" },
+  };
 
   // Triple the images for seamless infinite scroll
   const allImages = [...images, ...images, ...images];
@@ -224,12 +231,16 @@ const Gallery = () => {
 	                alt={`Střih ${(index % images.length) + 1}`}
 	                fill
 	                sizes="(max-width: 640px) 256px, (max-width: 1024px) 320px, 384px"
-	                style={newPhotos.has(image) ? newPhotoStyle : undefined}
+	                style={
+	                  newPhotos.has(image)
+	                    ? newPhotoOverrides[image] ?? newPhotoStyle
+	                    : undefined
+	                }
 	                className={`w-full h-full ${
 	                  newPhotos.has(image)
 	                    ? "object-contain"
                     : (index % images.length) === 0
-                      ? "object-contain object-[50%_20%] scale-[1.16]"
+                      ? "object-contain object-[50%_20%] scale-[1.12]"
                     : (index % images.length) === 2
                       ? "object-contain scale-[1.02]"
                     : (index % images.length) === 3
